@@ -22,17 +22,7 @@ THE SOFTWARE.
 
 */
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-using System.Xml;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 using System.Net;
-using System.Net.Configuration;
 
 namespace TFTPServer
 {
