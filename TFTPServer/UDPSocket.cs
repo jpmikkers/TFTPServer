@@ -22,9 +22,9 @@ THE SOFTWARE.
 
 */
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Collections.Generic;
 
 namespace TFTPServer
 {
