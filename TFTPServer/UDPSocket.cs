@@ -35,6 +35,21 @@ namespace TFTPServer
 
         #region private types, members
 
+        private bool m_Disposed;                            // true => object is disposed
+        private readonly object m_Sync = new object();      // Synchronizing object
+
+        private OnReceiveDelegate m_OnReceive;
+        private OnStopDelegate m_OnStop;
+
+        private bool m_IPv6;                                // true => it's an IPv6 connection
+        private Socket m_Socket;                            // The active socket
+
+        private Queue<PacketBuffer> m_SendFifo;             // queue of the outgoing packets
+        private bool m_SendPending;                         // true => an asynchronous send is in progress
+
+        private AutoPumpQueue<PacketBuffer> m_ReceiveFifo;  // queue of the incoming packets
+        private int m_PacketSize;                           // size of packets we'll try to receive
+
         private class PacketBuffer
         {
             public EndPoint EndPoint;
@@ -46,22 +61,6 @@ namespace TFTPServer
                 this.Data = data;
             }
         }
-
-        private readonly object m_Sync = new object();  // Synchronizing object
-        private readonly object m_EventSync = new object();
-
-        private OnReceiveDelegate m_OnReceive;
-        private OnStopDelegate m_OnStop;
-
-        private bool m_IPv6;
-        private bool m_Disposed;            // Created -> Connecting -> Connected -> Closed
-        private Socket m_Socket;                    // The active socket
-        //private bool m_DisconnectNotified;          // True when a disconnect was notified already, false otherwise.
-
-        private Queue<PacketBuffer> m_SendFifo;              // queue of the outgoing data
-        private AutoPumpQueue<PacketBuffer> m_ReceiveFifo;              // queue of the outgoing data
-        private bool m_SendPending;
-        private int m_PacketSize;
 
         #endregion
 
@@ -126,8 +125,10 @@ namespace TFTPServer
         #region public methods, properties
 
         /// <summary>
-        /// Implements <see cref="ITCPChannel.Send"/>
+        /// Sends a packet of bytes to the specified EndPoint using an UDP datagram.
         /// </summary>
+        /// <param name="endPoint">Target for the data</param>
+        /// <param name="msg">Data to send</param>
         public void Send(IPEndPoint endPoint,ArraySegment<byte> msg)
         {
             try
@@ -182,6 +183,7 @@ namespace TFTPServer
                     }
                     catch (Exception)
                     {
+                        // socket tends to complain a lot during close. just eat those exceptions.
                     }
                 }
             }
@@ -212,6 +214,7 @@ namespace TFTPServer
                         }
                         catch (Exception)
                         {
+                            // don't care about any exceptions here because the TFTP protocol will take care of retrying to send the packet
                         }
                     }
                 }
@@ -234,6 +237,7 @@ namespace TFTPServer
                     }
                     catch (Exception)
                     {
+                        // don't care about any exceptions here because the TFTP protocol will take care of retrying to send the packet
                     }
                     m_SendPending = false;
                     BeginSend();
@@ -246,8 +250,8 @@ namespace TFTPServer
         /// </summary>
         private void BeginReceive()
         {
-            PacketBuffer sendPacket = new PacketBuffer(new IPEndPoint(m_IPv6 ? IPAddress.IPv6Any : IPAddress.Any, 0), new ArraySegment<byte>(new byte[m_PacketSize], 0, m_PacketSize));
-            m_Socket.BeginReceiveFrom(sendPacket.Data.Array, sendPacket.Data.Offset, sendPacket.Data.Count, SocketFlags.None, ref sendPacket.EndPoint, new AsyncCallback(ReceiveDone), sendPacket);
+            PacketBuffer receivePacket = new PacketBuffer(new IPEndPoint(m_IPv6 ? IPAddress.IPv6Any : IPAddress.Any, 0), new ArraySegment<byte>(new byte[m_PacketSize], 0, m_PacketSize));
+            m_Socket.BeginReceiveFrom(receivePacket.Data.Array, receivePacket.Data.Offset, receivePacket.Data.Count, SocketFlags.None, ref receivePacket.EndPoint, new AsyncCallback(ReceiveDone), receivePacket);
         }
 
         /// <summary>
@@ -288,6 +292,7 @@ namespace TFTPServer
                                     break;
 
                                 default:
+                                    // just assume anything else is fatal -> pass the exception.
                                     throw;
                             }
                         }
@@ -296,6 +301,8 @@ namespace TFTPServer
             }
             catch (Exception e)
             {
+                // it's only safe to Stop() the socket if this method wasn't called recursively (because in that case the lock will be taken!)
+                // rethrow the exception until the stack unwinds to the top-level ReceiveDone.
                 if (ar.CompletedSynchronously) throw; else Stop(e);
             }
         }
