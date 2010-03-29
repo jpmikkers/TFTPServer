@@ -50,6 +50,8 @@
             this.textBoxRetries = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.checkBoxDontFragment = new System.Windows.Forms.CheckBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // textBoxAddress
@@ -215,7 +217,7 @@
             // 
             // textBoxRetries
             // 
-            this.textBoxRetries.Location = new System.Drawing.Point(201, 90);
+            this.textBoxRetries.Location = new System.Drawing.Point(218, 90);
             this.textBoxRetries.Name = "textBoxRetries";
             this.textBoxRetries.Size = new System.Drawing.Size(59, 20);
             this.textBoxRetries.TabIndex = 7;
@@ -223,7 +225,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(155, 93);
+            this.label6.Location = new System.Drawing.Point(172, 93);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(40, 13);
             this.label6.TabIndex = 6;
@@ -238,6 +240,24 @@
             this.checkBoxDontFragment.TabIndex = 5;
             this.checkBoxDontFragment.Text = "Don\'t fragment packets";
             this.checkBoxDontFragment.UseVisualStyleBackColor = true;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(131, 93);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(20, 13);
+            this.label7.TabIndex = 6;
+            this.label7.Text = "ms";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(131, 67);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(30, 13);
+            this.label8.TabIndex = 6;
+            this.label8.Text = "hops";
             // 
             // FormSettings
             // 
@@ -256,6 +276,8 @@
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOk);
             this.Controls.Add(this.label3);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
@@ -271,7 +293,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormSettings";
-            this.Text = "Settings";
+            this.Text = "ms";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -301,5 +323,7 @@
         private System.Windows.Forms.TextBox textBoxRetries;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.CheckBox checkBoxDontFragment;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
     }
 }
