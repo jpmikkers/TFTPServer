@@ -52,8 +52,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoPumpQueue.cs" />
-    <Compile Include="DelayedDisposer.cs" />
     <Compile Include="FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,13 +100,14 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="TFTPServer.Helpers.cs" />
     <Compile Include="TFTPServer.Session.cs" />
-    <Compile Include="TFTPServer.cs" />
-    <Compile Include="TFTPServer.Download.cs" />
-    <Compile Include="TFTPServer.Upload.cs" />
     <Compile Include="TFTPServerConfiguration.cs" />
-    <Compile Include="UDPSocket.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TFTPLibrary\TFTPLibrary.csproj">
+      <Project>{75CBACB4-34BA-4994-BF36-90A86B8F9372}</Project>
+      <Name>TFTPLibrary</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
