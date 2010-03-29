@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TFTPServer.Properties {
+namespace CodePlex.JPMikkers.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -25,9 +25,9 @@ namespace TFTPServer.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::TFTPServer.TFTPServerConfiguration ServerConfiguration {
+        public global::CodePlex.JPMikkers.TFTPServerConfiguration ServerConfiguration {
             get {
-                return ((global::TFTPServer.TFTPServerConfiguration)(this["ServerConfiguration"]));
+                return ((global::CodePlex.JPMikkers.TFTPServerConfiguration)(this["ServerConfiguration"]));
             }
             set {
                 this["ServerConfiguration"] = value;

@@ -1,4 +1,4 @@
-﻿namespace TFTPServer
+﻿namespace CodePlex.JPMikkers
 {
     partial class FormSettings
     {
@@ -293,7 +293,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FormSettings";
-            this.Text = "ms";
+            this.Text = "Settings";
             this.ResumeLayout(false);
             this.PerformLayout();
 

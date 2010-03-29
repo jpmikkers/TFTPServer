@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace TFTPServer
+namespace CodePlex.JPMikkers.TFTP
 {
     public class AutoPumpQueue<T>
     {

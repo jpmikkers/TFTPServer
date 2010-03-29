@@ -34,8 +34,9 @@ using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.Net.Configuration;
 using System.Reflection;
+using CodePlex.JPMikkers.TFTP;
 
-namespace TFTPServer
+namespace CodePlex.JPMikkers
 {
     public partial class FormMain : Form
     {

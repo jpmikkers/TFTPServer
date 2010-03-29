@@ -8,7 +8,7 @@
     <ProjectGuid>{75CBACB4-34BA-4994-BF36-90A86B8F9372}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TFTPLibrary</RootNamespace>
+    <RootNamespace>CodePlex.JPMikkers.TFTP</RootNamespace>
     <AssemblyName>TFTPLibrary</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -55,6 +55,7 @@
     <Compile Include="TFTPServer.cs" />
     <Compile Include="TFTPServer.Download.cs" />
     <Compile Include="TFTPServer.Helpers.cs" />
+    <Compile Include="TFTPServer.Session.cs" />
     <Compile Include="TFTPServer.Upload.cs" />
     <Compile Include="UDPSocket.cs" />
   </ItemGroup>

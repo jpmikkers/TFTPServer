@@ -30,7 +30,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace TFTPServer
+namespace CodePlex.JPMikkers
 {
     public partial class FormSettings : Form
     {

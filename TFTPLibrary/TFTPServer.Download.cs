@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 
-namespace TFTPServer
+namespace CodePlex.JPMikkers.TFTP
 {
     public partial class TFTPServer
     {

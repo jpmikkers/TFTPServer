@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
-namespace TFTPServer
+namespace CodePlex.JPMikkers.TFTP
 {
     public class UDPSocket : IDisposable
     {

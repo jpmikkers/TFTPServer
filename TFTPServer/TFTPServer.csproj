@@ -8,7 +8,7 @@
     <ProjectGuid>{096B293C-8578-43D4-8165-0D3DB4373369}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TFTPServer</RootNamespace>
+    <RootNamespace>CodePlex.JPMikkers.TFTP.TFTP</RootNamespace>
     <AssemblyName>TFTPServer</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -89,6 +89,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">

@@ -27,7 +27,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace TFTPServer
+namespace CodePlex.JPMikkers.TFTP
 {
     public class DelayedDisposer
     {

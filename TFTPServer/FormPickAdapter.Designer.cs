@@ -1,4 +1,4 @@
-﻿namespace TFTPServer
+﻿namespace CodePlex.JPMikkers
 {
     partial class FormPickAdapter
     {

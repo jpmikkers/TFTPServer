@@ -35,7 +35,7 @@ using System.Net.NetworkInformation;
 using System.Net.Configuration;
 using System.Reflection;
 
-namespace TFTPServer
+namespace CodePlex.JPMikkers
 {
     public partial class FormPickAdapter : Form
     {

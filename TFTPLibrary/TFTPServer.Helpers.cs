@@ -27,7 +27,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace TFTPServer
+namespace CodePlex.JPMikkers.TFTP
 {
     public partial class TFTPServer
     {
