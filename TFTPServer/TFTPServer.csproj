@@ -100,7 +100,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="TFTPServer.Session.cs" />
     <Compile Include="TFTPServerConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
