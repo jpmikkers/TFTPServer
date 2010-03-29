@@ -24,7 +24,7 @@ THE SOFTWARE.
 using System;
 using System.Windows.Forms;
 
-namespace TFTPServer
+namespace CodePlex.JPMikkers
 {
     static class Program
     {

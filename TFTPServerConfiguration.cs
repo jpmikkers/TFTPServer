@@ -24,7 +24,7 @@ THE SOFTWARE.
 using System;
 using System.Net;
 
-namespace TFTPServer
+namespace CodePlex.JPMikkers
 {
     [Serializable()]
     public class TFTPServerConfiguration
