@@ -102,6 +102,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="TFTPServerConfiguration.cs" />
+    <Compile Include="UIMarshal.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TFTPLibrary\TFTPLibrary.csproj">

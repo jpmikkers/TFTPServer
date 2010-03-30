@@ -27,6 +27,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Windows.Forms;
 using System.Net;
@@ -41,18 +42,36 @@ namespace CodePlex.JPMikkers
     public partial class FormMain : Form
     {
         private TFTPServerConfiguration m_ServerConfiguration;
-        private TFTPServer m_Server;
+        private TFTPServer m_Server = new TFTPServer();
 
         public FormMain()
         {
             InitializeComponent();
+            m_Server.OnStop += new Action<ITFTPServer, Exception>(m_Server_OnStop);
+
             if (Properties.Settings.Default.ServerConfiguration == null)
             {
-                Properties.Settings.Default.ServerConfiguration = new TFTPServerConfiguration();
+                var serverConfiguration = new TFTPServerConfiguration();
+                serverConfiguration.AllowRead = m_Server.AllowRead;
+                serverConfiguration.AllowWrite = m_Server.AllowWrite;
+                serverConfiguration.AutoCreateDirectories = m_Server.AutoCreateDirectories;
+                serverConfiguration.DontFragment = m_Server.DontFragment;
+                serverConfiguration.EndPoint = m_Server.EndPoint;
+                serverConfiguration.Retries = m_Server.Retries;
+                serverConfiguration.RootPath = m_Server.RootPath;
+                serverConfiguration.SinglePort = m_Server.SinglePort;
+                serverConfiguration.Timeout = m_Server.ResponseTimeout;
+                serverConfiguration.Ttl = m_Server.Ttl;
+                Properties.Settings.Default.ServerConfiguration = serverConfiguration;
                 Properties.Settings.Default.Save();
             }
             m_ServerConfiguration = Properties.Settings.Default.ServerConfiguration;
             Bind();
+        }
+
+        private void m_Server_OnStop(ITFTPServer arg1, Exception arg2)
+        {
+            this.Marshal(()=>UpdateStatus());
         }
 
         private void Bind()
@@ -67,29 +86,30 @@ namespace CodePlex.JPMikkers
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
-            if (m_Server == null)
+            m_Server.EndPoint = m_ServerConfiguration.EndPoint;
+            m_Server.SinglePort = m_ServerConfiguration.SinglePort;
+            m_Server.Ttl = (short)m_ServerConfiguration.Ttl;
+            m_Server.DontFragment = m_ServerConfiguration.DontFragment;
+            m_Server.RootPath = m_ServerConfiguration.RootPath;
+            m_Server.AutoCreateDirectories = m_ServerConfiguration.AutoCreateDirectories;
+            m_Server.AllowRead = m_ServerConfiguration.AllowRead;
+            m_Server.AllowWrite = m_ServerConfiguration.AllowWrite;
+            m_Server.ResponseTimeout = m_ServerConfiguration.Timeout;
+            m_Server.Retries = m_ServerConfiguration.Retries;
+            try
             {
-                m_Server = new TFTPServer(
-                    m_ServerConfiguration.EndPoint,
-                    m_ServerConfiguration.SinglePort,
-                    (short)m_ServerConfiguration.Ttl,
-                    m_ServerConfiguration.DontFragment,
-                    m_ServerConfiguration.RootPath,
-                    m_ServerConfiguration.AutoCreateDirectories,
-                    m_ServerConfiguration.AllowRead,
-                    m_ServerConfiguration.AllowWrite, 
-                    m_ServerConfiguration.Timeout,
-                    m_ServerConfiguration.Retries);
+                m_Server.Start();
             }
+            catch (Exception error)
+            {
+                MessageBox.Show(error.Message,"Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
+            }
+            UpdateStatus();
         }
 
         private void buttonStop_Click(object sender, EventArgs e)
         {
-            if (m_Server != null)
-            {
-                m_Server.Dispose();
-                m_Server = null;
-            }
+            m_Server.Stop();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -103,6 +123,11 @@ namespace CodePlex.JPMikkers
                 Properties.Settings.Default.ServerConfiguration = m_ServerConfiguration;
                 Properties.Settings.Default.Save();
             }
+        }
+
+        private void UpdateStatus()
+        {
+            toolStripStatusLabel1.Text = m_Server.Active ? "Active" : "Stopped";
         }
     }
 }
