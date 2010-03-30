@@ -26,35 +26,31 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace CodePlex.JPMikkers.TFTP
 {
-    public delegate void OnSessionsChangeDelegate(TFTPServer sender);
-
-    public partial class TFTPServer : IDisposable
+    public class TFTPServer : ITFTPServer
     {
-        private UDPSocket m_Socket;
-        private readonly IPEndPoint m_ServerEndPoint;
-        private readonly bool m_IPv6;
-        private readonly short m_Ttl;
-        private readonly bool m_UseSinglePort;
-        private readonly bool m_DontFragment;
+        internal enum ErrorCode : ushort
+        {
+            Undefined = 0,
+            FileNotFound,
+            AccessViolation,
+            DiskFull,
+            IllegalOperation,
+            UnknownTransferID,
+            FileAlreadyExists,
+            NoSuchUser
+        }
 
-        private readonly string m_RootPath;
-        private readonly bool m_AllowRead;
-        private readonly bool m_AllowWrite;
-        private readonly bool m_AutoCreateDirectories;
+        private enum Mode
+        {
+            NetAscii,
+            Octet,
+            Mail
+        }
 
-        private volatile bool m_Disposed = false;
-
-        private Dictionary<IPEndPoint, ISession> m_Sessions;
-
-        private const int MaxBlockSize = 65464+4;
-        private const int DefaultBlockSize = 512;
-        
-        private int m_MaxRetries = 5;
-        private int m_ResponseTimeout = 2000;
-       
         private enum Opcode : ushort
         {
             ReadRequest = 1,
@@ -65,23 +61,44 @@ namespace CodePlex.JPMikkers.TFTP
             OptionsAck
         }
 
-        private enum Mode
-        {
-            NetAscii,
-            Octet,
-            Mail
-        }
+        private UDPSocket m_Socket;
 
-        private enum ErrorCode : ushort
+        internal const int MaxBlockSize = 65464 + 4;
+        internal const int DefaultBlockSize = 512;
+        internal IPEndPoint m_ServerEndPoint = new IPEndPoint(IPAddress.Loopback, 69);
+        internal short m_Ttl = -1;
+        internal bool m_DontFragment = false;
+        internal int m_MaxRetries = 5;
+        internal int m_ResponseTimeout = 2000;
+        private bool m_UseSinglePort = false;
+        private string m_RootPath = ".";
+        private bool m_AllowRead = true;
+        private bool m_AllowWrite = true;
+        private bool m_AutoCreateDirectories = true;
+
+        private object m_Sync = new object();
+        private bool m_Active = false;
+
+        private Dictionary<IPEndPoint, ITFTPSession> m_Sessions;
+
+        private void Stop(Exception reason)
         {
-            Undefined = 0,
-            FileNotFound,
-            AccessViolation,
-            DiskFull,
-            IllegalOperation,
-            UnknownTransferID,
-            FileAlreadyExists,
-            NoSuchUser
+            bool notify = false;
+
+            lock (m_Sync)
+            {
+                if (m_Active)
+                {
+                    m_Active = false;
+                    notify = true;
+                    m_Socket.Dispose();
+                }
+            }
+
+            if (notify)
+            {
+                OnStop(this, reason);
+            }
         }
 
         private string GetLocalFilename(string filename)
@@ -94,7 +111,7 @@ namespace CodePlex.JPMikkers.TFTP
             return result;
         }
 
-        private Stream GetReadStream(string filename)
+        internal Stream GetReadStream(string filename)
         {
             if (!m_AllowRead)
             {
@@ -105,7 +122,7 @@ namespace CodePlex.JPMikkers.TFTP
             return File.OpenRead(targetPath);
         }
 
-        private Stream GetWriteStream(string filename,long length)
+        internal Stream GetWriteStream(string filename,long length)
         {
             if (!m_AllowWrite)
             {
@@ -127,29 +144,13 @@ namespace CodePlex.JPMikkers.TFTP
             return File.OpenWrite(targetPath);
         }
 
-        public TFTPServer(IPEndPoint endPoint, bool useSinglePort, short ttl, bool dontFragment, string rootPath, bool autoCreateDirectories, bool allowRead, bool allowWrite, int timeOut, int retries)
+        public TFTPServer()
         {
-            m_ResponseTimeout = timeOut;
-            m_MaxRetries = retries;
-            m_DontFragment = dontFragment;
-            m_AllowRead = allowRead;
-            m_AllowWrite = allowWrite;
-            m_AutoCreateDirectories = autoCreateDirectories;
-            m_RootPath = Path.GetFullPath(rootPath);
-            //Console.WriteLine("RootPath: {0}", m_RootPath);
-            m_Ttl = ttl;
-            m_UseSinglePort = useSinglePort;
-            m_ServerEndPoint = endPoint;
-            m_Sessions = new Dictionary<IPEndPoint, ISession>();
-            m_IPv6 = (m_ServerEndPoint.AddressFamily == AddressFamily.InterNetworkV6);
-
-            m_Socket = new UDPSocket(m_ServerEndPoint, MaxBlockSize, m_DontFragment, m_Ttl, OnReceive, OnStop);
+            m_Sessions = new Dictionary<IPEndPoint, ITFTPSession>();
         }
 
-        private void OnReceive(UDPSocket sender, IPEndPoint endPoint, ArraySegment<byte> data)
+        private void OnUDPReceive(UDPSocket sender, IPEndPoint endPoint, ArraySegment<byte> data)
         {
-            if (m_Disposed) return;
-
             try
             {
                 int packetSize = data.Count;
@@ -157,7 +158,7 @@ namespace CodePlex.JPMikkers.TFTP
 
                 lock (m_Sessions)
                 {
-                    ISession session;
+                    ITFTPSession session;
                     ushort opCode = ReadUInt16(ms);
 
                     if (m_Sessions.TryGetValue(endPoint, out session))
@@ -205,7 +206,7 @@ namespace CodePlex.JPMikkers.TFTP
                                     string filename = ReadZString(ms);
                                     Mode mode = ReadMode(ms);
                                     var requestedOptions = ReadOptions(ms);
-                                    new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnReceive);
+                                    new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
                                 }
                                 break;
 
@@ -214,7 +215,7 @@ namespace CodePlex.JPMikkers.TFTP
                                     string filename = ReadZString(ms);
                                     Mode mode = ReadMode(ms);
                                     var requestedOptions = ReadOptions(ms);
-                                    new UploadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnReceive);
+                                    new UploadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
                                 }
                                 break;
 
@@ -231,17 +232,12 @@ namespace CodePlex.JPMikkers.TFTP
             }
         }
 
-        private void OnStop(UDPSocket sender, Exception reason)
+        private void OnUDPStop(UDPSocket sender, Exception reason)
         {
-            //Console.WriteLine("OnStop in TFTPServer : {0}", reason);
+            Stop(reason);
         }
 
-        ~TFTPServer()
-        {
-            Dispose(false);
-        }
-
-        private void TransferStart(ISession session)
+        internal void TransferStart(ITFTPSession session)
         {
             lock (m_Sessions)
             {
@@ -249,7 +245,7 @@ namespace CodePlex.JPMikkers.TFTP
             }
         }
 
-        private void TransferComplete(ISession session, Exception reason)
+        internal void TransferComplete(ITFTPSession session, Exception reason)
         {
             lock (m_Sessions)
             {
@@ -261,20 +257,19 @@ namespace CodePlex.JPMikkers.TFTP
             }
         }
 
+        #region Dispose pattern
+
+        ~TFTPServer()
+        {
+            Dispose(false);
+        }
+
         protected void Dispose(bool disposing)
         {
-            if (!m_Disposed)
-            {
-                try
-                {
-                    m_Disposed = true;
-                    m_Socket.Dispose();
-                }
-                catch (Exception)
-                {
-                }
-            }
+            Stop();
         }
+
+        #endregion
 
         #region IDisposable Members
 
@@ -284,6 +279,286 @@ namespace CodePlex.JPMikkers.TFTP
             Dispose(true);
         }
 
+        #endregion
+
+        #region ITFTPServer Members
+
+        public event Action<ITFTPServer,Exception> OnStop = (x,y) => { };
+        public event Action<ITFTPServer> OnTransfer = x => { };
+
+        public IPEndPoint EndPoint
+        {
+            get
+            {
+                return m_ServerEndPoint;
+            }
+            set
+            {
+                m_ServerEndPoint = value;
+            }
+        }
+
+        public bool SinglePort
+        {
+            get
+            {
+                return m_UseSinglePort;
+            }
+            set
+            {
+                m_UseSinglePort = value;
+            }
+        }
+
+        public short Ttl
+        {
+            get
+            {
+                return m_Ttl;
+            }
+            set
+            {
+                m_Ttl = value;
+            }
+        }
+
+        public bool DontFragment
+        {
+            get
+            {
+                return m_DontFragment;
+            }
+            set
+            {
+                m_DontFragment = value;
+            }
+        }
+
+        public int ResponseTimeout
+        {
+            get
+            {
+                return m_ResponseTimeout;
+            }
+            set
+            {
+                m_ResponseTimeout = value;
+            }
+        }
+
+        public int Retries
+        {
+            get
+            {
+                return m_MaxRetries;
+            }
+            set
+            {
+                m_MaxRetries = value;
+            }
+        }
+
+        public string RootPath
+        {
+            get
+            {
+                return m_RootPath;
+            }
+            set
+            {
+                m_RootPath = Path.GetFullPath(value);
+            }
+        }
+
+        public bool AutoCreateDirectories
+        {
+            get
+            {
+                return m_AutoCreateDirectories;
+            }
+            set
+            {
+                m_AutoCreateDirectories = value;
+            }
+        }
+
+        public bool AllowRead
+        {
+            get
+            {
+                return m_AllowRead;
+            }
+            set
+            {
+                m_AllowRead = value;
+            }
+        }
+
+        public bool AllowWrite
+        {
+            get
+            {
+                return m_AllowWrite;
+            }
+            set
+            {
+                m_AllowWrite = value;
+            }
+        }
+
+        public bool Active
+        {
+            get
+            {
+                lock (m_Sync)
+                {
+                    return m_Active;
+                }
+            }
+        }
+
+        public void Start()
+        {
+            lock (m_Sync)
+            {
+                if (!m_Active)
+                {
+                    try
+                    {
+                        m_Active = true;
+                        m_Socket = new UDPSocket(m_ServerEndPoint, MaxBlockSize, m_DontFragment, m_Ttl, OnUDPReceive, OnUDPStop);
+                    }
+                    catch
+                    {
+                        m_Active = false;
+                        throw;
+                    }
+                }
+            }
+        }
+
+        public void Stop()
+        {
+            Stop(null);
+        }
+
+        #endregion
+
+        #region Static helpers
+        internal static Dictionary<string, string> ReadOptions(Stream s)
+        {
+            Dictionary<string, string> options = new Dictionary<string, string>();
+            while (s.Position < s.Length)
+            {
+                string key = ReadZString(s).ToLower();
+                string val = ReadZString(s).ToLower();
+                options.Add(key, val);
+            }
+            return options;
+        }
+
+        internal static void Send(UDPSocket socket, IPEndPoint endPoint, MemoryStream ms)
+        {
+            socket.Send(endPoint, new ArraySegment<byte>(ms.ToArray()));
+        }
+
+        internal static void SendError(UDPSocket socket, IPEndPoint endPoint, ushort code, string message)
+        {
+            MemoryStream ms = new MemoryStream();
+            WriteUInt16(ms, (ushort)Opcode.Error);
+            WriteUInt16(ms, code);
+            WriteZString(ms, message.Substring(0, Math.Min(message.Length, 256)));
+            Send(socket, endPoint, ms);
+        }
+
+        internal static void SendError(UDPSocket socket, IPEndPoint endPoint, ErrorCode code, string message)
+        {
+            SendError(socket, endPoint, (ushort)code, message);
+        }
+
+        internal static void SendAck(UDPSocket socket, IPEndPoint endPoint, ushort blockno)
+        {
+            MemoryStream ms = new MemoryStream();
+            WriteUInt16(ms, (ushort)Opcode.Ack);
+            WriteUInt16(ms, blockno);
+            Send(socket, endPoint, ms);
+        }
+
+        internal static void SendData(UDPSocket socket, IPEndPoint endPoint, ushort blockno, byte[] data, int dataSize)
+        {
+            MemoryStream ms = new MemoryStream();
+            WriteUInt16(ms, (ushort)Opcode.Data);
+            WriteUInt16(ms, blockno);
+            ms.Write(data, 0, dataSize);
+            Send(socket, endPoint, ms);
+        }
+
+        internal static void SendOptionsAck(UDPSocket socket, IPEndPoint endPoint, Dictionary<string, string> options)
+        {
+            MemoryStream ms = new MemoryStream();
+            WriteUInt16(ms, (ushort)Opcode.OptionsAck);
+            foreach (var s in options)
+            {
+                WriteZString(ms, s.Key);
+                WriteZString(ms, s.Value);
+            }
+            Send(socket, endPoint, ms);
+        }
+
+        internal static string ReadZString(Stream s)
+        {
+            StringBuilder sb = new StringBuilder();
+            int c = s.ReadByte();
+            while (c != 0)
+            {
+                sb.Append((char)c);
+                c = s.ReadByte();
+            }
+            return sb.ToString();
+        }
+
+        internal static void WriteZString(Stream s, string msg)
+        {
+            TextWriter tw = new StreamWriter(s, Encoding.ASCII);
+            tw.Write(msg);
+            tw.Flush();
+            s.WriteByte(0);
+        }
+
+        private static Mode ReadMode(Stream s)
+        {
+            Mode result;
+            switch (ReadZString(s).ToLower())
+            {
+                case "netascii":
+                    result = Mode.NetAscii;
+                    break;
+
+                case "octet":
+                    result = Mode.Octet;
+                    break;
+
+                case "mail":
+                    result = Mode.Mail;
+                    break;
+
+                default:
+                    throw new InvalidDataException("Invalid mode");
+            }
+            return result;
+        }
+
+        internal static ushort ReadUInt16(Stream s)
+        {
+            BinaryReader br = new BinaryReader(s);
+            return (ushort)IPAddress.NetworkToHostOrder((short)br.ReadUInt16());
+        }
+
+        internal static void WriteUInt16(Stream s, ushort v)
+        {
+            BinaryWriter bw = new BinaryWriter(s);
+            bw.Write((ushort)IPAddress.HostToNetworkOrder((short)v));
+        }
         #endregion
     }
 }

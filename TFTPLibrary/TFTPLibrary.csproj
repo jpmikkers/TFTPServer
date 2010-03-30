@@ -51,12 +51,14 @@
   <ItemGroup>
     <Compile Include="AutoPumpQueue.cs" />
     <Compile Include="DelayedDisposer.cs" />
+    <Compile Include="ITFTPServer.cs" />
+    <Compile Include="ITFTPSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TFTPServer.cs" />
-    <Compile Include="TFTPServer.Download.cs" />
-    <Compile Include="TFTPServer.Helpers.cs" />
-    <Compile Include="TFTPServer.Session.cs" />
-    <Compile Include="TFTPServer.Upload.cs" />
+    <Compile Include="DownloadSession.cs" />
+    <Compile Include="SessionBase.cs" />
+    <Compile Include="UIThreadCall.cs" />
+    <Compile Include="UploadSession.cs" />
     <Compile Include="UDPSocket.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
