@@ -31,46 +31,6 @@ namespace CodePlex.JPMikkers.TFTP
 {
     internal class UploadSession : TFTPSession
     {
-        protected override void SendResponse()
-        {
-            //Console.WriteLine("Sending ack {0}", m_BlockNumber);
-
-            try
-            {
-                if (m_FirstBlock)
-                {
-                    if (m_AcceptedOptions.Count > 0)
-                    {
-                        // send options ack, client will respond with block number 1
-                        TFTPServer.SendOptionsAck(m_Socket, m_RemoteEndPoint, m_AcceptedOptions);
-                    }
-                    else
-                    {
-                        // send ack for block 0, client will respond with block number 1
-                        TFTPServer.SendAck(m_Socket, m_RemoteEndPoint, 0);
-                    }
-                }
-                else
-                {
-                    // send ack for current block, client will respond with next block
-                    TFTPServer.SendAck(m_Socket, m_RemoteEndPoint, m_BlockNumber);
-                }
-            }
-            catch (Exception e)
-            {
-                //Console.WriteLine("TFTPServer.Upload : Error in SendResponse() : {0}", e);
-            }
-
-            if (!m_LastBlock)
-            {
-                m_Timer.Change(m_ResponseTimeout, Timeout.Infinite);
-            }
-            else
-            {
-                m_Timer.Change(Timeout.Infinite, Timeout.Infinite);
-            }
-        }
-
         public UploadSession(TFTPServer parent, UDPSocket socket, IPEndPoint remoteEndPoint, Dictionary<string, string> requestedOptions, string filename, UDPSocket.OnReceiveDelegate onReceive)
             : base(parent,socket,remoteEndPoint,requestedOptions,filename, onReceive, 1000)
         {
@@ -100,6 +60,29 @@ namespace CodePlex.JPMikkers.TFTP
             }
         }
 
+        protected override void SendResponse()
+        {
+            if (m_FirstBlock && m_AcceptedOptions.Count > 0)
+            {
+                // send options ack, client will respond with block number 1
+                TFTPServer.SendOptionsAck(m_Socket, m_RemoteEndPoint, m_AcceptedOptions);
+            }
+            else
+            {
+                // send ack for current block, client will respond with next block
+                TFTPServer.SendAck(m_Socket, m_RemoteEndPoint, m_BlockNumber);
+            }
+
+            if (!m_LastBlock)
+            {
+                m_Timer.Change(m_ResponseTimeout, Timeout.Infinite);
+            }
+            else
+            {
+                m_Timer.Change(Timeout.Infinite, Timeout.Infinite);
+            }
+        }
+
         private static void TransferBytes(Stream from, Stream to)
         {
             int bytesTodo;
@@ -118,7 +101,7 @@ namespace CodePlex.JPMikkers.TFTP
 
             lock (m_Lock)
             {
-                if (blockNr == ((ushort)(blockNr+1)))
+                if (blockNr == ((ushort)(m_BlockNumber+1)))
                 {
                     m_FirstBlock = false;
                     m_BlockRetry = 0;

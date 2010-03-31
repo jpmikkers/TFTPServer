@@ -67,6 +67,7 @@ namespace CodePlex.JPMikkers.TFTP
                 }
 
                 m_DataBuffer = new byte[m_CurrentBlockSize];
+                m_DataNumber = 0;
                 m_DataSize = 0;
 
                 m_Parent.TransferStart(this);
@@ -86,28 +87,20 @@ namespace CodePlex.JPMikkers.TFTP
 
         protected override void SendResponse()
         {
-            try
+            if (m_FirstBlock && m_BlockNumber == 0)
             {
-                //Console.WriteLine("Sending block {0}", m_BlockNumber);
-                if (m_FirstBlock && m_BlockNumber == 0)
-                {
-                    // send options ack -> client will respond with ack for block number 0
-                    TFTPServer.SendOptionsAck(m_Socket, m_RemoteEndPoint, m_AcceptedOptions);
-                }
-                else
-                {
-                    if (m_DataNumber != m_BlockNumber)
-                    {
-                        m_DataSize = m_Stream.Read(m_DataBuffer, 0, m_CurrentBlockSize);
-                        m_DataNumber = m_BlockNumber;
-                        m_LastBlock = (m_DataSize < m_CurrentBlockSize);
-                    }
-                    TFTPServer.SendData(m_Socket, m_RemoteEndPoint, m_BlockNumber, m_DataBuffer, m_DataSize);
-                }
+                // send options ack -> client will respond with ack for block number 0
+                TFTPServer.SendOptionsAck(m_Socket, m_RemoteEndPoint, m_AcceptedOptions);
             }
-            catch (Exception e)
+            else
             {
-                //Console.WriteLine("TFTPServer.Download : Error in SendResponse() : {0}", e);
+                if (m_DataNumber != m_BlockNumber)
+                {
+                    m_DataSize = m_Stream.Read(m_DataBuffer, 0, m_CurrentBlockSize);
+                    m_DataNumber = m_BlockNumber;
+                    m_LastBlock = (m_DataSize < m_CurrentBlockSize);
+                }
+                TFTPServer.SendData(m_Socket, m_RemoteEndPoint, m_BlockNumber, m_DataBuffer, m_DataSize);
             }
             m_Timer.Change(m_ResponseTimeout, Timeout.Infinite);
         }
