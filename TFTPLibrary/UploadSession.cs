@@ -48,11 +48,11 @@ namespace CodePlex.JPMikkers.TFTP
                 }
 
                 // handle tsize option
-                if (m_RequestedOptions.ContainsKey("tsize"))
+                if (m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize))
                 {
                     // rfc2349: in Write Request packets, the size of the file, in octets, is specified in the 
                     // request and echoed back in the OACK
-                    m_AcceptedOptions.Add("tsize", m_RequestedOptions["tsize"]);
+                    m_AcceptedOptions.Add(TFTPServer.Option_TransferSize, m_RequestedOptions[TFTPServer.Option_TransferSize]);
                 }
 
                 m_Parent.TransferStart(this);
@@ -75,11 +75,11 @@ namespace CodePlex.JPMikkers.TFTP
 
             if (!m_LastBlock)
             {
-                m_Timer.Change(m_ResponseTimeout, Timeout.Infinite);
+                StartTimer();
             }
             else
             {
-                m_Timer.Change(Timeout.Infinite, Timeout.Infinite);
+                StopTimer();
             }
         }
 

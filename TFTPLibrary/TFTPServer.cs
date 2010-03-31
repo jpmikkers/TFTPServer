@@ -61,6 +61,11 @@ namespace CodePlex.JPMikkers.TFTP
             OptionsAck
         }
 
+        internal const string Option_Multicast = "multicast";
+        internal const string Option_Timeout = "timeout";
+        internal const string Option_TransferSize = "tsize";
+        internal const string Option_BlockSize = "blksize";
+
         private UDPSocket m_Socket;
 
         internal const int MaxBlockSize = 65464 + 4;

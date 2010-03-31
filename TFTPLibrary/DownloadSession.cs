@@ -58,11 +58,11 @@ namespace CodePlex.JPMikkers.TFTP
                 }
 
                 // handle tsize option
-                if (m_RequestedOptions.ContainsKey("tsize"))
+                if (m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize))
                 {
                     if (m_Length >= 0)
                     {
-                        m_AcceptedOptions.Add("tsize",m_Length.ToString());
+                        m_AcceptedOptions.Add(TFTPServer.Option_TransferSize, m_Length.ToString());
                     }
                 }
 
@@ -102,7 +102,7 @@ namespace CodePlex.JPMikkers.TFTP
                 }
                 TFTPServer.SendData(m_Socket, m_RemoteEndPoint, m_BlockNumber, m_DataBuffer, m_DataSize);
             }
-            m_Timer.Change(m_ResponseTimeout, Timeout.Infinite);
+            StartTimer();
         }
 
         public override void ProcessAck(ushort blockNr)
@@ -126,7 +126,7 @@ namespace CodePlex.JPMikkers.TFTP
                     else
                     {
                         isComplete = true;
-                        m_Timer.Change(Timeout.Infinite, Timeout.Infinite);
+                        StopTimer();
                     }
                 }
             }

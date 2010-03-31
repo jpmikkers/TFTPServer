@@ -32,27 +32,23 @@ namespace CodePlex.JPMikkers.TFTP
     internal abstract class TFTPSession : ITFTPSession
     {
         protected volatile bool m_Disposed = false;
-
+        private Timer m_Timer;
+        private int m_ResponseTimeout;
         protected object m_Lock = new object();
         protected TFTPServer m_Parent;
         protected Stream m_Stream;
         protected UDPSocket m_Socket;
         protected bool m_OwnSocket;
         protected IPEndPoint m_RemoteEndPoint;
-        protected Timer m_Timer;
-        protected int m_ResponseTimeout;
         protected int m_SocketDisposeDelay;
-
         protected long m_Length;
         protected int m_CurrentBlockSize;
         protected bool m_FirstBlock;
         protected bool m_LastBlock;
         protected ushort m_BlockNumber;
         protected ushort m_BlockRetry;
-
         protected Dictionary<string, string> m_RequestedOptions;
         protected string m_Filename;
-
         protected Dictionary<string, string> m_AcceptedOptions = new Dictionary<string, string>();
 
         public IPEndPoint RemoteEndPoint
@@ -98,7 +94,15 @@ namespace CodePlex.JPMikkers.TFTP
             }
         }
 
-        protected abstract void SendResponse();
+        protected void StartTimer()
+        {
+            m_Timer.Change(m_ResponseTimeout, Timeout.Infinite);
+        }
+
+        protected void StopTimer()
+        {
+            m_Timer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
 
         public TFTPSession(TFTPServer parent, UDPSocket socket, IPEndPoint remoteEndPoint, Dictionary<string, string> requestedOptions, string filename, UDPSocket.OnReceiveDelegate onReceive, int socketDisposeDelay)
         {
@@ -121,33 +125,33 @@ namespace CodePlex.JPMikkers.TFTP
             {
                 switch (kvp.Key)
                 {
-                    case "multicast":
+                    case TFTPServer.Option_Multicast:
                         // not supported
                         break;
 
-                    case "timeout":
+                    case TFTPServer.Option_Timeout:
                         Console.WriteLine("Timeout of {0}", kvp.Value);
                         int requestedTimeout = int.Parse(kvp.Value);
                         // rfc2349 : valid values range between "1" and "255" seconds
                         if (requestedTimeout >= 1 && requestedTimeout <= 255)
                         {
                             m_ResponseTimeout = requestedTimeout * 1000;
-                            m_AcceptedOptions.Add("timeout", kvp.Value);
+                            m_AcceptedOptions.Add(TFTPServer.Option_Timeout, kvp.Value);
                         }
                         break;
 
-                    case "tsize":
+                    case TFTPServer.Option_TransferSize:
                         // handled in inherited classes
                         break;
 
-                    case "blksize":
+                    case TFTPServer.Option_BlockSize:
                         Console.WriteLine("Blocksize of {0}", kvp.Value);
                         int requestedBlockSize = int.Parse(kvp.Value);
                         // rfc2348 : valid values range between "8" and "65464" octets, inclusive
                         if (requestedBlockSize >= 8 && requestedBlockSize <= 65464)
                         {
                             m_CurrentBlockSize = Math.Min(TFTPServer.MaxBlockSize, requestedBlockSize);
-                            m_AcceptedOptions.Add("blksize", m_CurrentBlockSize.ToString());
+                            m_AcceptedOptions.Add(TFTPServer.Option_BlockSize, m_CurrentBlockSize.ToString());
                         }
                         break;
                 }
@@ -176,6 +180,8 @@ namespace CodePlex.JPMikkers.TFTP
                 }
             }
         }
+
+        protected abstract void SendResponse();
 
         #region ITransferSession Members
 
