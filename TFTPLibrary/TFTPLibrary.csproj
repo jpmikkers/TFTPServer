@@ -57,7 +57,6 @@
     <Compile Include="TFTPServer.cs" />
     <Compile Include="DownloadSession.cs" />
     <Compile Include="SessionBase.cs" />
-    <Compile Include="UIThreadCall.cs" />
     <Compile Include="UploadSession.cs" />
     <Compile Include="UDPSocket.cs" />
   </ItemGroup>
