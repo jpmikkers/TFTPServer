@@ -34,29 +34,38 @@ namespace CodePlex.JPMikkers.TFTP
         public UploadSession(TFTPServer parent, UDPSocket socket, IPEndPoint remoteEndPoint, Dictionary<string, string> requestedOptions, string filename, UDPSocket.OnReceiveDelegate onReceive)
             : base(parent,socket,remoteEndPoint,requestedOptions,filename, onReceive, 1000)
         {
-            lock (m_Lock)
+        }
+
+        public override void Start()
+        {
+            try
             {
-                try
+                lock (m_Lock)
                 {
-                    m_Stream = m_Parent.GetWriteStream(m_Filename, m_RequestedOptions.ContainsKey("tsize") ? Int64.Parse(m_RequestedOptions["tsize"]) : -1);
-                }
-                catch(Exception e)
-                {
-                    TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
-                    Dispose();
-                    return;
-                }
+                    try
+                    {
+                        m_Stream = m_Parent.GetWriteStream(m_Filename, m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize) ? Int64.Parse(m_RequestedOptions[TFTPServer.Option_TransferSize]) : -1);
+                    }
+                    catch (Exception e)
+                    {
+                        TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
+                        throw;
+                    }
 
-                // handle tsize option
-                if (m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize))
-                {
-                    // rfc2349: in Write Request packets, the size of the file, in octets, is specified in the 
-                    // request and echoed back in the OACK
-                    m_AcceptedOptions.Add(TFTPServer.Option_TransferSize, m_RequestedOptions[TFTPServer.Option_TransferSize]);
-                }
+                    // handle tsize option
+                    if (m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize))
+                    {
+                        // rfc2349: in Write Request packets, the size of the file, in octets, is specified in the 
+                        // request and echoed back in the OACK
+                        m_AcceptedOptions.Add(TFTPServer.Option_TransferSize, m_RequestedOptions[TFTPServer.Option_TransferSize]);
+                    }
 
-                m_Parent.TransferStart(this);
-                SendResponse();
+                    SendResponse();
+                }
+            }
+            catch (Exception e)
+            {
+                Stop(true, e);
             }
         }
 
@@ -83,19 +92,7 @@ namespace CodePlex.JPMikkers.TFTP
             }
         }
 
-        private static void TransferBytes(Stream from, Stream to)
-        {
-            int bytesTodo;
-            byte[] buffer = new byte[TFTPServer.MaxBlockSize];
-
-            do
-            {
-                bytesTodo = from.Read(buffer, 0, buffer.Length);
-                to.Write(buffer, 0, bytesTodo);
-            } while (bytesTodo == TFTPServer.MaxBlockSize);
-        }
-
-        public override void ProcessData(ushort blockNr, Stream ms)
+        public override void ProcessData(ushort blockNr, ArraySegment<byte> data)
         {
             bool isComplete = false;
 
@@ -106,17 +103,16 @@ namespace CodePlex.JPMikkers.TFTP
                     m_FirstBlock = false;
                     m_BlockRetry = 0;
                     m_BlockNumber = blockNr;
-                    m_LastBlock = (ms.Length - ms.Position) < m_CurrentBlockSize;
+                    m_LastBlock = data.Count < m_CurrentBlockSize;
                     isComplete = m_LastBlock;
-                    TransferBytes(ms, m_Stream);
+                    m_Stream.Write(data.Array, data.Offset, data.Count);
                     SendResponse();
                 }
             }
 
             if (isComplete)
             {
-                //Console.WriteLine("transfer complete");
-                m_Parent.TransferComplete(this, null);
+                Stop(true, null);
             }
         }
     }

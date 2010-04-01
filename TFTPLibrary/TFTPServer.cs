@@ -32,6 +32,8 @@ namespace CodePlex.JPMikkers.TFTP
 {
     public class TFTPServer : ITFTPServer
     {
+        #region TFTP definitions 
+
         internal enum ErrorCode : ushort
         {
             Undefined = 0,
@@ -66,6 +68,8 @@ namespace CodePlex.JPMikkers.TFTP
         internal const string Option_TransferSize = "tsize";
         internal const string Option_BlockSize = "blksize";
 
+        #endregion TFTP definitions
+
         private UDPSocket m_Socket;
 
         internal const int MaxBlockSize = 65464 + 4;
@@ -97,6 +101,17 @@ namespace CodePlex.JPMikkers.TFTP
                     m_Active = false;
                     notify = true;
                     m_Socket.Dispose();
+                    // get shallow copy of running sessions
+                    var sessions = new List<ITFTPSession>();
+                    lock (m_Sessions)
+                    {
+                        sessions.AddRange(m_Sessions.Values);
+                    }
+                    // dispose all of them
+                    foreach (var session in sessions)
+                    {
+                        session.Dispose();
+                    }
                 }
             }
 
@@ -156,98 +171,90 @@ namespace CodePlex.JPMikkers.TFTP
 
         private void OnUDPReceive(UDPSocket sender, IPEndPoint endPoint, ArraySegment<byte> data)
         {
-            try
+            int packetSize = data.Count;
+            MemoryStream ms = new MemoryStream(data.Array, data.Offset, data.Count, false, true);
+
+            lock (m_Sessions)
             {
-                int packetSize = data.Count;
-                MemoryStream ms = new MemoryStream(data.Array, data.Offset, data.Count, false, true);
+                ITFTPSession session;
+                ushort opCode = ReadUInt16(ms);
 
-                lock (m_Sessions)
+                // is there a session in progress for that endpoint?
+                if (m_Sessions.TryGetValue(endPoint, out session))
                 {
-                    ITFTPSession session;
-                    ushort opCode = ReadUInt16(ms);
-
-                    if (m_Sessions.TryGetValue(endPoint, out session))
+                    // yes.
+                    switch ((Opcode)opCode)
                     {
-                        switch ((Opcode)opCode)
-                        {
-                            case Opcode.ReadRequest:
-                                // session already exists, and we're getting a new readrequest?? what to do??
-                                SendError(sender, endPoint, ErrorCode.IllegalOperation, "Session already in progress");
-                                break;
+                        case Opcode.ReadRequest:
+                            // session already exists, and we're getting a new readrequest?
+                            SendError(sender, endPoint, ErrorCode.IllegalOperation, "Read session already in progress");
+                            break;
 
-                            case Opcode.WriteRequest:
-                                // session already exists, and we're getting a new writerequest?? what to do??
-                                SendError(sender, endPoint, ErrorCode.IllegalOperation, "Session already in progress");
-                                break;
+                        case Opcode.WriteRequest:
+                            // session already exists, and we're getting a new writerequest?
+                            SendError(sender, endPoint, ErrorCode.IllegalOperation, "Write session already in progress");
+                            break;
 
-                            case Opcode.Data:
-                                session.ProcessData(ReadUInt16(ms), ms);
-                                break;
+                        case Opcode.Data:
+                            session.ProcessData(ReadUInt16(ms), new ArraySegment<byte>(data.Array,(int)(data.Offset+ms.Position),(int)(data.Count-ms.Position)));
+                            break;
 
-                            case Opcode.Ack:
-                                session.ProcessAck(ReadUInt16(ms));
-                                break;
+                        case Opcode.Ack:
+                            session.ProcessAck(ReadUInt16(ms));
+                            break;
 
-                            case Opcode.Error:
-                                ushort code = ReadUInt16(ms);
-                                string msg = ReadZString(ms);
-                                //Console.WriteLine("Received error:{0} {1}", code, msg);
-                                m_Sessions[endPoint].ProcessError(code, msg);
-                                break;
+                        case Opcode.Error:
+                            ushort code = ReadUInt16(ms);
+                            string msg = ReadZString(ms);
+                            session.ProcessError(code, msg);
+                            break;
 
-                            case Opcode.OptionsAck:
-                                break;
+                        case Opcode.OptionsAck:
+                            break;
 
-                            default:
-                                throw new InvalidDataException(string.Format("Invalid opcode {0}", opCode));
-                        }
-                    }
-                    else // session==null
-                    {
-                        switch ((Opcode)opCode)
-                        {
-                            case Opcode.ReadRequest:
-                                {
-                                    string filename = ReadZString(ms);
-                                    Mode mode = ReadMode(ms);
-                                    var requestedOptions = ReadOptions(ms);
-                                    new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
-                                }
-                                break;
-
-                            case Opcode.WriteRequest:
-                                {
-                                    string filename = ReadZString(ms);
-                                    Mode mode = ReadMode(ms);
-                                    var requestedOptions = ReadOptions(ms);
-                                    new UploadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
-                                }
-                                break;
-
-                            default:
-                                SendError(m_Socket, endPoint, (ushort)ErrorCode.UnknownTransferID, "Unknown transfer ID");
-                                break;
-                        }
+                        default:
+                            SendError(sender, endPoint, ErrorCode.IllegalOperation, "Unknown opcode");
+                            break;
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                //Console.WriteLine("Exception in TFTPServer : {0}", e);
+                else // session==null
+                {
+                    // no session in progress for the endpoint that sent the packet
+                    switch ((Opcode)opCode)
+                    {
+                        case Opcode.ReadRequest:
+                            {
+                                string filename = ReadZString(ms);
+                                Mode mode = ReadMode(ms);
+                                var requestedOptions = ReadOptions(ms);
+                                ITFTPSession newSession=new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
+                                m_Sessions.Add(session.RemoteEndPoint, newSession);
+                                newSession.Start();
+                            }
+                            break;
+
+                        case Opcode.WriteRequest:
+                            {
+                                string filename = ReadZString(ms);
+                                Mode mode = ReadMode(ms);
+                                var requestedOptions = ReadOptions(ms);
+                                ITFTPSession newSession=new UploadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
+                                m_Sessions.Add(session.RemoteEndPoint, newSession);
+                                newSession.Start();
+                            }
+                            break;
+
+                        default:
+                            SendError(m_Socket, endPoint, (ushort)ErrorCode.UnknownTransferID, "Unknown transfer ID");
+                            break;
+                    }
+                }
             }
         }
 
         private void OnUDPStop(UDPSocket sender, Exception reason)
         {
             Stop(reason);
-        }
-
-        internal void TransferStart(ITFTPSession session)
-        {
-            lock (m_Sessions)
-            {
-                m_Sessions.Add(session.RemoteEndPoint, session);
-            }
         }
 
         internal void TransferComplete(ITFTPSession session, Exception reason)

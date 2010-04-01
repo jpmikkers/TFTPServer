@@ -43,45 +43,52 @@ namespace CodePlex.JPMikkers.TFTP
             UDPSocket.OnReceiveDelegate onReceive)
             : base(parent,socket,remoteEndPoint,requestedOptions,filename, onReceive, 0)
         {
-            lock (m_Lock)
-            {
-                try
-                {
-                    m_Stream = m_Parent.GetReadStream(m_Filename);
-                    m_Length = m_Stream.Length;
-                }
-                catch(Exception e)
-                {
-                    TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
-                    Dispose();
-                    return;
-                }
+            m_DataBuffer = new byte[m_CurrentBlockSize];
+            m_DataNumber = 0;
+            m_DataSize = 0;
+        }
 
-                // handle tsize option
-                if (m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize))
+        public override void Start()
+        {
+            try
+            {
+                lock (m_Lock)
                 {
-                    if (m_Length >= 0)
+                    try
                     {
-                        m_AcceptedOptions.Add(TFTPServer.Option_TransferSize, m_Length.ToString());
+                        m_Stream = m_Parent.GetReadStream(m_Filename);
+                        m_Length = m_Stream.Length;
+                    }
+                    catch (Exception e)
+                    {
+                        TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
+                        throw;
+                    }
+
+                    // handle tsize option
+                    if (m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize))
+                    {
+                        if (m_Length >= 0)
+                        {
+                            m_AcceptedOptions.Add(TFTPServer.Option_TransferSize, m_Length.ToString());
+                        }
+                    }
+
+                    if (m_AcceptedOptions.Count > 0)
+                    {
+                        m_BlockNumber = 0;
+                        SendResponse();
+                    }
+                    else
+                    {
+                        m_BlockNumber = 1;
+                        SendResponse();
                     }
                 }
-
-                m_DataBuffer = new byte[m_CurrentBlockSize];
-                m_DataNumber = 0;
-                m_DataSize = 0;
-
-                m_Parent.TransferStart(this);
-
-                if (m_AcceptedOptions.Count > 0)
-                {
-                    m_BlockNumber = 0;
-                    SendResponse();
-                }
-                else
-                {
-                    m_BlockNumber = 1;
-                    SendResponse();
-                }
+            }
+            catch (Exception e)
+            {
+                Stop(true, e);
             }
         }
 
@@ -133,8 +140,7 @@ namespace CodePlex.JPMikkers.TFTP
 
             if (isComplete)
             {
-                //Console.WriteLine("transfer complete");
-                m_Parent.TransferComplete(this, null);
+                Stop(true, null);
             }
         }
     }

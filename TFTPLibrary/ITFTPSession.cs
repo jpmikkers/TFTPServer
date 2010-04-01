@@ -31,8 +31,9 @@ namespace CodePlex.JPMikkers.TFTP
 {
     internal interface ITFTPSession : IDisposable
     {
+        void Start();
         void ProcessAck(ushort blockNr);
-        void ProcessData(ushort blockNr, System.IO.Stream ms);
+        void ProcessData(ushort blockNr, ArraySegment<byte> data);
         void ProcessError(ushort code, string msg);
         IPEndPoint RemoteEndPoint { get; }
         string Filename { get; }

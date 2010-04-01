@@ -69,7 +69,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         private void OnTimer(object state)
         {
-            bool isComplete = false;
+            bool notify = false;
 
             lock (m_Lock)
             {
@@ -83,14 +83,14 @@ namespace CodePlex.JPMikkers.TFTP
                     else
                     {
                         TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.Undefined, "Timeout");
-                        isComplete = true;
+                        notify = true;
                     }
                 }
             }
 
-            if (isComplete)
+            if (notify)
             {
-                m_Parent.TransferComplete(this, new TimeoutException("Remote side didn't respond in time"));
+                Stop(true,new TimeoutException("Remote side didn't respond in time"));
             }
         }
 
@@ -165,44 +165,20 @@ namespace CodePlex.JPMikkers.TFTP
             else
             {
                 m_OwnSocket = true;
-                m_Socket = new UDPSocket(new IPEndPoint(m_Parent.m_ServerEndPoint.Address, 0), m_CurrentBlockSize + 4, m_Parent.m_DontFragment, m_Parent.m_Ttl, onReceive, OnStop);
+                m_Socket = new UDPSocket(
+                    new IPEndPoint(m_Parent.m_ServerEndPoint.Address, 0), 
+                    m_CurrentBlockSize + 4, 
+                    m_Parent.m_DontFragment, 
+                    m_Parent.m_Ttl, 
+                    onReceive, 
+                    (sender, reason) => { Stop(true, reason); });
             }
         }
 
-        private void OnStop(UDPSocket sender, Exception reason)
+        protected void Stop(bool dally,Exception reason)
         {
-            lock (m_Lock)
-            {
-                if (!m_Disposed)
-                {
-                    Console.WriteLine("OnStop() : {0}", reason);
-                    m_Parent.TransferComplete(this, reason);
-                }
-            }
-        }
+            bool notify = false;
 
-        protected abstract void SendResponse();
-
-        #region ITransferSession Members
-
-        public virtual void ProcessAck(ushort blockNr) { }
-        public virtual void ProcessData(ushort blockNr, Stream ms) { }
-
-        public virtual void ProcessError(ushort code, string msg)
-        {
-            Console.WriteLine("transfer aborted due to Error {0} Msg {1}", code, msg);
-            m_Parent.TransferComplete(this, new IOException(string.Format("Remote side responsed with error code {0}, message '{1}'", code, msg)));
-        }
-
-        #endregion
-
-        ~TFTPSession()
-        {
-            Dispose(false);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
             lock (m_Lock)
             {
                 if (!m_Disposed)
@@ -215,7 +191,7 @@ namespace CodePlex.JPMikkers.TFTP
                     {
                         if (m_Socket != null)
                         {
-                            if (disposing && m_Socket.SendPending)
+                            if (dally && m_Socket.SendPending)
                             {
                                 DelayedDisposer.QueueDelayedDispose(m_Socket, m_SocketDisposeDelay);
                             }
@@ -233,14 +209,39 @@ namespace CodePlex.JPMikkers.TFTP
                         m_Stream = null;
                     }
 
-                    // binnen de lock de parent aanroepen.. hmmmmmm
-                    if (m_Parent != null)
-                    {
-                        m_Parent.TransferComplete(this, null);
-                        m_Parent = null;
-                    }
+                    notify = true;
                 }
             }
+
+            if (notify)
+            {
+                m_Parent.TransferComplete(this, reason);
+            }
+        }
+
+        protected abstract void SendResponse();
+
+        #region ITransferSession Members
+
+        public abstract void Start();
+        public virtual void ProcessAck(ushort blockNr) { }
+        public virtual void ProcessData(ushort blockNr, ArraySegment<byte> data) { }
+
+        public void ProcessError(ushort code, string msg)
+        {
+            Stop(false,new IOException(string.Format("Remote side responded with error code {0}, message '{1}'", code, msg)));
+        }
+
+        #endregion
+
+        ~TFTPSession()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            Stop(disposing, null);
         }
 
         public void Dispose()
