@@ -35,6 +35,7 @@ using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.Net.Configuration;
 using System.Reflection;
+using System.Diagnostics;
 using CodePlex.JPMikkers.TFTP;
 
 namespace CodePlex.JPMikkers
@@ -47,7 +48,8 @@ namespace CodePlex.JPMikkers
         public FormMain()
         {
             InitializeComponent();
-            m_Server.OnStop += new Action<ITFTPServer, Exception>(m_Server_OnStop);
+            m_Server.OnStatusChange += Server_OnStatusChange;
+            m_Server.OnTrace += Server_OnTrace;
 
             if (Properties.Settings.Default.ServerConfiguration == null)
             {
@@ -69,9 +71,15 @@ namespace CodePlex.JPMikkers
             Bind();
         }
 
-        private void m_Server_OnStop(ITFTPServer arg1, Exception arg2)
+        private void Server_OnTrace(object sender, TFTPTraceEventArgs data)
         {
-            this.Marshal(()=>UpdateStatus());
+            DateTime time = DateTime.Now;
+            this.Marshal(() => AppendLog(time.ToString("yyyy-MM-dd HH:mm:ss.fff") + " : " + data.Message + "\r\n"));
+        }
+
+        private void Server_OnStatusChange(object sender, TFTPStopEventArgs data)
+        {
+            this.Marshal(() => UpdateStatus());
         }
 
         private void Bind()
@@ -112,22 +120,46 @@ namespace CodePlex.JPMikkers
             m_Server.Stop();
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void buttonConfigure_Click(object sender, EventArgs e)
         {
             FormSettings f = new FormSettings();
             f.Configuration = m_ServerConfiguration;
             if (f.ShowDialog(this)==DialogResult.OK)
             {
+                bool wasActive = m_Server.Active;
+
+                if (wasActive)
+                {
+                    if (MessageBox.Show(this,"Server has to be restarted to enable new settings.\r\nDo you want to continue?", "Restart server", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
+                    {
+                        m_Server.Stop();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+
                 m_ServerConfiguration = f.Configuration;
                 Bind();
                 Properties.Settings.Default.ServerConfiguration = m_ServerConfiguration;
                 Properties.Settings.Default.Save();
+
+                if (wasActive)
+                {
+                    m_Server.Start();
+                }
             }
         }
 
         private void UpdateStatus()
         {
-            toolStripStatusLabel1.Text = m_Server.Active ? "Active" : "Stopped";
+            toolStripStatusLabel1.Text = string.Format("{0}, {1} transfers", m_Server.Active ? "Active" : "Stopped", m_Server.ActiveTransfers);
+        }
+
+        private void AppendLog(string msg)
+        {
+            textBox1.AppendText(msg);
         }
     }
 }

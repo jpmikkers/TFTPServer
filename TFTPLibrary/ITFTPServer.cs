@@ -29,9 +29,20 @@ using System.Net.Sockets;
 
 namespace CodePlex.JPMikkers.TFTP
 {
+    public class TFTPTraceEventArgs : EventArgs
+    {
+        public string Message { get; set; }
+    }
+
+    public class TFTPStopEventArgs : EventArgs
+    {
+        public Exception Reason { get; set; }
+    }
+
     public interface ITFTPServer : IDisposable
     {
-        event Action<ITFTPServer,Exception> OnStop;
+        event EventHandler<TFTPTraceEventArgs> OnTrace;
+        event EventHandler<TFTPStopEventArgs> OnStatusChange;
         event Action<ITFTPServer> OnTransfer;
 
         IPEndPoint EndPoint { get; set; }
@@ -48,6 +59,7 @@ namespace CodePlex.JPMikkers.TFTP
         bool AllowWrite { get; set; }
 
         bool Active { get; }
+        int ActiveTransfers { get; }
 
         void Start();
         void Stop();

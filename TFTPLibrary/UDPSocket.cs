@@ -50,6 +50,8 @@ namespace CodePlex.JPMikkers.TFTP
         private AutoPumpQueue<PacketBuffer> m_ReceiveFifo;  // queue of the incoming packets
         private int m_PacketSize;                           // size of packets we'll try to receive
 
+        private EndPoint m_LocalEndPoint;
+
         private class PacketBuffer
         {
             public EndPoint EndPoint;
@@ -72,6 +74,14 @@ namespace CodePlex.JPMikkers.TFTP
                 {
                     return m_SendPending || m_SendFifo.Count > 0;
                 }
+            }
+        }
+
+        public EndPoint LocalEndPoint
+        {
+            get
+            {
+                return m_LocalEndPoint;
             }
         }
 
@@ -106,12 +116,13 @@ namespace CodePlex.JPMikkers.TFTP
 
             m_IPv6 = (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6);
             m_Socket = new Socket(localEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            m_Socket.DontFragment = dontFragment;
+            if(!m_IPv6) m_Socket.DontFragment = dontFragment;
             if (ttl >= 0)
             {
                 m_Socket.Ttl = ttl;
             }
             m_Socket.Bind(localEndPoint);
+            m_LocalEndPoint = m_Socket.LocalEndPoint;
             BeginReceive();
         }
 

@@ -39,6 +39,7 @@ namespace CodePlex.JPMikkers.TFTP
         protected Stream m_Stream;
         protected UDPSocket m_Socket;
         protected bool m_OwnSocket;
+        protected IPEndPoint m_LocalEndPoint;
         protected IPEndPoint m_RemoteEndPoint;
         protected int m_SocketDisposeDelay;
         protected long m_Length;
@@ -50,6 +51,14 @@ namespace CodePlex.JPMikkers.TFTP
         protected Dictionary<string, string> m_RequestedOptions;
         protected string m_Filename;
         protected Dictionary<string, string> m_AcceptedOptions = new Dictionary<string, string>();
+
+        public IPEndPoint LocalEndPoint
+        {
+            get
+            {
+                return m_LocalEndPoint;
+            }
+        }
 
         public IPEndPoint RemoteEndPoint
         {
@@ -173,6 +182,7 @@ namespace CodePlex.JPMikkers.TFTP
                     onReceive, 
                     (sender, reason) => { Stop(true, reason); });
             }
+            m_LocalEndPoint = (IPEndPoint)m_Socket.LocalEndPoint;
         }
 
         protected void Stop(bool dally,Exception reason)
@@ -224,6 +234,12 @@ namespace CodePlex.JPMikkers.TFTP
         #region ITransferSession Members
 
         public abstract void Start();
+
+        public void Stop()
+        {
+            Stop(false, new Exception("Parent stopped"));
+        }
+
         public virtual void ProcessAck(ushort blockNr) { }
         public virtual void ProcessData(ushort blockNr, ArraySegment<byte> data) { }
 

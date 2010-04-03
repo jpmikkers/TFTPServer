@@ -27,6 +27,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Diagnostics;
 
 namespace CodePlex.JPMikkers.TFTP
 {
@@ -98,6 +99,7 @@ namespace CodePlex.JPMikkers.TFTP
             {
                 if (m_Active)
                 {
+                    Trace(string.Format("Stopping TFTP server '{0}'", m_ServerEndPoint));
                     m_Active = false;
                     notify = true;
                     m_Socket.Dispose();
@@ -107,17 +109,19 @@ namespace CodePlex.JPMikkers.TFTP
                     {
                         sessions.AddRange(m_Sessions.Values);
                     }
-                    // dispose all of them
+                    // stop all of them
                     foreach (var session in sessions)
                     {
-                        session.Dispose();
+                        session.Stop();
                     }
                 }
             }
 
             if (notify)
             {
-                OnStop(this, reason);
+                var data = new TFTPStopEventArgs();
+                data.Reason = reason;
+                OnStatusChange(this, data);
             }
         }
 
@@ -171,6 +175,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         private void OnUDPReceive(UDPSocket sender, IPEndPoint endPoint, ArraySegment<byte> data)
         {
+            bool notify = false;
             int packetSize = data.Count;
             MemoryStream ms = new MemoryStream(data.Array, data.Offset, data.Count, false, true);
 
@@ -228,7 +233,9 @@ namespace CodePlex.JPMikkers.TFTP
                                 Mode mode = ReadMode(ms);
                                 var requestedOptions = ReadOptions(ms);
                                 ITFTPSession newSession=new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
-                                m_Sessions.Add(session.RemoteEndPoint, newSession);
+                                m_Sessions.Add(newSession.RemoteEndPoint, newSession);
+                                notify = true;
+                                Trace(string.Format("Starting transfer of file '{0}' from local '{1}' to remote '{2}'", newSession.Filename, newSession.LocalEndPoint, newSession.RemoteEndPoint));
                                 newSession.Start();
                             }
                             break;
@@ -239,7 +246,9 @@ namespace CodePlex.JPMikkers.TFTP
                                 Mode mode = ReadMode(ms);
                                 var requestedOptions = ReadOptions(ms);
                                 ITFTPSession newSession=new UploadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
-                                m_Sessions.Add(session.RemoteEndPoint, newSession);
+                                m_Sessions.Add(newSession.RemoteEndPoint, newSession);
+                                notify = true;
+                                Trace(string.Format("Starting transfer of file '{0}' from remote '{1}' to local '{2}'", newSession.Filename, newSession.RemoteEndPoint, newSession.LocalEndPoint));
                                 newSession.Start();
                             }
                             break;
@@ -249,6 +258,11 @@ namespace CodePlex.JPMikkers.TFTP
                             break;
                     }
                 }
+            }
+
+            if (notify)
+            {
+                OnStatusChange(this, null);
             }
         }
 
@@ -263,10 +277,27 @@ namespace CodePlex.JPMikkers.TFTP
             {
                 if (m_Sessions.ContainsKey(session.RemoteEndPoint))
                 {
+                    if (reason == null)
+                    {
+                        Trace(string.Format("Completed transfer {0} '{1}'", session is UploadSession ? "from" : "to", session.RemoteEndPoint));
+                    }
+                    else
+                    {
+                        Trace(string.Format("Aborted transfer {0} '{1}', reason '{2}'", session is UploadSession ? "from" : "to", session.RemoteEndPoint, reason));
+                    }
                     m_Sessions.Remove(session.RemoteEndPoint);
                     session.Dispose();
                 }
             }
+
+            OnStatusChange(this, null);
+        }
+
+        internal void Trace(string msg)
+        {
+            var data=new TFTPTraceEventArgs();
+            data.Message = msg;
+            OnTrace(this, data);
         }
 
         #region Dispose pattern
@@ -295,7 +326,8 @@ namespace CodePlex.JPMikkers.TFTP
 
         #region ITFTPServer Members
 
-        public event Action<ITFTPServer,Exception> OnStop = (x,y) => { };
+        public event EventHandler<TFTPTraceEventArgs> OnTrace = (sender, data) => { };
+        public event EventHandler<TFTPStopEventArgs> OnStatusChange = (sender, data) => { };
         public event Action<ITFTPServer> OnTransfer = x => { };
 
         public IPEndPoint EndPoint
@@ -429,6 +461,17 @@ namespace CodePlex.JPMikkers.TFTP
             }
         }
 
+        public int ActiveTransfers
+        {
+            get
+            {
+                lock (m_Sessions)
+                {
+                    return m_Sessions.Count;
+                }
+            }
+        }
+
         public void Start()
         {
             lock (m_Sync)
@@ -437,11 +480,14 @@ namespace CodePlex.JPMikkers.TFTP
                 {
                     try
                     {
+                        Trace(string.Format("Starting TFTP server '{0}'",m_ServerEndPoint));
                         m_Active = true;
                         m_Socket = new UDPSocket(m_ServerEndPoint, MaxBlockSize, m_DontFragment, m_Ttl, OnUDPReceive, OnUDPStop);
+                        Trace(string.Format("TFTP Server start succeeded, serving at '{0}'",m_Socket.LocalEndPoint));
                     }
-                    catch
+                    catch(Exception e)
                     {
+                        Trace(string.Format("TFTP Server start failed, reason '{0}'",e));
                         m_Active = false;
                         throw;
                     }

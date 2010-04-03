@@ -41,27 +41,24 @@ namespace CodePlex.JPMikkers
 {
     public static class UIThreadCall
     {
-        public static void Marshal(this ISynchronizeInvoke invoker,Action action)
+        public static void Marshal(this Control invoker,Action action)
         {
             if (invoker.InvokeRequired)
             {
-                invoker.Invoke(action,null);
+                try
+                {
+                    invoker.BeginInvoke(action, null);
+                }
+                catch
+                {
+                }
             }
             else
             {
-                action.Invoke();
-            }
-        }
-
-        public static T Marshal<T>(this ISynchronizeInvoke invoker, Func<T> func)
-        {
-            if (invoker.InvokeRequired)
-            {
-                return (T)invoker.Invoke(func, null);
-            }
-            else
-            {
-                return func.Invoke();
+                if (invoker.IsHandleCreated)
+                {
+                    action.Invoke();
+                }
             }
         }
     }
