@@ -94,25 +94,7 @@ namespace CodePlex.JPMikkers
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
-            m_Server.EndPoint = m_ServerConfiguration.EndPoint;
-            m_Server.SinglePort = m_ServerConfiguration.SinglePort;
-            m_Server.Ttl = (short)m_ServerConfiguration.Ttl;
-            m_Server.DontFragment = m_ServerConfiguration.DontFragment;
-            m_Server.RootPath = m_ServerConfiguration.RootPath;
-            m_Server.AutoCreateDirectories = m_ServerConfiguration.AutoCreateDirectories;
-            m_Server.AllowRead = m_ServerConfiguration.AllowRead;
-            m_Server.AllowWrite = m_ServerConfiguration.AllowWrite;
-            m_Server.ResponseTimeout = m_ServerConfiguration.Timeout;
-            m_Server.Retries = m_ServerConfiguration.Retries;
-            try
-            {
-                m_Server.Start();
-            }
-            catch (Exception error)
-            {
-                MessageBox.Show(error.Message,"Error",MessageBoxButtons.OK,MessageBoxIcon.Error);
-            }
-            UpdateStatus();
+            Start();
         }
 
         private void buttonStop_Click(object sender, EventArgs e)
@@ -147,7 +129,7 @@ namespace CodePlex.JPMikkers
 
                 if (wasActive)
                 {
-                    m_Server.Start();
+                    Start();
                 }
             }
         }
@@ -160,6 +142,29 @@ namespace CodePlex.JPMikkers
         private void AppendLog(string msg)
         {
             textBox1.AppendText(msg);
+        }
+
+        private void Start()
+        {
+            m_Server.EndPoint = m_ServerConfiguration.EndPoint;
+            m_Server.SinglePort = m_ServerConfiguration.SinglePort;
+            m_Server.Ttl = (short)m_ServerConfiguration.Ttl;
+            m_Server.DontFragment = m_ServerConfiguration.DontFragment;
+            m_Server.RootPath = m_ServerConfiguration.RootPath;
+            m_Server.AutoCreateDirectories = m_ServerConfiguration.AutoCreateDirectories;
+            m_Server.AllowRead = m_ServerConfiguration.AllowRead;
+            m_Server.AllowWrite = m_ServerConfiguration.AllowWrite;
+            m_Server.ResponseTimeout = m_ServerConfiguration.Timeout;
+            m_Server.Retries = m_ServerConfiguration.Retries;
+            try
+            {
+                m_Server.Start();
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show(error.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            UpdateStatus();
         }
     }
 }
