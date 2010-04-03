@@ -36,15 +36,15 @@
             this.textBoxRootPath = new System.Windows.Forms.TextBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.statusStrip1.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // buttonStart
             // 
-            this.buttonStart.Location = new System.Drawing.Point(345, 16);
+            this.buttonStart.Location = new System.Drawing.Point(344, 9);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(75, 23);
             this.buttonStart.TabIndex = 0;
@@ -54,7 +54,7 @@
             // 
             // buttonConfigure
             // 
-            this.buttonConfigure.Location = new System.Drawing.Point(264, 16);
+            this.buttonConfigure.Location = new System.Drawing.Point(263, 9);
             this.buttonConfigure.Name = "buttonConfigure";
             this.buttonConfigure.Size = new System.Drawing.Size(75, 49);
             this.buttonConfigure.TabIndex = 0;
@@ -64,7 +64,7 @@
             // 
             // textBoxAddress
             // 
-            this.textBoxAddress.Location = new System.Drawing.Point(13, 19);
+            this.textBoxAddress.Location = new System.Drawing.Point(12, 12);
             this.textBoxAddress.Name = "textBoxAddress";
             this.textBoxAddress.ReadOnly = true;
             this.textBoxAddress.Size = new System.Drawing.Size(187, 20);
@@ -72,7 +72,7 @@
             // 
             // buttonStop
             // 
-            this.buttonStop.Location = new System.Drawing.Point(345, 42);
+            this.buttonStop.Location = new System.Drawing.Point(344, 35);
             this.buttonStop.Name = "buttonStop";
             this.buttonStop.Size = new System.Drawing.Size(75, 23);
             this.buttonStop.TabIndex = 3;
@@ -82,7 +82,7 @@
             // 
             // textBoxPort
             // 
-            this.textBoxPort.Location = new System.Drawing.Point(206, 19);
+            this.textBoxPort.Location = new System.Drawing.Point(205, 12);
             this.textBoxPort.Name = "textBoxPort";
             this.textBoxPort.ReadOnly = true;
             this.textBoxPort.Size = new System.Drawing.Size(52, 20);
@@ -91,7 +91,7 @@
             // 
             // textBoxRootPath
             // 
-            this.textBoxRootPath.Location = new System.Drawing.Point(13, 45);
+            this.textBoxRootPath.Location = new System.Drawing.Point(12, 38);
             this.textBoxRootPath.Name = "textBoxRootPath";
             this.textBoxRootPath.ReadOnly = true;
             this.textBoxRootPath.Size = new System.Drawing.Size(245, 20);
@@ -114,31 +114,30 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(51, 17);
             this.toolStripStatusLabel1.Text = "Stopped";
             // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.textBoxAddress);
-            this.groupBox1.Controls.Add(this.buttonStart);
-            this.groupBox1.Controls.Add(this.textBoxRootPath);
-            this.groupBox1.Controls.Add(this.buttonStop);
-            this.groupBox1.Controls.Add(this.textBoxPort);
-            this.groupBox1.Controls.Add(this.buttonConfigure);
-            this.groupBox1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBox1.Location = new System.Drawing.Point(0, 0);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(534, 77);
-            this.groupBox1.TabIndex = 6;
-            this.groupBox1.TabStop = false;
-            // 
             // textBox1
             // 
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox1.Location = new System.Drawing.Point(0, 77);
+            this.textBox1.Location = new System.Drawing.Point(0, 67);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox1.Size = new System.Drawing.Size(534, 170);
+            this.textBox1.Size = new System.Drawing.Size(534, 180);
             this.textBox1.TabIndex = 7;
             this.textBox1.WordWrap = false;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.textBoxAddress);
+            this.panel1.Controls.Add(this.buttonConfigure);
+            this.panel1.Controls.Add(this.buttonStart);
+            this.panel1.Controls.Add(this.textBoxPort);
+            this.panel1.Controls.Add(this.textBoxRootPath);
+            this.panel1.Controls.Add(this.buttonStop);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(534, 67);
+            this.panel1.TabIndex = 4;
             // 
             // FormMain
             // 
@@ -146,14 +145,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(534, 269);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.panel1);
             this.Name = "FormMain";
             this.Text = "TFTP Server";
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -169,8 +168,8 @@
         private System.Windows.Forms.TextBox textBoxRootPath;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Panel panel1;
     }
 }
 
