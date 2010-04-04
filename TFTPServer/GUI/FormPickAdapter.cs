@@ -49,34 +49,29 @@ namespace CodePlex.JPMikkers
         public FormPickAdapter()
         {
             InitializeComponent();
-
             IPGlobalProperties computerProperties = IPGlobalProperties.GetIPGlobalProperties();
-            Console.WriteLine("Interface information for {0}.{1}     ",
-                    computerProperties.HostName, computerProperties.DomainName);
-
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
-            comboBox1.DisplayMember = "Description";
+            comboBoxAdapter.DisplayMember = "Description";
             foreach (NetworkInterface adapter in nics)
             {
-                comboBox1.Items.Add(adapter);
+                comboBoxAdapter.Items.Add(adapter);
             }
-            comboBox1.SelectedIndex = 0;
+            comboBoxAdapter.SelectedIndex = 0;
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void comboBoxAdapter_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBox1.SelectedIndex >= 0 && comboBox1.SelectedIndex< comboBox1.Items.Count)
+            if (comboBoxAdapter.SelectedIndex >= 0 && comboBoxAdapter.SelectedIndex< comboBoxAdapter.Items.Count)
             {
-                comboBox2.SelectedIndex = -1;
-                comboBox2.Items.Clear();
-                NetworkInterface adapter = (NetworkInterface)comboBox1.SelectedItem;
-               // comboBox2.DisplayMember = "Address";
+                comboBoxUnicast.SelectedIndex = -1;
+                comboBoxUnicast.Items.Clear();
+                NetworkInterface adapter = (NetworkInterface)comboBoxAdapter.SelectedItem;
 
                 foreach (var uni in adapter.GetIPProperties().UnicastAddresses)
                 {
                     if (uni.Address.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        comboBox2.Items.Add(uni.Address);
+                        comboBoxUnicast.Items.Add(uni.Address);
                     }
                 }
 
@@ -84,17 +79,17 @@ namespace CodePlex.JPMikkers
                 {
                     if (uni.Address.AddressFamily == AddressFamily.InterNetworkV6)
                     {
-                        comboBox2.Items.Add(uni.Address);
+                        comboBoxUnicast.Items.Add(uni.Address);
                     }
                 }
 
-                comboBox2.SelectedIndex = 0;
+                comboBoxUnicast.SelectedIndex = 0;
             }
         }
 
         private void buttonOk_Click(object sender, EventArgs e)
         {
-            m_Address = (IPAddress)comboBox2.SelectedItem;
+            m_Address = (IPAddress)comboBoxUnicast.SelectedItem;
         }
     }
 }
