@@ -1,21 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFTPServer", "TFTPServer.csproj", "{096B293C-8578-43D4-8165-0D3DB4373369}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFTPServer", "GUI\TFTPServer.csproj", "{096B293C-8578-43D4-8165-0D3DB4373369}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFTPLibrary", "..\TFTPLibrary\TFTPLibrary.csproj", "{75CBACB4-34BA-4994-BF36-90A86B8F9372}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFTPLibrary", "Library\TFTPLibrary.csproj", "{75CBACB4-34BA-4994-BF36-90A86B8F9372}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 3
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
-		SccProjectUniqueName0 = TFTPServer.csproj
 		SccLocalPath0 = .
-		SccProjectUniqueName1 = ..\\TFTPLibrary\\TFTPLibrary.csproj
-		SccProjectName1 = ../TFTPLibrary
-		SccLocalPath1 = ..\\TFTPLibrary
-		SccLocalPath2 = .
+		SccProjectUniqueName1 = GUI\\TFTPServer.csproj
+		SccProjectName1 = GUI
+		SccLocalPath1 = GUI
+		SccProjectUniqueName2 = Library\\TFTPLibrary.csproj
+		SccProjectName2 = Library
+		SccLocalPath2 = Library
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
