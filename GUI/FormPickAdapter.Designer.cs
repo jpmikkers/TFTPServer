@@ -28,30 +28,30 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.comboBoxAdapter = new System.Windows.Forms.ComboBox();
+            this.comboBoxUnicast = new System.Windows.Forms.ComboBox();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOk = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // comboBox1
+            // comboBoxAdapter
             // 
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(12, 12);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(375, 21);
-            this.comboBox1.TabIndex = 0;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            this.comboBoxAdapter.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxAdapter.FormattingEnabled = true;
+            this.comboBoxAdapter.Location = new System.Drawing.Point(12, 12);
+            this.comboBoxAdapter.Name = "comboBoxAdapter";
+            this.comboBoxAdapter.Size = new System.Drawing.Size(375, 21);
+            this.comboBoxAdapter.TabIndex = 0;
+            this.comboBoxAdapter.SelectedIndexChanged += new System.EventHandler(this.comboBoxAdapter_SelectedIndexChanged);
             // 
-            // comboBox2
+            // comboBoxUnicast
             // 
-            this.comboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(12, 39);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(375, 21);
-            this.comboBox2.TabIndex = 0;
+            this.comboBoxUnicast.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxUnicast.FormattingEnabled = true;
+            this.comboBoxUnicast.Location = new System.Drawing.Point(12, 39);
+            this.comboBoxUnicast.Name = "comboBoxUnicast";
+            this.comboBoxUnicast.Size = new System.Drawing.Size(375, 21);
+            this.comboBoxUnicast.TabIndex = 0;
             // 
             // buttonCancel
             // 
@@ -83,8 +83,8 @@
             this.ClientSize = new System.Drawing.Size(397, 96);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOk);
-            this.Controls.Add(this.comboBox2);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.comboBoxUnicast);
+            this.Controls.Add(this.comboBoxAdapter);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -96,8 +96,8 @@
 
         #endregion
 
-        private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox comboBoxAdapter;
+        private System.Windows.Forms.ComboBox comboBoxUnicast;
         private System.Windows.Forms.Button buttonCancel;
         private System.Windows.Forms.Button buttonOk;
     }
