@@ -10,12 +10,12 @@ Global
 		SccNumberOfProjects = 3
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
+		SccProjectUniqueName0 = TFTPServer.csproj
 		SccLocalPath0 = .
-		SccProjectUniqueName1 = TFTPServer.csproj
-		SccLocalPath1 = .
-		SccProjectUniqueName2 = ..\\TFTPLibrary\\TFTPLibrary.csproj
-		SccProjectName2 = ../TFTPLibrary
-		SccLocalPath2 = ..\\TFTPLibrary
+		SccProjectUniqueName1 = ..\\TFTPLibrary\\TFTPLibrary.csproj
+		SccProjectName1 = ../TFTPLibrary
+		SccLocalPath1 = ..\\TFTPLibrary
+		SccLocalPath2 = .
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
