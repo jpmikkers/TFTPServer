@@ -46,6 +46,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         private Queue<PacketBuffer> m_SendFifo;             // queue of the outgoing packets
         private bool m_SendPending;                         // true => an asynchronous send is in progress
+        private int m_ReceivePending;   
 
         private AutoPumpQueue<PacketBuffer> m_ReceiveFifo;  // queue of the incoming packets
         private int m_PacketSize;                           // size of packets we'll try to receive
@@ -113,9 +114,12 @@ namespace CodePlex.JPMikkers.TFTP
             );
 
             m_SendPending = false;
+            m_ReceivePending = 0;
 
             m_IPv6 = (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6);
             m_Socket = new Socket(localEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            m_Socket.SendBufferSize = 65536;
+            m_Socket.ReceiveBufferSize = 65536;
             if(!m_IPv6) m_Socket.DontFragment = dontFragment;
             if (ttl >= 0)
             {
@@ -229,6 +233,10 @@ namespace CodePlex.JPMikkers.TFTP
                         }
                     }
                 }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("BeginSend while send pending?");
+                }
             }
         }
 
@@ -261,8 +269,12 @@ namespace CodePlex.JPMikkers.TFTP
         /// </summary>
         private void BeginReceive()
         {
-            PacketBuffer receivePacket = new PacketBuffer(new IPEndPoint(m_IPv6 ? IPAddress.IPv6Any : IPAddress.Any, 0), new ArraySegment<byte>(new byte[m_PacketSize], 0, m_PacketSize));
-            m_Socket.BeginReceiveFrom(receivePacket.Data.Array, receivePacket.Data.Offset, receivePacket.Data.Count, SocketFlags.None, ref receivePacket.EndPoint, new AsyncCallback(ReceiveDone), receivePacket);
+            while (m_ReceivePending < 2)
+            {
+                m_ReceivePending++;
+                PacketBuffer receivePacket = new PacketBuffer(new IPEndPoint(m_IPv6 ? IPAddress.IPv6Any : IPAddress.Any, 0), new ArraySegment<byte>(new byte[m_PacketSize], 0, m_PacketSize));
+                m_Socket.BeginReceiveFrom(receivePacket.Data.Array, receivePacket.Data.Offset, receivePacket.Data.Count, SocketFlags.None, ref receivePacket.EndPoint, new AsyncCallback(ReceiveDone), receivePacket);
+            }
         }
 
         /// <summary>
@@ -281,6 +293,7 @@ namespace CodePlex.JPMikkers.TFTP
                         {
                             PacketBuffer buf = (PacketBuffer)ar.AsyncState;
                             int packetSize = m_Socket.EndReceiveFrom(ar, ref buf.EndPoint);
+                            m_ReceivePending--;
                             buf.Data = new ArraySegment<byte>(buf.Data.Array, 0, packetSize);
                             m_ReceiveFifo.Enqueue(buf);
                             // BeginReceive should check state again because Stop() could have been called synchronously at NotifyReceive()
