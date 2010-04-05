@@ -36,10 +36,10 @@
     <SupportUrl>http://tftpserver.codeplex.com/</SupportUrl>
     <ErrorReportUrl>http://tftpserver.codeplex.com/</ErrorReportUrl>
     <ProductName>TFTP server</ProductName>
-    <PublisherName>jpmikkers%40codeplex.com</PublisherName>
+    <PublisherName>JPMikkers</PublisherName>
     <SuiteName>TFTP</SuiteName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>7</ApplicationRevision>
+    <ApplicationRevision>1</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
