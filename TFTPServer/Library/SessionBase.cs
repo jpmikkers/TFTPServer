@@ -139,7 +139,7 @@ namespace CodePlex.JPMikkers.TFTP
                         break;
 
                     case TFTPServer.Option_Timeout:
-                        Console.WriteLine("Timeout of {0}", kvp.Value);
+                        //Console.WriteLine("Timeout of {0}", kvp.Value);
                         int requestedTimeout = int.Parse(kvp.Value);
                         // rfc2349 : valid values range between "1" and "255" seconds
                         if (requestedTimeout >= 1 && requestedTimeout <= 255)
@@ -154,7 +154,7 @@ namespace CodePlex.JPMikkers.TFTP
                         break;
 
                     case TFTPServer.Option_BlockSize:
-                        Console.WriteLine("Blocksize of {0}", kvp.Value);
+                        //Console.WriteLine("Blocksize of {0}", kvp.Value);
                         int requestedBlockSize = int.Parse(kvp.Value);
                         // rfc2348 : valid values range between "8" and "65464" octets, inclusive
                         if (requestedBlockSize >= 8 && requestedBlockSize <= 65464)
