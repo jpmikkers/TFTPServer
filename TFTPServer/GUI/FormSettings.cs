@@ -82,12 +82,14 @@ namespace CodePlex.JPMikkers
             checkBoxAutoCreateSubDirectories.DataBindings.Clear();
             checkBoxSinglePortMode.DataBindings.Clear();
             checkBoxDontFragment.DataBindings.Clear();
+            checkBoxConvertPathSeparator.DataBindings.Clear();
 
             checkBoxAllowReads.DataBindings.Add("Checked", m_Configuration, "AllowRead");
             checkBoxAllowWrites.DataBindings.Add("Checked", m_Configuration, "AllowWrite");
             checkBoxSinglePortMode.DataBindings.Add("Checked", m_Configuration, "SinglePort");
             checkBoxAutoCreateSubDirectories.DataBindings.Add("Checked", m_Configuration, "AutoCreateDirectories");
             checkBoxDontFragment.DataBindings.Add("Checked", m_Configuration, "DontFragment");
+            checkBoxConvertPathSeparator.DataBindings.Add("Checked", m_Configuration, "ConvertPathSeparator");
             textBoxTTL.DataBindings.Add("Text", m_Configuration, "Ttl");
             textBoxAddress.DataBindings.Add("Text", m_Configuration, "EndPoint.Address");
             textBoxPort.DataBindings.Add("Text", m_Configuration, "EndPoint.Port");
@@ -104,11 +106,6 @@ namespace CodePlex.JPMikkers
                 m_Configuration.EndPoint = new SerializableIPEndPoint( new System.Net.IPEndPoint(f.Address, m_Configuration.EndPoint.Port) );
                 Bind();
             }
-        }
-
-        private void buttonOk_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

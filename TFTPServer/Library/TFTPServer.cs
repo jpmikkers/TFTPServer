@@ -85,6 +85,7 @@ namespace CodePlex.JPMikkers.TFTP
         private bool m_AllowRead = true;
         private bool m_AllowWrite = true;
         private bool m_AutoCreateDirectories = true;
+        private bool m_ConvertPathSeparator = true;
 
         private object m_Sync = new object();
         private bool m_Active = false;
@@ -230,6 +231,7 @@ namespace CodePlex.JPMikkers.TFTP
                         case Opcode.ReadRequest:
                             {
                                 string filename = ReadZString(ms);
+                                if(m_ConvertPathSeparator) filename = filename.Replace('/','\\');
                                 Mode mode = ReadMode(ms);
                                 var requestedOptions = ReadOptions(ms);
                                 ITFTPSession newSession=new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
@@ -243,6 +245,7 @@ namespace CodePlex.JPMikkers.TFTP
                         case Opcode.WriteRequest:
                             {
                                 string filename = ReadZString(ms);
+                                if (m_ConvertPathSeparator) filename = filename.Replace('/', '\\');
                                 Mode mode = ReadMode(ms);
                                 var requestedOptions = ReadOptions(ms);
                                 ITFTPSession newSession=new UploadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
@@ -328,7 +331,6 @@ namespace CodePlex.JPMikkers.TFTP
 
         public event EventHandler<TFTPTraceEventArgs> OnTrace = (sender, data) => { };
         public event EventHandler<TFTPStopEventArgs> OnStatusChange = (sender, data) => { };
-        public event Action<ITFTPServer> OnTransfer = x => { };
 
         public IPEndPoint EndPoint
         {
@@ -423,6 +425,18 @@ namespace CodePlex.JPMikkers.TFTP
             set
             {
                 m_AutoCreateDirectories = value;
+            }
+        }
+
+        public bool ConvertPathSeparator
+        {
+            get
+            {
+                return m_ConvertPathSeparator;
+            }
+            set
+            {
+                m_ConvertPathSeparator = value;
             }
         }
 
