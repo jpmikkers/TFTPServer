@@ -39,6 +39,7 @@ namespace CodePlex.JPMikkers
         public bool AllowWrite { get; set; }
         public int Timeout { get; set; }
         public int Retries { get; set; }
+        public bool ConvertPathSeparator { get; set; }
 
         public TFTPServerConfiguration()
         {
@@ -52,6 +53,7 @@ namespace CodePlex.JPMikkers
             AllowWrite = true;
             Timeout = 2000;
             Retries = 5;
+            ConvertPathSeparator = true;
         }
 
         public TFTPServerConfiguration Clone()
@@ -67,6 +69,7 @@ namespace CodePlex.JPMikkers
             result.AllowWrite = AllowWrite;
             result.Timeout = Timeout;
             result.Retries = Retries;
+            result.ConvertPathSeparator = ConvertPathSeparator;
             return result;
         }
     }

@@ -52,6 +52,7 @@
             this.checkBoxDontFragment = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.checkBoxConvertPathSeparator = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // textBoxAddress
@@ -111,7 +112,6 @@
             this.buttonOk.TabIndex = 14;
             this.buttonOk.Text = "OK";
             this.buttonOk.UseVisualStyleBackColor = true;
-            this.buttonOk.Click += new System.EventHandler(this.buttonOk_Click);
             // 
             // buttonCancel
             // 
@@ -259,6 +259,16 @@
             this.label8.TabIndex = 6;
             this.label8.Text = "hops";
             // 
+            // checkBoxConvertPathSeparator
+            // 
+            this.checkBoxConvertPathSeparator.AutoSize = true;
+            this.checkBoxConvertPathSeparator.Location = new System.Drawing.Point(175, 143);
+            this.checkBoxConvertPathSeparator.Name = "checkBoxConvertPathSeparator";
+            this.checkBoxConvertPathSeparator.Size = new System.Drawing.Size(170, 17);
+            this.checkBoxConvertPathSeparator.TabIndex = 13;
+            this.checkBoxConvertPathSeparator.Text = "Convert path separator \'/\' to \'\\\'";
+            this.checkBoxConvertPathSeparator.UseVisualStyleBackColor = true;
+            // 
             // FormSettings
             // 
             this.AcceptButton = this.buttonOk;
@@ -266,6 +276,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
             this.ClientSize = new System.Drawing.Size(388, 229);
+            this.Controls.Add(this.checkBoxConvertPathSeparator);
             this.Controls.Add(this.checkBoxAutoCreateSubDirectories);
             this.Controls.Add(this.checkBoxAllowWrites);
             this.Controls.Add(this.checkBoxDontFragment);
@@ -325,5 +336,6 @@
         private System.Windows.Forms.CheckBox checkBoxDontFragment;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.CheckBox checkBoxConvertPathSeparator;
     }
 }

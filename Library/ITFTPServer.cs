@@ -43,7 +43,6 @@ namespace CodePlex.JPMikkers.TFTP
     {
         event EventHandler<TFTPTraceEventArgs> OnTrace;
         event EventHandler<TFTPStopEventArgs> OnStatusChange;
-        event Action<ITFTPServer> OnTransfer;
 
         IPEndPoint EndPoint { get; set; }
         bool SinglePort { get; set; }
@@ -55,6 +54,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         string RootPath { get; set; }
         bool AutoCreateDirectories { get; set; }
+        bool ConvertPathSeparator { get; set; }
         bool AllowRead { get; set; }
         bool AllowWrite { get; set; }
 

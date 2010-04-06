@@ -64,6 +64,8 @@ namespace CodePlex.JPMikkers
                 serverConfiguration.SinglePort = m_Server.SinglePort;
                 serverConfiguration.Timeout = m_Server.ResponseTimeout;
                 serverConfiguration.Ttl = m_Server.Ttl;
+                serverConfiguration.ConvertPathSeparator = m_Server.ConvertPathSeparator;
+
                 Properties.Settings.Default.ServerConfiguration = serverConfiguration;
                 Properties.Settings.Default.Save();
             }
@@ -156,6 +158,7 @@ namespace CodePlex.JPMikkers
             m_Server.AllowWrite = m_ServerConfiguration.AllowWrite;
             m_Server.ResponseTimeout = m_ServerConfiguration.Timeout;
             m_Server.Retries = m_ServerConfiguration.Retries;
+            m_Server.ConvertPathSeparator = m_ServerConfiguration.ConvertPathSeparator;
             try
             {
                 m_Server.Start();
