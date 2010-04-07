@@ -128,6 +128,11 @@ namespace CodePlex.JPMikkers.TFTP
 
         private string GetLocalFilename(string filename)
         {
+            // strip root from filename before calling Path.Combine(). Some clients like to prepend a leading backslash, resulting in an 'Illegal filename' error.
+            if (Path.IsPathRooted(filename))
+            {
+                filename = filename.Substring(Path.GetPathRoot(filename).Length);
+            }
             string result = Path.GetFullPath(Path.Combine(m_RootPath, filename));
             if (!result.StartsWith(m_RootPath))
             {
