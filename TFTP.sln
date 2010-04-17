@@ -1,36 +1,43 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFTPGUI", "GUI\TFTPGUI.csproj", "{096B293C-8578-43D4-8165-0D3DB4373369}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFTPLibrary", "Library\TFTPLibrary.csproj", "{75CBACB4-34BA-4994-BF36-90A86B8F9372}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFTPService", "TFTPService\TFTPService.csproj", "{83AB486F-9859-48EB-870C-57745C16A232}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupTFTPServer", "SetupTFTPServer\SetupTFTPServer.vdproj", "{72D10DC3-54E6-4CCD-8950-2F3D980A5216}"
 EndProject
 Global
 	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 3
+		SccNumberOfProjects = 4
 		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
 		SccTeamFoundationServer = https://tfs02.codeplex.com/
 		SccLocalPath0 = .
 		SccProjectUniqueName1 = Library\\TFTPLibrary.csproj
 		SccProjectName1 = Library
 		SccLocalPath1 = Library
-		SccProjectUniqueName2 = GUI\\TFTPGUI.csproj
-		SccProjectName2 = GUI
-		SccLocalPath2 = GUI
+		SccProjectUniqueName2 = TFTPService\\TFTPService.csproj
+		SccProjectName2 = TFTPService
+		SccLocalPath2 = TFTPService
+		SccProjectUniqueName3 = SetupTFTPServer\\SetupTFTPServer.vdproj
+		SccProjectName3 = SetupTFTPServer
+		SccLocalPath3 = SetupTFTPServer
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{096B293C-8578-43D4-8165-0D3DB4373369}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{096B293C-8578-43D4-8165-0D3DB4373369}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{096B293C-8578-43D4-8165-0D3DB4373369}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{096B293C-8578-43D4-8165-0D3DB4373369}.Release|Any CPU.Build.0 = Release|Any CPU
 		{75CBACB4-34BA-4994-BF36-90A86B8F9372}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{75CBACB4-34BA-4994-BF36-90A86B8F9372}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75CBACB4-34BA-4994-BF36-90A86B8F9372}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75CBACB4-34BA-4994-BF36-90A86B8F9372}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83AB486F-9859-48EB-870C-57745C16A232}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83AB486F-9859-48EB-870C-57745C16A232}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83AB486F-9859-48EB-870C-57745C16A232}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83AB486F-9859-48EB-870C-57745C16A232}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72D10DC3-54E6-4CCD-8950-2F3D980A5216}.Debug|Any CPU.ActiveCfg = Debug
+		{72D10DC3-54E6-4CCD-8950-2F3D980A5216}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
