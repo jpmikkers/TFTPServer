@@ -31,7 +31,7 @@ using System.Text;
 using System.Windows.Forms;
 using CodePlex.JPMikkers.TFTP;
 
-namespace TFTPService
+namespace TFTPServerApp
 {
     public partial class FormSettings : Form
     {

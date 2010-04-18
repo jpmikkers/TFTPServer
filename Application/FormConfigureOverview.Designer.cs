@@ -1,4 +1,4 @@
-﻿namespace TFTPService
+﻿namespace TFTPServerApp
 {
     partial class FormConfigureOverview
     {

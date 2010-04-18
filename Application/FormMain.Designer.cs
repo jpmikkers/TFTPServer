@@ -1,4 +1,4 @@
-﻿namespace TFTPService
+﻿namespace TFTPServerApp
 {
     partial class FormMain
     {
@@ -35,20 +35,18 @@
             this.timerServiceWatcher = new System.Windows.Forms.Timer(this.components);
             this.buttonConfigure = new System.Windows.Forms.Button();
             this.buttonAbout = new System.Windows.Forms.Button();
-            this.eventLog1 = new System.Diagnostics.EventLog();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.buttonHistoryOneDay = new System.Windows.Forms.Button();
             this.buttonClear = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.labelFilter = new System.Windows.Forms.Label();
+            this.buttonHistoryAll = new System.Windows.Forms.Button();
+            this.buttonHistoryOneHour = new System.Windows.Forms.Button();
             this.panel3 = new System.Windows.Forms.Panel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.buttonHistoryAll = new System.Windows.Forms.Button();
-            this.labelFilter = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            this.buttonHistoryOneHour = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -112,14 +110,6 @@
             this.buttonAbout.UseVisualStyleBackColor = true;
             this.buttonAbout.Click += new System.EventHandler(this.button1_Click);
             // 
-            // eventLog1
-            // 
-            this.eventLog1.EnableRaisingEvents = true;
-            this.eventLog1.Log = "TFTPServer";
-            this.eventLog1.Source = "TFTPServer";
-            this.eventLog1.SynchronizingObject = this;
-            this.eventLog1.EntryWritten += new System.Diagnostics.EntryWrittenEventHandler(this.eventLog1_EntryWritten);
-            // 
             // textBox1
             // 
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -129,6 +119,7 @@
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBox1.Size = new System.Drawing.Size(566, 215);
             this.textBox1.TabIndex = 0;
+            this.textBox1.WordWrap = false;
             // 
             // buttonHistoryOneDay
             // 
@@ -179,6 +170,47 @@
             this.panel2.Size = new System.Drawing.Size(582, 41);
             this.panel2.TabIndex = 2;
             // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(255, 14);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(67, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "More history:";
+            // 
+            // labelFilter
+            // 
+            this.labelFilter.AutoSize = true;
+            this.labelFilter.Location = new System.Drawing.Point(5, 14);
+            this.labelFilter.Name = "labelFilter";
+            this.labelFilter.Size = new System.Drawing.Size(117, 13);
+            this.labelFilter.TabIndex = 0;
+            this.labelFilter.Text = "Showing log starting at:";
+            // 
+            // buttonHistoryAll
+            // 
+            this.buttonHistoryAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonHistoryAll.Location = new System.Drawing.Point(454, 9);
+            this.buttonHistoryAll.Name = "buttonHistoryAll";
+            this.buttonHistoryAll.Size = new System.Drawing.Size(57, 23);
+            this.buttonHistoryAll.TabIndex = 4;
+            this.buttonHistoryAll.Text = "All";
+            this.buttonHistoryAll.UseVisualStyleBackColor = true;
+            this.buttonHistoryAll.Click += new System.EventHandler(this.buttonHistoryAll_Click);
+            // 
+            // buttonHistoryOneHour
+            // 
+            this.buttonHistoryOneHour.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonHistoryOneHour.Location = new System.Drawing.Point(328, 9);
+            this.buttonHistoryOneHour.Name = "buttonHistoryOneHour";
+            this.buttonHistoryOneHour.Size = new System.Drawing.Size(57, 23);
+            this.buttonHistoryOneHour.TabIndex = 2;
+            this.buttonHistoryOneHour.Text = "+1 hour";
+            this.buttonHistoryOneHour.UseVisualStyleBackColor = true;
+            this.buttonHistoryOneHour.Click += new System.EventHandler(this.buttonHistoryOneHour_Click);
+            // 
             // panel3
             // 
             this.panel3.Controls.Add(this.textBox1);
@@ -205,48 +237,7 @@
             this.toolStripStatusLabel.Size = new System.Drawing.Size(93, 17);
             this.toolStripStatusLabel.Text = "Service Status : -";
             // 
-            // buttonHistoryAll
-            // 
-            this.buttonHistoryAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonHistoryAll.Location = new System.Drawing.Point(454, 9);
-            this.buttonHistoryAll.Name = "buttonHistoryAll";
-            this.buttonHistoryAll.Size = new System.Drawing.Size(57, 23);
-            this.buttonHistoryAll.TabIndex = 4;
-            this.buttonHistoryAll.Text = "All";
-            this.buttonHistoryAll.UseVisualStyleBackColor = true;
-            this.buttonHistoryAll.Click += new System.EventHandler(this.buttonHistoryAll_Click);
-            // 
-            // labelFilter
-            // 
-            this.labelFilter.AutoSize = true;
-            this.labelFilter.Location = new System.Drawing.Point(5, 14);
-            this.labelFilter.Name = "labelFilter";
-            this.labelFilter.Size = new System.Drawing.Size(117, 13);
-            this.labelFilter.TabIndex = 0;
-            this.labelFilter.Text = "Showing log starting at:";
-            // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(255, 14);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(67, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "More history:";
-            // 
-            // buttonHistoryOneHour
-            // 
-            this.buttonHistoryOneHour.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonHistoryOneHour.Location = new System.Drawing.Point(328, 9);
-            this.buttonHistoryOneHour.Name = "buttonHistoryOneHour";
-            this.buttonHistoryOneHour.Size = new System.Drawing.Size(57, 23);
-            this.buttonHistoryOneHour.TabIndex = 2;
-            this.buttonHistoryOneHour.Text = "+1 hour";
-            this.buttonHistoryOneHour.UseVisualStyleBackColor = true;
-            this.buttonHistoryOneHour.Click += new System.EventHandler(this.buttonHistoryOneHour_Click);
-            // 
-            // Form1
+            // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -256,10 +247,9 @@
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.statusStrip1);
             this.MinimumSize = new System.Drawing.Size(420, 200);
-            this.Name = "Form1";
+            this.Name = "FormMain";
             this.Text = "TFTP Service";
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
@@ -280,7 +270,6 @@
         private System.Windows.Forms.Timer timerServiceWatcher;
         private System.Windows.Forms.Button buttonConfigure;
         private System.Windows.Forms.Button buttonAbout;
-        private System.Diagnostics.EventLog eventLog1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button buttonClear;
         private System.Windows.Forms.Button buttonHistoryOneDay;

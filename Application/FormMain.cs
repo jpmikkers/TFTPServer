@@ -35,19 +35,30 @@ using System.Security.Principal;
 using System.IO;
 using System.Diagnostics;
 
-namespace TFTPService
+namespace TFTPServerApp
 {
     public partial class FormMain : Form
     {
         private bool m_HasAdministrativeRight;
         private ServiceController m_Service;
         private DateTime m_TimeFilter;
+        private EventLog m_EventLog;
 
         public FormMain(ServiceController service)
         {
             m_Service = service;
             m_HasAdministrativeRight = Program.HasAdministrativeRight();
             InitializeComponent();
+
+            m_EventLog = new EventLog();
+            m_EventLog.BeginInit();
+            m_EventLog.EnableRaisingEvents = true;
+            m_EventLog.Log = Program.CustomEventLog;
+            m_EventLog.Source = Program.CustomEventSource;
+            m_EventLog.SynchronizingObject = this;
+            m_EventLog.EntryWritten += new System.Diagnostics.EntryWrittenEventHandler(this.eventLog1_EntryWritten);
+            m_EventLog.EndInit();
+                        
             UpdateServiceStatus();
             timerServiceWatcher.Enabled = true;
             SetTimeFilter(DateTime.Now);
@@ -164,7 +175,23 @@ namespace TFTPService
         {
             if (entry.TimeGenerated > m_TimeFilter)
             {
-                textBox1.AppendText(entry.TimeGenerated.ToString("yyyy-MM-dd HH:mm:ss.fff") + " : " + entry.Message + "\r\n");
+                string entryType;
+                switch (entry.EntryType)
+                {
+                    case EventLogEntryType.Error:
+                        entryType = "ERROR";
+                        break;
+
+                    case EventLogEntryType.Warning:
+                        entryType = "WARNING";
+                        break;
+
+                    default:
+                    case EventLogEntryType.Information:
+                        entryType = "INFO";
+                        break;
+                }
+                textBox1.AppendText(entry.TimeGenerated.ToString("yyyy-MM-dd HH:mm:ss.fff") + " : " + entryType + " : " + entry.Message + "\r\n");
             }
         }
 
@@ -179,7 +206,7 @@ namespace TFTPService
             //textBox1.Up
             textBox1.Clear();
 
-            foreach (EventLogEntry entry in eventLog1.Entries)
+            foreach (EventLogEntry entry in m_EventLog.Entries)
             {
                 AddEventLogEntry(entry);
             }

@@ -10,16 +10,18 @@ using System.Configuration;
 using System.Threading;
 using CodePlex.JPMikkers.TFTP;
 
-namespace TFTPService
+namespace TFTPServerApp
 {
     public partial class TFTPService : ServiceBase
     {
+        private EventLog m_EventLog;
         private TFTPServerConfigurationList m_Configuration;
         private List<TFTPServer> m_Servers;
 
         public TFTPService()
         {
             InitializeComponent();
+            m_EventLog = new EventLog(Program.CustomEventLog, ".", Program.CustomEventSource);
         }
 
         protected override void OnStart(string[] args)
@@ -54,6 +56,7 @@ namespace TFTPService
                 }
                 catch (Exception e)
                 {
+                    m_EventLog.WriteEntry(string.Format("Exception while starting server '{0}' : {1}", server.EndPoint, e),EventLogEntryType.Error);
                     server.OnStatusChange -= server_OnStatusChange;
                     server.OnTrace -= server_OnTrace;
                 }
@@ -62,15 +65,18 @@ namespace TFTPService
 
         private void server_OnTrace(object sender, TFTPTraceEventArgs e)
         {
-            //System.Diagnostics.Debug.WriteLine(e.Message);
-            eventLog1.WriteEntry(e.Message);
+            m_EventLog.WriteEntry(e.Message,EventLogEntryType.Information);
         }
 
         private void server_OnStatusChange(object sender, TFTPStopEventArgs e)
         {
             TFTPServer server = (TFTPServer)sender;
-            //System.Diagnostics.Debug.WriteLine(string.Format("{0}, {1} transfers", server.Active ? "Active" : "Stopped", server.ActiveTransfers));
-            eventLog1.WriteEntry(string.Format("{0}, {1} transfers", server.Active ? "Active" : "Stopped", server.ActiveTransfers));
+            m_EventLog.WriteEntry(string.Format("{0}, {1} transfers", server.Active ? "Active" : "Stopped", server.ActiveTransfers),EventLogEntryType.Information);
+
+            if (!server.Active && e.Reason != null)
+            {
+                m_EventLog.WriteEntry(string.Format("Server '{0}' stopped : {1}", server.EndPoint, e.Reason), EventLogEntryType.Error);
+            }
         }
 
         protected override void OnStop()
