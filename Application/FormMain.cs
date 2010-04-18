@@ -42,30 +42,20 @@ namespace TFTPServerApp
         private bool m_HasAdministrativeRight;
         private ServiceController m_Service;
         private DateTime m_TimeFilter;
-        private EventLog m_EventLog;
 
         public FormMain(ServiceController service)
         {
             m_Service = service;
             m_HasAdministrativeRight = Program.HasAdministrativeRight();
             InitializeComponent();
-
-            m_EventLog = new EventLog();
-            m_EventLog.BeginInit();
-            m_EventLog.EnableRaisingEvents = true;
-            m_EventLog.Log = Program.CustomEventLog;
-            m_EventLog.Source = Program.CustomEventSource;
-            m_EventLog.SynchronizingObject = this;
-            m_EventLog.EntryWritten += new System.Diagnostics.EntryWrittenEventHandler(this.eventLog1_EntryWritten);
-            m_EventLog.EndInit();
-                        
             UpdateServiceStatus();
             timerServiceWatcher.Enabled = true;
             SetTimeFilter(DateTime.Now);
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        protected override void OnHandleCreated(EventArgs e)
         {
+            base.OnHandleCreated(e);
         }
 
         private void UpdateServiceStatus()
@@ -76,14 +66,14 @@ namespace TFTPServerApp
             {
                 buttonStart.Enabled = false;
                 buttonStop.Enabled = false;
-                //buttonConfigure.Enabled = false;
+                buttonConfigure.Enabled = false;
                 buttonElevate.Enabled = true;
             }
             else
             {
                 buttonStart.Enabled = (m_Service.Status == ServiceControllerStatus.Stopped);
                 buttonStop.Enabled = (m_Service.Status == ServiceControllerStatus.Running);
-                //buttonConfigure.Enabled = true;
+                buttonConfigure.Enabled = true;
                 buttonElevate.Enabled = false;
             }
 
@@ -149,11 +139,16 @@ namespace TFTPServerApp
             if (f.ShowDialog(this) == DialogResult.OK)
             {
                 UpdateServiceStatus();
-                if (m_Service.Status == ServiceControllerStatus.Running)
+                if(m_HasAdministrativeRight && m_Service.Status == ServiceControllerStatus.Running)
                 {
-                    MessageBox.Show("The TFTP Service has to be restarted to enable the new settings.\r\n"+
-                        "This will cause any transfers in progress to be aborted.\r\n"+
-                        "Are you sure you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    if (MessageBox.Show("The TFTP Service has to be restarted to enable the new settings.\r\n" +
+                        "This will cause any transfers in progress to be aborted.\r\n" +
+                        "Are you sure you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                    {
+                        m_Service.Stop();
+                        m_Service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(30.0));
+                        m_Service.Start();
+                    }
                 }
             }
         }
@@ -206,7 +201,7 @@ namespace TFTPServerApp
             //textBox1.Up
             textBox1.Clear();
 
-            foreach (EventLogEntry entry in m_EventLog.Entries)
+            foreach (EventLogEntry entry in eventLog1.Entries)
             {
                 AddEventLogEntry(entry);
             }
