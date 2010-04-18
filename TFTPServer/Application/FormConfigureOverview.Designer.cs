@@ -28,7 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormConfigureOverview));
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
+            this.ColumnName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnPort = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColumnRootPath = new System.Windows.Forms.DataGridViewLinkColumn();
+            this.ColumnReadable = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.ColumnWritable = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.buttonOK = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -37,12 +44,6 @@
             this.buttonRemove = new System.Windows.Forms.Button();
             this.buttonAdd = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.ColumnName = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColumnAddress = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColumnPort = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColumnRootPath = new System.Windows.Forms.DataGridViewLinkColumn();
-            this.ColumnReadable = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.ColumnWritable = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -75,6 +76,60 @@
             this.dataGridView1.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridView1_CellFormatting);
             this.dataGridView1.SelectionChanged += new System.EventHandler(this.dataGridView1_SelectionChanged);
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            // 
+            // ColumnName
+            // 
+            this.ColumnName.DataPropertyName = "Name";
+            this.ColumnName.HeaderText = "Name";
+            this.ColumnName.Name = "ColumnName";
+            this.ColumnName.ReadOnly = true;
+            // 
+            // ColumnAddress
+            // 
+            this.ColumnAddress.DataPropertyName = "EndPoint.Address";
+            this.ColumnAddress.HeaderText = "Address";
+            this.ColumnAddress.Name = "ColumnAddress";
+            this.ColumnAddress.ReadOnly = true;
+            // 
+            // ColumnPort
+            // 
+            this.ColumnPort.DataPropertyName = "EndPoint.Port";
+            this.ColumnPort.HeaderText = "Port";
+            this.ColumnPort.Name = "ColumnPort";
+            this.ColumnPort.ReadOnly = true;
+            this.ColumnPort.Width = 60;
+            // 
+            // ColumnRootPath
+            // 
+            this.ColumnRootPath.DataPropertyName = "RootPath";
+            this.ColumnRootPath.HeaderText = "Root Path";
+            this.ColumnRootPath.Name = "ColumnRootPath";
+            this.ColumnRootPath.ReadOnly = true;
+            this.ColumnRootPath.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.ColumnRootPath.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.ColumnRootPath.Width = 140;
+            // 
+            // ColumnReadable
+            // 
+            this.ColumnReadable.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.ColumnReadable.DataPropertyName = "AllowRead";
+            this.ColumnReadable.HeaderText = "Readable";
+            this.ColumnReadable.Name = "ColumnReadable";
+            this.ColumnReadable.ReadOnly = true;
+            this.ColumnReadable.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.ColumnReadable.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.ColumnReadable.Width = 78;
+            // 
+            // ColumnWritable
+            // 
+            this.ColumnWritable.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
+            this.ColumnWritable.DataPropertyName = "AllowWrite";
+            this.ColumnWritable.HeaderText = "Writable";
+            this.ColumnWritable.Name = "ColumnWritable";
+            this.ColumnWritable.ReadOnly = true;
+            this.ColumnWritable.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.ColumnWritable.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            this.ColumnWritable.Width = 71;
             // 
             // buttonOK
             // 
@@ -163,60 +218,6 @@
             this.panel2.Size = new System.Drawing.Size(84, 219);
             this.panel2.TabIndex = 5;
             // 
-            // ColumnName
-            // 
-            this.ColumnName.DataPropertyName = "Name";
-            this.ColumnName.HeaderText = "Name";
-            this.ColumnName.Name = "ColumnName";
-            this.ColumnName.ReadOnly = true;
-            // 
-            // ColumnAddress
-            // 
-            this.ColumnAddress.DataPropertyName = "EndPoint.Address";
-            this.ColumnAddress.HeaderText = "Address";
-            this.ColumnAddress.Name = "ColumnAddress";
-            this.ColumnAddress.ReadOnly = true;
-            // 
-            // ColumnPort
-            // 
-            this.ColumnPort.DataPropertyName = "EndPoint.Port";
-            this.ColumnPort.HeaderText = "Port";
-            this.ColumnPort.Name = "ColumnPort";
-            this.ColumnPort.ReadOnly = true;
-            this.ColumnPort.Width = 60;
-            // 
-            // ColumnRootPath
-            // 
-            this.ColumnRootPath.DataPropertyName = "RootPath";
-            this.ColumnRootPath.HeaderText = "Root Path";
-            this.ColumnRootPath.Name = "ColumnRootPath";
-            this.ColumnRootPath.ReadOnly = true;
-            this.ColumnRootPath.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.ColumnRootPath.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.ColumnRootPath.Width = 140;
-            // 
-            // ColumnReadable
-            // 
-            this.ColumnReadable.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.ColumnReadable.DataPropertyName = "AllowRead";
-            this.ColumnReadable.HeaderText = "Readable";
-            this.ColumnReadable.Name = "ColumnReadable";
-            this.ColumnReadable.ReadOnly = true;
-            this.ColumnReadable.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.ColumnReadable.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.ColumnReadable.Width = 78;
-            // 
-            // ColumnWritable
-            // 
-            this.ColumnWritable.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.ColumnHeader;
-            this.ColumnWritable.DataPropertyName = "AllowWrite";
-            this.ColumnWritable.HeaderText = "Writable";
-            this.ColumnWritable.Name = "ColumnWritable";
-            this.ColumnWritable.ReadOnly = true;
-            this.ColumnWritable.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.ColumnWritable.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            this.ColumnWritable.Width = 71;
-            // 
             // FormConfigureOverview
             // 
             this.AcceptButton = this.buttonOK;
@@ -227,8 +228,9 @@
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormConfigureOverview";
-            this.Text = "FormConfigureOverview";
+            this.Text = "TFTP Server configuration";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
