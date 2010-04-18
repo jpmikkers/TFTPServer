@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TFTPService")]
+[assembly: AssemblyTitle("TFTPServer")]
 [assembly: AssemblyDescription(
     "Copyright (c) 2010 Jean-Paul Mikkers"+
     "\r\n" +
@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("JPMikkers")]
-[assembly: AssemblyProduct("TFTPService")]
+[assembly: AssemblyProduct("TFTPServer")]
 [assembly: AssemblyCopyright("Copyright © Jean-Paul Mikkers 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
