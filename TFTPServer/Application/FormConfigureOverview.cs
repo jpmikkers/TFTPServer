@@ -10,7 +10,7 @@ using CodePlex.JPMikkers.TFTP;
 using System.Reflection;
 using System.IO;
 
-namespace TFTPService
+namespace TFTPServerApp
 {
     public partial class FormConfigureOverview : Form
     {

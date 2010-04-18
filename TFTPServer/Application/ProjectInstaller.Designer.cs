@@ -1,4 +1,4 @@
-﻿namespace TFTPService
+﻿namespace TFTPServerApp
 {
     partial class ProjectInstaller
     {
@@ -39,9 +39,9 @@
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.Description = "Managed TFTP server";
-            this.serviceInstaller1.DisplayName = "Managed TFTP server";
-            this.serviceInstaller1.ServiceName = "ManagedTFTPService";
+            this.serviceInstaller1.Description = "TFTP server";
+            this.serviceInstaller1.DisplayName = "TFTP server";
+            this.serviceInstaller1.ServiceName = "TFTPServer";
             // 
             // ProjectInstaller
             // 

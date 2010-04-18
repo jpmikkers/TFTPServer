@@ -35,7 +35,7 @@ using System.Net.NetworkInformation;
 using System.Net.Configuration;
 using System.Reflection;
 
-namespace TFTPService
+namespace TFTPServerApp
 {
     public partial class FormPickAdapter : Form
     {

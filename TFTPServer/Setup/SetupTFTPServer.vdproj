@@ -3,7 +3,7 @@
 "VSVersion" = "3:800"
 "ProjectType" = "8:{978C614F-708E-4E1A-B201-565925725DBA}"
 "IsWebType" = "8:FALSE"
-"ProjectName" = "8:SetupTFTPServer"
+"ProjectName" = "8:Setup"
 "LanguageId" = "3:1033"
 "CodePage" = "3:1252"
 "UILanguageId" = "3:1033"
@@ -15,14 +15,32 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_38C1B09D3A7644E1B0F1C89B41DC1A61"
+        "MsmKey" = "8:_A3F18593E3CD43B5A741CB7AE0510273"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D94AE0AFAA589B8C647B1D975452B653"
+        "OwnerKey" = "8:_DDBDB63838614ACFBFC006398BC96C33"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DDBDB63838614ACFBFC006398BC96C33"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_38C1B09D3A7644E1B0F1C89B41DC1A61"
+        "OwnerKey" = "8:_D94AE0AFAA589B8C647B1D975452B653"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_DDBDB63838614ACFBFC006398BC96C33"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -43,6 +61,27 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5.SP1"
+                    {
+                    "Name" = "8:.NET Framework 3.5 SP1"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5.SP1"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
+            }
         }
         "Release"
         {
@@ -59,37 +98,58 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5.SP1"
+                    {
+                    "Name" = "8:.NET Framework 3.5 SP1"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5.SP1"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    {
+                    "Name" = "8:Windows Installer 3.1"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    }
+                }
+            }
         }
     }
     "Deployable"
     {
         "CustomAction"
         {
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_EC9E2C15445D4F68B609579C5B7A87A9"
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_9251805BF4B84A8AB24F3DD640A80133"
             {
             "Name" = "8:InstallService"
             "Condition" = "8:"
-            "Object" = "8:_38C1B09D3A7644E1B0F1C89B41DC1A61"
+            "Object" = "8:_DDBDB63838614ACFBFC006398BC96C33"
             "FileType" = "3:2"
             "InstallAction" = "3:1"
             "Arguments" = "8:/install"
             "EntryPoint" = "8:"
             "Sequence" = "3:1"
-            "Identifier" = "8:_C128CE6F_ACF5_473D_9595_D87D1957B096"
+            "Identifier" = "8:_B90EE740_E5A4_4145_A7FD_0E4544A2B388"
             "InstallerClass" = "11:FALSE"
             "CustomActionData" = "8:"
             }
-            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_F10233817F264CE9BCE7C4553399E4AB"
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_E2C426F3B84A480991626DDC96C04113"
             {
             "Name" = "8:UninstallService"
             "Condition" = "8:"
-            "Object" = "8:_38C1B09D3A7644E1B0F1C89B41DC1A61"
+            "Object" = "8:_DDBDB63838614ACFBFC006398BC96C33"
             "FileType" = "3:2"
             "InstallAction" = "3:4"
             "Arguments" = "8:/uninstall"
             "EntryPoint" = "8:"
             "Sequence" = "3:1"
-            "Identifier" = "8:_3C251B10_1920_46EE_956D_EEAA6AF54464"
+            "Identifier" = "8:_4B8FE278_F22B_467A_B50F_778EA2C85A86"
             "InstallerClass" = "11:FALSE"
             "CustomActionData" = "8:"
             }
@@ -116,6 +176,57 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A3F18593E3CD43B5A741CB7AE0510273"
+            {
+            "SourcePath" = "8:..\\Application\\Resources\\MainIcon.ico"
+            "TargetName" = "8:MainIcon.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_5BBCC1E75B6B49BFB02033B69AEB324C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D94AE0AFAA589B8C647B1D975452B653"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:TFTPLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_D94AE0AFAA589B8C647B1D975452B653"
+                    {
+                    "Name" = "8:TFTPLibrary.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:TFTPLibrary.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_5BBCC1E75B6B49BFB02033B69AEB324C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -177,6 +288,17 @@
             "Property" = "8:ProgramMenuFolder"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_74F6A4B078F74BD39EF30F399565C247"
+                    {
+                    "Name" = "8:TFTP Server"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_84E53326EFEF47198A7B0BE7B7828387"
+                        "Folders"
+                        {
+                        }
+                    }
                 }
             }
             "{1525181F-901A-416C-8A58-119130FE478E}:_D8F6BC42EABA4B21A109242F2278C58D"
@@ -207,7 +329,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TFTP Server"
         "ProductCode" = "8:{0865417D-7005-4570-8C1B-A85B700EFBA8}"
-        "PackageCode" = "8:{A4E50C2A-8DE1-4ACC-B67A-F4E362692C0E}"
+        "PackageCode" = "8:{90F57BE1-E9EE-4C1A-9063-B6998C448492}"
         "UpgradeCode" = "8:{BB45E0DB-73BF-4FDE-B761-28629765805D}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
@@ -222,8 +344,8 @@
         "ARPCONTACT" = "8:JPMikkers"
         "Keywords" = "8:tftp"
         "ARPCOMMENTS" = "8:TFTP Server installer"
-        "ARPURLINFOABOUT" = "8:"
-        "ARPPRODUCTICON" = "8:"
+        "ARPURLINFOABOUT" = "8:http://tftpserver.codeplex.com/"
+        "ARPPRODUCTICON" = "8:_A3F18593E3CD43B5A741CB7AE0510273"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -326,16 +448,16 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_289E406394F64521961AF065D38B8C4E"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_88253EA6664149D39AC4FE913146B50A"
             {
-            "Name" = "8:Managed TFTP Server"
+            "Name" = "8:TFTP Server"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_38C1B09D3A7644E1B0F1C89B41DC1A61"
-            "Folder" = "8:_9DBD8C8C4F85465F8C67DAF93CCDA479"
+            "Target" = "8:_DDBDB63838614ACFBFC006398BC96C33"
+            "Folder" = "8:_74F6A4B078F74BD39EF30F399565C247"
             "WorkingFolder" = "8:_5BBCC1E75B6B49BFB02033B69AEB324C"
             "Icon" = "8:"
             "Feature" = "8:"
@@ -739,9 +861,9 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_38C1B09D3A7644E1B0F1C89B41DC1A61"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DDBDB63838614ACFBFC006398BC96C33"
             {
-            "SourcePath" = "8:..\\TFTPService\\obj\\Debug\\TFTPService.exe"
+            "SourcePath" = "8:..\\Application\\obj\\Debug\\TFTPServer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5BBCC1E75B6B49BFB02033B69AEB324C"

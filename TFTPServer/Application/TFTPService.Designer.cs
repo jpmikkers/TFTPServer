@@ -1,4 +1,4 @@
-﻿namespace TFTPService
+﻿namespace TFTPServerApp
 {
     partial class TFTPService
     {
@@ -28,23 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.eventLog1 = new System.Diagnostics.EventLog();
-            ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).BeginInit();
-            // 
-            // eventLog1
-            // 
-            this.eventLog1.Log = "TFTPServer";
-            this.eventLog1.Source = "TFTPServer";
             // 
             // TFTPService
             // 
-            this.ServiceName = "TFTPService";
-            ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).EndInit();
+            this.ServiceName = "TFTPServer";
 
         }
 
         #endregion
 
-        private System.Diagnostics.EventLog eventLog1;
+
     }
 }

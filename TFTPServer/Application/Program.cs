@@ -10,10 +10,13 @@ using System.Security;
 using System.Security.Principal;
 using System.IO;
 
-namespace TFTPService
+namespace TFTPServerApp
 {
     static class Program
     {
+        public const string CustomEventLog = "TFTPServerLog";
+        public const string CustomEventSource = "TFTPServerSource";
+
         private const string Switch_Install = "/install";
         private const string Switch_Uninstall = "/uninstall";
         private const string Switch_Service = "/service";
@@ -61,6 +64,22 @@ namespace TFTPService
             }
             else
             {
+                System.Diagnostics.Trace.WriteLine("Creating TFTP service log");
+
+                try
+                {
+                    if (!EventLog.Exists(CustomEventLog))
+                    {
+                        EventLog.CreateEventSource(CustomEventSource, CustomEventLog);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Trace.WriteLine(String.Format("Exception: {0}",ex));
+                }
+
+                System.Diagnostics.Trace.WriteLine("Installing TFTP service");
+
                 try
                 {
                     System.Configuration.Install.AssemblyInstaller Installer = new System.Configuration.Install.AssemblyInstaller(Assembly.GetExecutingAssembly(), new string[] { });
@@ -70,7 +89,7 @@ namespace TFTPService
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Oops " + ex.Message);
+                    System.Diagnostics.Trace.WriteLine(String.Format("Exception: {0}", ex));
                 }
             }
         }
@@ -84,16 +103,31 @@ namespace TFTPService
             }
             else
             {
+                System.Diagnostics.Trace.WriteLine("Uninstalling TFTP service");
+
                 try
                 {
                     System.Configuration.Install.AssemblyInstaller Installer = new System.Configuration.Install.AssemblyInstaller(Assembly.GetExecutingAssembly(), new string[] { });
                     Installer.UseNewContext = true;
                     Installer.Uninstall(null);
-                    //Installer.Commit(null);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Oops " + ex.Message);
+                    System.Diagnostics.Trace.WriteLine(String.Format("Exception: {0}", ex));
+                }
+
+                System.Diagnostics.Trace.WriteLine("Removing TFTP service log");
+
+                try
+                {
+                    if(EventLog.Exists(CustomEventLog))
+                    {
+                        EventLog.Delete(CustomEventLog);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    System.Diagnostics.Trace.WriteLine(String.Format("Exception: {0}", ex));
                 }
             }
         }
@@ -115,11 +149,11 @@ namespace TFTPService
 
                 if (args.Length == 0)
                 {
-                    ServiceController serviceController = ServiceController.GetServices().FirstOrDefault(x => x.ServiceName == "ManagedTFTPService");
+                    ServiceController serviceController = ServiceController.GetServices().FirstOrDefault(x => x.ServiceName == "TFTPServer");
 
                     if (serviceController == null)
                     {
-                        if (MessageBox.Show("Service has not been installed yet, install?", "TFTPService", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        if (MessageBox.Show("Service has not been installed yet, install?", "TFTP Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
                         {
                             Install();
                         }

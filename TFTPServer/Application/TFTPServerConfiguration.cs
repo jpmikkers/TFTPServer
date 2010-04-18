@@ -29,7 +29,7 @@ using System.IO;
 using System.ComponentModel;
 using CodePlex.JPMikkers.TFTP;
 
-namespace TFTPService
+namespace TFTPServerApp
 {
     [Serializable()]
     public class TFTPServerConfiguration

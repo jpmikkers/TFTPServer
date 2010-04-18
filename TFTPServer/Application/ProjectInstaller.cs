@@ -6,7 +6,7 @@ using System.Configuration.Install;
 using System.Linq;
 
 
-namespace TFTPService
+namespace TFTPServerApp
 {
     [RunInstaller(true)]
     public partial class ProjectInstaller : Installer
