@@ -48,10 +48,12 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.eventLog1 = new System.Diagnostics.EventLog();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.statusStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).BeginInit();
             this.SuspendLayout();
             // 
             // buttonStart
@@ -238,6 +240,13 @@
             this.toolStripStatusLabel.Size = new System.Drawing.Size(93, 17);
             this.toolStripStatusLabel.Text = "Service Status : -";
             // 
+            // eventLog1
+            // 
+            this.eventLog1.EnableRaisingEvents = true;
+            this.eventLog1.Log = "TFTPServerLog";
+            this.eventLog1.SynchronizingObject = this;
+            this.eventLog1.EntryWritten += new System.Diagnostics.EntryWrittenEventHandler(this.eventLog1_EntryWritten);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -251,7 +260,6 @@
             this.MinimumSize = new System.Drawing.Size(420, 200);
             this.Name = "FormMain";
             this.Text = "TFTP Server";
-            this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
@@ -259,6 +267,7 @@
             this.panel3.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.eventLog1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -284,5 +293,6 @@
         private System.Windows.Forms.Button buttonHistoryAll;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonHistoryOneHour;
+        private System.Diagnostics.EventLog eventLog1;
     }
 }

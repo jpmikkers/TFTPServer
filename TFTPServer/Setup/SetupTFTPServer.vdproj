@@ -21,7 +21,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D94AE0AFAA589B8C647B1D975452B653"
+        "MsmKey" = "8:_A822A28F0CCAB69B28EB32C0548C4FD7"
         "OwnerKey" = "8:_DDBDB63838614ACFBFC006398BC96C33"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -40,7 +40,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D94AE0AFAA589B8C647B1D975452B653"
+        "OwnerKey" = "8:_A822A28F0CCAB69B28EB32C0548C4FD7"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -196,14 +196,14 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D94AE0AFAA589B8C647B1D975452B653"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_A822A28F0CCAB69B28EB32C0548C4FD7"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:TFTPLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:TFTPLibrary, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_D94AE0AFAA589B8C647B1D975452B653"
+                    "_A822A28F0CCAB69B28EB32C0548C4FD7"
                     {
                     "Name" = "8:TFTPLibrary.dll"
                     "Attributes" = "3:512"
@@ -328,14 +328,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TFTP Server"
-        "ProductCode" = "8:{0865417D-7005-4570-8C1B-A85B700EFBA8}"
-        "PackageCode" = "8:{49F4A5AF-FC5E-4DC6-A66F-EFE8AC80708A}"
+        "ProductCode" = "8:{A5C66C5A-9D39-4B8C-A8D8-6FC0B723EC99}"
+        "PackageCode" = "8:{B0E8A004-6637-4540-BECC-E06396A7A0FA}"
         "UpgradeCode" = "8:{BB45E0DB-73BF-4FDE-B761-28629765805D}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:1.1.0"
         "Manufacturer" = "8:JPMikkers"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -863,7 +863,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DDBDB63838614ACFBFC006398BC96C33"
             {
-            "SourcePath" = "8:..\\Application\\obj\\Debug\\TFTPServer.exe"
+            "SourcePath" = "8:..\\Application\\obj\\Release\\TFTPServer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5BBCC1E75B6B49BFB02033B69AEB324C"

@@ -64,20 +64,6 @@ namespace TFTPServerApp
             }
             else
             {
-                System.Diagnostics.Trace.WriteLine("Creating TFTP service log");
-
-                try
-                {
-                    if (!EventLog.Exists(CustomEventLog))
-                    {
-                        EventLog.CreateEventSource(CustomEventSource, CustomEventLog);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Trace.WriteLine(String.Format("Exception: {0}",ex));
-                }
-
                 System.Diagnostics.Trace.WriteLine("Installing TFTP service");
 
                 try
@@ -112,20 +98,6 @@ namespace TFTPServerApp
                     Installer.Uninstall(null);
                 }
                 catch (Exception ex)
-                {
-                    System.Diagnostics.Trace.WriteLine(String.Format("Exception: {0}", ex));
-                }
-
-                System.Diagnostics.Trace.WriteLine("Removing TFTP service log");
-
-                try
-                {
-                    if(EventLog.Exists(CustomEventLog))
-                    {
-                        EventLog.Delete(CustomEventLog);
-                    }
-                }
-                catch(Exception ex)
                 {
                     System.Diagnostics.Trace.WriteLine(String.Format("Exception: {0}", ex));
                 }
