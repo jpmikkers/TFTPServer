@@ -103,6 +103,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="TFTPServerConfiguration.cs" />
+    <Compile Include="TFTPServerResurrector.cs" />
     <Compile Include="TFTPService.cs">
       <SubType>Component</SubType>
     </Compile>
