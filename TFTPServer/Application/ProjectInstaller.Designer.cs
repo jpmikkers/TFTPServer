@@ -42,6 +42,8 @@
             this.serviceInstaller1.Description = "TFTP server";
             this.serviceInstaller1.DisplayName = "TFTP server";
             this.serviceInstaller1.ServiceName = "TFTPServer";
+            this.serviceInstaller1.ServicesDependedOn = new string[] {
+        "tcpip"};
             // 
             // ProjectInstaller
             // 
