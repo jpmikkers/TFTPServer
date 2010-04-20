@@ -1,4 +1,27 @@
-﻿using System;
+﻿/*
+
+Copyright (c) 2010 Jean-Paul Mikkers
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+*/
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,7 +39,7 @@ namespace TFTPServerApp
     {
         private EventLog m_EventLog;
         private TFTPServerConfigurationList m_Configuration;
-        private List<TFTPServer> m_Servers;
+        private List<TFTPServerResurrector> m_Servers;
 
         public TFTPService()
         {
@@ -27,55 +50,11 @@ namespace TFTPServerApp
         protected override void OnStart(string[] args)
         {
             m_Configuration = TFTPServerConfigurationList.Read(Program.GetConfigurationPath());
-            m_Servers = new List<TFTPServer>();
+            m_Servers = new List<TFTPServerResurrector>();
 
             foreach (var config in m_Configuration)
             {
-                TFTPServer server = new TFTPServer();
-                server.EndPoint = config.EndPoint;
-                server.SinglePort = config.SinglePort;
-                server.Ttl = (short)config.Ttl;
-                server.DontFragment = config.DontFragment;
-                server.RootPath = config.RootPath;
-                server.AutoCreateDirectories = config.AutoCreateDirectories;
-                server.AllowRead = config.AllowRead;
-                server.AllowWrite = config.AllowWrite;
-                server.ResponseTimeout = config.Timeout;
-                server.Retries = config.Retries;
-                server.ConvertPathSeparator = config.ConvertPathSeparator;
-                server.OnStatusChange += server_OnStatusChange;
-                server.OnTrace += server_OnTrace;
-                m_Servers.Add(server);
-            }
-
-            foreach (var server in m_Servers)
-            {
-                try
-                {
-                    server.Start();
-                }
-                catch (Exception e)
-                {
-                    m_EventLog.WriteEntry(string.Format("Exception while starting server '{0}' : {1}", server.EndPoint, e),EventLogEntryType.Error);
-                    server.OnStatusChange -= server_OnStatusChange;
-                    server.OnTrace -= server_OnTrace;
-                }
-            }
-        }
-
-        private void server_OnTrace(object sender, TFTPTraceEventArgs e)
-        {
-            m_EventLog.WriteEntry(e.Message,EventLogEntryType.Information);
-        }
-
-        private void server_OnStatusChange(object sender, TFTPStopEventArgs e)
-        {
-            TFTPServer server = (TFTPServer)sender;
-            m_EventLog.WriteEntry(string.Format("{0}, {1} transfers", server.Active ? "Active" : "Stopped", server.ActiveTransfers),EventLogEntryType.Information);
-
-            if (!server.Active && e.Reason != null)
-            {
-                m_EventLog.WriteEntry(string.Format("Server '{0}' stopped : {1}", server.EndPoint, e.Reason), EventLogEntryType.Error);
+                m_Servers.Add(new TFTPServerResurrector(config, m_EventLog));
             }
         }
 
@@ -83,9 +62,7 @@ namespace TFTPServerApp
         {
             foreach (var server in m_Servers)
             {
-                server.Stop();
-                server.OnStatusChange -= server_OnStatusChange;
-                server.OnTrace -= server_OnTrace;
+                server.Dispose();
             }
             m_Servers.Clear();
         }
