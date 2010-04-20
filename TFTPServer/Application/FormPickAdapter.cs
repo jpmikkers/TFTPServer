@@ -39,7 +39,7 @@ namespace TFTPServerApp
 {
     public partial class FormPickAdapter : Form
     {
-        private IPAddress m_Address;
+        private IPAddress m_Address = IPAddress.Loopback;
 
         public IPAddress Address
         {
@@ -65,36 +65,44 @@ namespace TFTPServerApp
             {
                 comboBoxUnicast.SelectedIndex = -1;
                 comboBoxUnicast.Items.Clear();
-                NetworkInterface adapter = (NetworkInterface)comboBoxAdapter.SelectedItem;
 
-                foreach (var uni in adapter.GetIPProperties().UnicastAddresses)
+                try
                 {
-                    if (uni.Address.AddressFamily == AddressFamily.InterNetwork)
+                    NetworkInterface adapter = (NetworkInterface)comboBoxAdapter.SelectedItem;
+
+                    foreach (var uni in adapter.GetIPProperties().UnicastAddresses)
                     {
-                        comboBoxUnicast.Items.Add(uni.Address);
+                        if (uni.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            comboBoxUnicast.Items.Add(uni.Address);
+                        }
+                    }
+
+                    foreach (var uni in adapter.GetIPProperties().UnicastAddresses)
+                    {
+                        if (uni.Address.AddressFamily == AddressFamily.InterNetworkV6)
+                        {
+                            comboBoxUnicast.Items.Add(uni.Address);
+                        }
                     }
                 }
-
-                foreach (var uni in adapter.GetIPProperties().UnicastAddresses)
+                catch (Exception)
                 {
-                    if (uni.Address.AddressFamily == AddressFamily.InterNetworkV6)
-                    {
-                        comboBoxUnicast.Items.Add(uni.Address);
-                    }
                 }
 
-                comboBoxUnicast.SelectedIndex = 0;
+                if (comboBoxUnicast.Items.Count > 0)
+                {
+                    comboBoxUnicast.SelectedIndex = 0;
+                }
             }
         }
 
         private void buttonOk_Click(object sender, EventArgs e)
         {
-            m_Address = (IPAddress)comboBoxUnicast.SelectedItem;
-        }
-
-        private void FormPickAdapter_Load(object sender, EventArgs e)
-        {
-
+            if (comboBoxUnicast.SelectedIndex >= 0)
+            {
+                m_Address = (IPAddress)comboBoxUnicast.SelectedItem;
+            }
         }
     }
 }

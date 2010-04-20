@@ -90,9 +90,7 @@
             this.MinimizeBox = false;
             this.Name = "FormPickAdapter";
             this.Text = "Pick network adapter";
-            this.Load += new System.EventHandler(this.FormPickAdapter_Load);
             this.ResumeLayout(false);
-
         }
 
         #endregion
