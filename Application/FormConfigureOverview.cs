@@ -20,18 +20,8 @@ namespace TFTPServerApp
         public FormConfigureOverview(string configurationPath)
         {
             InitializeComponent();
-
             m_ConfigurationPath = configurationPath;
-
-            if (File.Exists(m_ConfigurationPath))
-            {
-                m_ConfigurationList = TFTPServerConfigurationList.Read(m_ConfigurationPath);
-            }
-            else
-            {
-                m_ConfigurationList = new TFTPServerConfigurationList();
-            }
-    
+            m_ConfigurationList = TFTPServerConfigurationList.Read(m_ConfigurationPath);
             dataGridView1.AutoGenerateColumns = false;
             dataGridView1.DataSource = m_ConfigurationList;
             UpdateButtonStatus();
