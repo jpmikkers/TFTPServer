@@ -86,23 +86,30 @@ namespace TFTPServerApp
             }
         }
 
+        private void Log(EventLogEntryType entryType, string msg)
+        {
+            m_EventLog.WriteEntry(string.Format("{0} : {1}",m_Config.Name,msg),entryType);
+        }
+
         private void server_OnTrace(object sender, TFTPTraceEventArgs e)
         {
-            m_EventLog.WriteEntry(e.Message, EventLogEntryType.Information);
+            Log(EventLogEntryType.Information,e.Message);
         }
 
         private void server_OnStatusChange(object sender, TFTPStopEventArgs e)
         {
             TFTPServer server = (TFTPServer)sender;
-            m_EventLog.WriteEntry(string.Format("{0}, {1} transfers", server.Active ? "Active" : "Stopped", server.ActiveTransfers), EventLogEntryType.Information);
 
-            if (!server.Active && e.Reason != null)
+            if (server.Active)
             {
-                m_EventLog.WriteEntry(string.Format("Server '{0}' stopped : {1}", server.EndPoint, e.Reason), EventLogEntryType.Error);
+                Log(EventLogEntryType.Information, string.Format("{0} transfers in progress", server.ActiveTransfers));
             }
-
-            if (!server.Active)
+            else
             {
+                if (e.Reason != null)
+                {
+                    Log(EventLogEntryType.Error, string.Format("Stopped, reason: {0}", e.Reason));
+                }
                 CleanupAndRetry();
             }
         }
