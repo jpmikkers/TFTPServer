@@ -115,6 +115,7 @@ namespace CodePlex.JPMikkers.TFTP
                     {
                         session.Stop();
                     }
+                    Trace("Stopped");
                 }
             }
 
