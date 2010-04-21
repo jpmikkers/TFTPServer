@@ -144,11 +144,20 @@ namespace TFTPServerApp
 
         public static TFTPServerConfigurationList Read(string file)
         {
-            TFTPServerConfigurationList result = null;
-            using(Stream s = File.OpenRead(file))
+            TFTPServerConfigurationList result;
+
+            if (File.Exists(file))
             {
-                result = (TFTPServerConfigurationList)serializer.Deserialize(s);
+                using (Stream s = File.OpenRead(file))
+                {
+                    result = (TFTPServerConfigurationList)serializer.Deserialize(s);
+                }
             }
+            else
+            {
+                result = new TFTPServerConfigurationList();
+            }
+
             return result;
         }
 
