@@ -44,7 +44,6 @@ namespace CodePlex.JPMikkers.TFTP
         protected int m_SocketDisposeDelay;
         protected long m_Length;
         protected int m_CurrentBlockSize;
-        protected bool m_FirstBlock;
         protected bool m_LastBlock;
         protected ushort m_BlockNumber;
         protected ushort m_BlockRetry;
@@ -125,7 +124,6 @@ namespace CodePlex.JPMikkers.TFTP
             m_SocketDisposeDelay = socketDisposeDelay;
 
             m_Length = 0;
-            m_FirstBlock = true;
             m_LastBlock = false;
             m_BlockNumber = 0;
             m_BlockRetry = 0;

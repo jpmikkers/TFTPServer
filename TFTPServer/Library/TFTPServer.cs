@@ -535,6 +535,11 @@ namespace CodePlex.JPMikkers.TFTP
             return options;
         }
 
+        internal static void Send(UDPSocket socket, IPEndPoint endPoint, ArraySegment<byte> data)
+        {
+            socket.Send(endPoint, data);
+        }
+
         internal static void Send(UDPSocket socket, IPEndPoint endPoint, MemoryStream ms)
         {
             socket.Send(endPoint, new ArraySegment<byte>(ms.ToArray()));
@@ -554,24 +559,15 @@ namespace CodePlex.JPMikkers.TFTP
             SendError(socket, endPoint, (ushort)code, message);
         }
 
-        internal static void SendAck(UDPSocket socket, IPEndPoint endPoint, ushort blockno)
+        internal static ArraySegment<byte> GetDataAckPacket(ushort blockno)
         {
             MemoryStream ms = new MemoryStream();
             WriteUInt16(ms, (ushort)Opcode.Ack);
             WriteUInt16(ms, blockno);
-            Send(socket, endPoint, ms);
+            return new ArraySegment<byte>(ms.ToArray());
         }
 
-        internal static void SendData(UDPSocket socket, IPEndPoint endPoint, ushort blockno, byte[] data, int dataSize)
-        {
-            MemoryStream ms = new MemoryStream();
-            WriteUInt16(ms, (ushort)Opcode.Data);
-            WriteUInt16(ms, blockno);
-            ms.Write(data, 0, dataSize);
-            Send(socket, endPoint, ms);
-        }
-
-        internal static void SendOptionsAck(UDPSocket socket, IPEndPoint endPoint, Dictionary<string, string> options)
+        internal static ArraySegment<byte> GetOptionsAckPacket(Dictionary<string, string> options)
         {
             MemoryStream ms = new MemoryStream();
             WriteUInt16(ms, (ushort)Opcode.OptionsAck);
@@ -580,7 +576,16 @@ namespace CodePlex.JPMikkers.TFTP
                 WriteZString(ms, s.Key);
                 WriteZString(ms, s.Value);
             }
-            Send(socket, endPoint, ms);
+            return new ArraySegment<byte>(ms.ToArray());
+        }
+
+        internal static ArraySegment<byte> GetDataPacket(ushort blockno, byte[] data, int dataSize)
+        {
+            MemoryStream ms = new MemoryStream();
+            WriteUInt16(ms, (ushort)Opcode.Data);
+            WriteUInt16(ms, blockno);
+            ms.Write(data, 0, dataSize);
+            return new ArraySegment<byte>(ms.ToArray());
         }
 
         internal static string ReadZString(Stream s)

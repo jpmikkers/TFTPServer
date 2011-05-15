@@ -235,7 +235,7 @@ namespace CodePlex.JPMikkers.TFTP
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("BeginSend while send pending?");
+                    //System.Diagnostics.Debug.WriteLine("BeginSend while send pending?");
                 }
             }
         }
@@ -269,7 +269,8 @@ namespace CodePlex.JPMikkers.TFTP
         /// </summary>
         private void BeginReceive()
         {
-            while (m_ReceivePending < 2)
+            // just one pending receive for now. Anything more causes packet reordering at ReceiveDone (even on loopback connections) which doesn't feel right.
+            while (m_ReceivePending < 1)
             {
                 m_ReceivePending++;
                 PacketBuffer receivePacket = new PacketBuffer(new IPEndPoint(m_IPv6 ? IPAddress.IPv6Any : IPAddress.Any, 0), new ArraySegment<byte>(new byte[m_PacketSize], 0, m_PacketSize));
