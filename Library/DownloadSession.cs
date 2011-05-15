@@ -40,11 +40,11 @@ namespace CodePlex.JPMikkers.TFTP
             IPEndPoint remoteEndPoint, 
             Dictionary<string, string> requestedOptions, 
             string filename, 
+            ushort windowSize,
             UDPSocket.OnReceiveDelegate onReceive)
             : base(parent,socket,remoteEndPoint,requestedOptions,filename, onReceive, 0)
         {
-            m_WindowSize = 16;
-            Queue<int> t = new Queue<int>();
+            m_WindowSize = windowSize;
         }
 
         public override void Start()
@@ -93,7 +93,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         protected override void SendResponse()
         {
-            //Console.WriteLine("resending sending blocks {0} to {1}", m_BlockNumber, m_BlockNumber+m_Window.Count-1);
+            // resend blocks in the window
             for (int t = 0; t < m_Window.Count; t++)
             {
                 TFTPServer.Send(m_Socket, m_RemoteEndPoint, m_Window[t]);
@@ -128,6 +128,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         private bool WindowContainsBlock(ushort blocknr)
         {
+            // rollover safe way of checking: m_BlockNumber <= blocknr < (m_BlockNumber+m_Window.Count)
             return ((ushort)(blocknr-m_BlockNumber)) < m_Window.Count;
         }
 
@@ -149,14 +150,10 @@ namespace CodePlex.JPMikkers.TFTP
 
                     if (m_Window.Count == 0)
                     {
-                        Console.WriteLine("Everything was acked");
+                        // Everything was acked
                         isComplete = true;
                         StopTimer();
                     }
-                }
-                else
-                {
-                    Console.WriteLine("Block {0} not in range {1}-{2}", blockNr, m_BlockNumber, (m_BlockNumber + m_Window.Count - 1));
                 }
             }
 

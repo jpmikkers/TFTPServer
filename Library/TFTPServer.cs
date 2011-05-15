@@ -240,7 +240,8 @@ namespace CodePlex.JPMikkers.TFTP
                                 if(m_ConvertPathSeparator) filename = filename.Replace('/','\\');
                                 Mode mode = ReadMode(ms);
                                 var requestedOptions = ReadOptions(ms);
-                                ITFTPSession newSession=new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
+                                // For now, use a default window size of 8. TBD : make window size configurable and dependent on filename.
+                                ITFTPSession newSession=new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, 8, OnUDPReceive);
                                 m_Sessions.Add(newSession.RemoteEndPoint, newSession);
                                 notify = true;
                                 Trace(string.Format("Starting transfer of file '{0}' from local '{1}' to remote '{2}'", newSession.Filename, newSession.LocalEndPoint, newSession.RemoteEndPoint));
