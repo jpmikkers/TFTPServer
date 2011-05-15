@@ -30,9 +30,9 @@ namespace CodePlex.JPMikkers.TFTP
 {
     internal class DownloadSession : TFTPSession
     {
-        private byte[] m_DataBuffer;
-        private int m_DataSize;
-        private ushort m_DataNumber;
+        private ushort m_WindowSize;
+
+        private List<ArraySegment<byte>> m_Window = new List<ArraySegment<byte>>();
 
         public DownloadSession(
             TFTPServer parent, 
@@ -43,9 +43,8 @@ namespace CodePlex.JPMikkers.TFTP
             UDPSocket.OnReceiveDelegate onReceive)
             : base(parent,socket,remoteEndPoint,requestedOptions,filename, onReceive, 0)
         {
-            m_DataBuffer = new byte[m_CurrentBlockSize];
-            m_DataNumber = 0;
-            m_DataSize = 0;
+            m_WindowSize = 16;
+            Queue<int> t = new Queue<int>();
         }
 
         public override void Start()
@@ -77,12 +76,12 @@ namespace CodePlex.JPMikkers.TFTP
                     if (m_AcceptedOptions.Count > 0)
                     {
                         m_BlockNumber = 0;
-                        SendResponse();
+                        SendOptionsAck();
                     }
                     else
                     {
                         m_BlockNumber = 1;
-                        SendResponse();
+                        SendData();
                     }
                 }
             }
@@ -94,22 +93,42 @@ namespace CodePlex.JPMikkers.TFTP
 
         protected override void SendResponse()
         {
-            if (m_FirstBlock && m_BlockNumber == 0)
+            //Console.WriteLine("resending sending blocks {0} to {1}", m_BlockNumber, m_BlockNumber+m_Window.Count-1);
+            for (int t = 0; t < m_Window.Count; t++)
             {
-                // send options ack -> client will respond with ack for block number 0
-                TFTPServer.SendOptionsAck(m_Socket, m_RemoteEndPoint, m_AcceptedOptions);
-            }
-            else
-            {
-                if (m_DataNumber != m_BlockNumber)
-                {
-                    m_DataSize = m_Stream.Read(m_DataBuffer, 0, m_CurrentBlockSize);
-                    m_DataNumber = m_BlockNumber;
-                    m_LastBlock = (m_DataSize < m_CurrentBlockSize);
-                }
-                TFTPServer.SendData(m_Socket, m_RemoteEndPoint, m_BlockNumber, m_DataBuffer, m_DataSize);
+                TFTPServer.Send(m_Socket, m_RemoteEndPoint, m_Window[t]);
             }
             StartTimer();
+        }
+
+        private void SendOptionsAck()
+        {
+            var seg = TFTPServer.GetOptionsAckPacket(m_AcceptedOptions);
+            m_Window.Add(seg);
+            TFTPServer.Send(m_Socket, m_RemoteEndPoint, seg);
+            m_BlockRetry = 0;
+            StartTimer();
+        }
+
+        private void SendData()
+        {
+            // fill the window up to the window size & send all the new packets
+            while (m_Window.Count < m_WindowSize && !m_LastBlock)
+            {
+                byte[] buffer = new byte[m_CurrentBlockSize];
+                int dataSize = m_Stream.Read(buffer, 0, m_CurrentBlockSize);
+                var seg = TFTPServer.GetDataPacket((ushort)(m_BlockNumber + m_Window.Count), buffer, dataSize);
+                m_Window.Add(seg);
+                m_LastBlock = (dataSize < m_CurrentBlockSize);
+                TFTPServer.Send(m_Socket, m_RemoteEndPoint, seg);
+                m_BlockRetry = 0;
+                StartTimer();
+            }
+        }
+
+        private bool WindowContainsBlock(ushort blocknr)
+        {
+            return ((ushort)(blocknr-m_BlockNumber)) < m_Window.Count;
         }
 
         public override void ProcessAck(ushort blockNr)
@@ -118,23 +137,26 @@ namespace CodePlex.JPMikkers.TFTP
 
             lock (m_Lock)
             {
-                //Console.WriteLine("block {0} was ackd", blockNr);
-
-                if (blockNr == m_BlockNumber)
+                if (WindowContainsBlock(blockNr))
                 {
-                    m_FirstBlock = false;
-
-                    if (!m_LastBlock)
+                    while (WindowContainsBlock(blockNr))
                     {
-                        m_BlockRetry = 0;
                         m_BlockNumber++;
-                        SendResponse();
+                        m_Window.RemoveAt(0);
                     }
-                    else
+
+                    SendData();
+
+                    if (m_Window.Count == 0)
                     {
+                        Console.WriteLine("Everything was acked");
                         isComplete = true;
                         StopTimer();
                     }
+                }
+                else
+                {
+                    Console.WriteLine("Block {0} not in range {1}-{2}", blockNr, m_BlockNumber, (m_BlockNumber + m_Window.Count - 1));
                 }
             }
 
