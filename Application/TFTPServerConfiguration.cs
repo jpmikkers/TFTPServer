@@ -46,6 +46,8 @@ namespace TFTPServerApp
         public int Timeout { get; set; }
         public int Retries { get; set; }
         public bool ConvertPathSeparator { get; set; }
+        public ushort WindowSize { get; set; }
+        public BindingList<ConfigurationAlternative> Alternatives { get; set; }
 
         public TFTPServerConfiguration()
         {
@@ -61,6 +63,7 @@ namespace TFTPServerApp
             Timeout = 2000;
             Retries = 5;
             ConvertPathSeparator = true;
+            WindowSize = 1;
         }
 
         public TFTPServerConfiguration Clone()
@@ -78,6 +81,55 @@ namespace TFTPServerApp
             result.Timeout = Timeout;
             result.Retries = Retries;
             result.ConvertPathSeparator = ConvertPathSeparator;
+            result.WindowSize = WindowSize;
+
+            if (Alternatives != null)
+            {
+                result.Alternatives = new BindingList<ConfigurationAlternative>();
+                foreach (ConfigurationAlternative alternative in Alternatives)
+                {
+                    result.Alternatives.Add(alternative.Clone());
+                }
+            }
+
+            return result;
+        }
+    }
+
+    [Serializable()]
+    public class ConfigurationAlternative
+    {
+        public string Filter { get; set; }
+        public bool IsRegularExpression { get; set; }
+        public ushort WindowSize { get; set; }
+
+        public ConfigurationAlternative()
+        {
+            Filter = "*";
+            WindowSize = 1;
+        }
+
+        public ConfigurationAlternative Clone()
+        {
+            ConfigurationAlternative result = new ConfigurationAlternative();
+            result.Filter = Filter;
+            result.IsRegularExpression = IsRegularExpression;
+            result.WindowSize = WindowSize;
+            return result;
+        }
+
+        public TFTPServer.ConfigurationAlternative Convert()
+        {
+            TFTPServer.ConfigurationAlternative result;
+            if (IsRegularExpression)
+            {
+                result = TFTPServer.ConfigurationAlternative.CreateRegex(Filter);
+            }
+            else
+            {
+                result = TFTPServer.ConfigurationAlternative.CreateWildcard(Filter);
+            }
+            result.WindowSize = WindowSize;
             return result;
         }
     }

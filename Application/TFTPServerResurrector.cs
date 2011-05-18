@@ -74,6 +74,7 @@ namespace TFTPServerApp
                         m_Server.ResponseTimeout = m_Config.Timeout;
                         m_Server.Retries = m_Config.Retries;
                         m_Server.ConvertPathSeparator = m_Config.ConvertPathSeparator;
+                        m_Server.WindowSize = m_Config.WindowSize;
                         m_Server.OnStatusChange += server_OnStatusChange;
                         m_Server.OnTrace += server_OnTrace;
                         m_Server.Start();

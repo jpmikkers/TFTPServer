@@ -28,12 +28,39 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace CodePlex.JPMikkers.TFTP
 {
     public class TFTPServer : ITFTPServer
     {
         #region TFTP definitions 
+
+        public class ConfigurationAlternative
+        {
+            private Regex m_Regex;
+            public ushort WindowSize { get; set; }
+
+            internal bool Match(string s)
+            {
+                return m_Regex.IsMatch(s);
+            }
+
+            private ConfigurationAlternative(Regex regex)
+            {
+                m_Regex = regex;
+            }
+
+            public static ConfigurationAlternative CreateRegex(string regex)
+            {
+                return new ConfigurationAlternative(new Regex(regex, RegexOptions.IgnoreCase));
+            }
+
+            public static ConfigurationAlternative CreateWildcard(string wildcard)
+            {
+                return CreateRegex(WildcardToRegex.Convert(wildcard));
+            }
+        }
 
         internal enum ErrorCode : ushort
         {
@@ -86,6 +113,8 @@ namespace CodePlex.JPMikkers.TFTP
         private bool m_AllowWrite = true;
         private bool m_AutoCreateDirectories = true;
         private bool m_ConvertPathSeparator = true;
+        private ushort m_WindowSize = 1;
+        private List<ConfigurationAlternative> m_ConfigurationAlternatives = new List<ConfigurationAlternative>();
 
         private object m_Sync = new object();
         private bool m_Active = false;
@@ -127,14 +156,19 @@ namespace CodePlex.JPMikkers.TFTP
             }
         }
 
-        private string GetLocalFilename(string filename)
+        private static string StripRoot(string filename)
         {
             // strip root from filename before calling Path.Combine(). Some clients like to prepend a leading backslash, resulting in an 'Illegal filename' error.
             if (Path.IsPathRooted(filename))
             {
                 filename = filename.Substring(Path.GetPathRoot(filename).Length);
             }
-            string result = Path.GetFullPath(Path.Combine(m_RootPath, filename));
+            return filename;
+        }
+
+        private string GetLocalFilename(string filename)
+        {
+            string result = Path.GetFullPath(Path.Combine(m_RootPath, StripRoot(filename)));
             if (!result.StartsWith(m_RootPath))
             {
                 throw new ArgumentException("Illegal filename");
@@ -178,6 +212,23 @@ namespace CodePlex.JPMikkers.TFTP
         public TFTPServer()
         {
             m_Sessions = new Dictionary<IPEndPoint, ITFTPSession>();
+        }
+
+        private ushort GetWindowSize(string filename)
+        {
+            if(m_ConfigurationAlternatives.Count>0)
+            {
+                filename = StripRoot(filename);
+
+                foreach (ConfigurationAlternative alternative in m_ConfigurationAlternatives)
+                {
+                    if (alternative.Match(filename))
+                    {
+                        return alternative.WindowSize;
+                    }
+                }
+            }
+            return m_WindowSize;
         }
 
         private void OnUDPReceive(UDPSocket sender, IPEndPoint endPoint, ArraySegment<byte> data)
@@ -240,11 +291,10 @@ namespace CodePlex.JPMikkers.TFTP
                                 if(m_ConvertPathSeparator) filename = filename.Replace('/','\\');
                                 Mode mode = ReadMode(ms);
                                 var requestedOptions = ReadOptions(ms);
-                                // For now, use a default window size of 8. TBD : make window size configurable and dependent on filename.
-                                ITFTPSession newSession=new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, 8, OnUDPReceive);
+                                ITFTPSession newSession=new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, GetWindowSize(filename), OnUDPReceive);
                                 m_Sessions.Add(newSession.RemoteEndPoint, newSession);
                                 notify = true;
-                                Trace(string.Format("Starting transfer of file '{0}' from local '{1}' to remote '{2}'", newSession.Filename, newSession.LocalEndPoint, newSession.RemoteEndPoint));
+                                Trace(string.Format("Starting transfer of file '{0}' from local '{1}' to remote '{2}', send window size {3}", newSession.Filename, newSession.LocalEndPoint, newSession.RemoteEndPoint, m_WindowSize));
                                 newSession.Start();
                             }
                             break;
@@ -471,6 +521,26 @@ namespace CodePlex.JPMikkers.TFTP
             }
         }
 
+        public ushort WindowSize
+        {
+            get
+            {
+                return m_WindowSize;
+            }
+            set
+            {
+                m_WindowSize=Clip<ushort>(value,1,32);
+            }
+        }
+
+        public IList<ConfigurationAlternative> ConfigurationAlternatives
+        {
+            get
+            {
+                return m_ConfigurationAlternatives;
+            }
+        }
+
         public bool Active
         {
             get
@@ -524,6 +594,19 @@ namespace CodePlex.JPMikkers.TFTP
         #endregion
 
         #region Static helpers
+
+        internal static T Clip<T>(T value, T minValue, T maxValue) where T : IComparable<T>
+        {
+            T result;
+            if (value.CompareTo(minValue) < 0)
+                result = minValue;
+            else if (value.CompareTo(maxValue) > 0)
+                result = maxValue;
+            else
+                result = value;
+            return result;
+        }
+
         internal static Dictionary<string, string> ReadOptions(Stream s)
         {
             Dictionary<string, string> options = new Dictionary<string, string>();
