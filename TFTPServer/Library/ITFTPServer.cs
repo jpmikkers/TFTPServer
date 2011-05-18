@@ -58,6 +58,8 @@ namespace CodePlex.JPMikkers.TFTP
         bool AllowRead { get; set; }
         bool AllowWrite { get; set; }
 
+        ushort WindowSize { get; set; }
+
         bool Active { get; }
         int ActiveTransfers { get; }
 

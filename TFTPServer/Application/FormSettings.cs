@@ -53,6 +53,29 @@ namespace TFTPServerApp
         public FormSettings()
         {
             InitializeComponent();
+            textBoxWindowSize.Validating += new CancelEventHandler(textBoxWindowSize_Validating);
+            textBoxWindowSize.Validated += new EventHandler(textBoxWindowSize_Validated);
+        }
+
+        void textBoxWindowSize_Validated(object sender, EventArgs e)
+        {
+            this.errorProvider1.SetError(textBoxWindowSize, "");
+        }
+
+        private void textBoxWindowSize_Validating(object sender, CancelEventArgs e)
+        {
+            ushort value;
+
+            e.Cancel = true;
+            if (ushort.TryParse(textBoxWindowSize.Text, out value))
+            {
+                if (value > 0 && value <= 32) e.Cancel = false;
+            }
+
+            if (e.Cancel)
+            {
+                this.errorProvider1.SetError(textBoxWindowSize, "value must be between 1 and 32 (default: 1)");
+            }
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -78,6 +101,7 @@ namespace TFTPServerApp
             textBoxTTL.DataBindings.Clear();
             textBoxTimeout.DataBindings.Clear();
             textBoxRetries.DataBindings.Clear();
+            textBoxWindowSize.DataBindings.Clear();
 
             checkBoxAllowReads.DataBindings.Clear();
             checkBoxAllowWrites.DataBindings.Clear();
@@ -99,6 +123,7 @@ namespace TFTPServerApp
             textBoxRootPath.DataBindings.Add("Text", m_Configuration, "RootPath");
             textBoxTimeout.DataBindings.Add("Text", m_Configuration, "Timeout");
             textBoxRetries.DataBindings.Add("Text", m_Configuration, "Retries");
+            textBoxWindowSize.DataBindings.Add("Text", m_Configuration, "WindowSize");
         }
 
         private void buttonPickAddress_Click(object sender, EventArgs e)
