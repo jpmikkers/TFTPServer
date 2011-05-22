@@ -138,7 +138,7 @@
             this.buttonOK.Location = new System.Drawing.Point(532, 5);
             this.buttonOK.Name = "buttonOK";
             this.buttonOK.Size = new System.Drawing.Size(75, 23);
-            this.buttonOK.TabIndex = 2;
+            this.buttonOK.TabIndex = 0;
             this.buttonOK.Text = "OK";
             this.buttonOK.UseVisualStyleBackColor = true;
             this.buttonOK.Click += new System.EventHandler(this.buttonOK_Click);
@@ -150,7 +150,7 @@
             this.buttonCancel.Location = new System.Drawing.Point(616, 5);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-            this.buttonCancel.TabIndex = 3;
+            this.buttonCancel.TabIndex = 1;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             // 
@@ -162,7 +162,7 @@
             this.panel1.Location = new System.Drawing.Point(0, 219);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(700, 34);
-            this.panel1.TabIndex = 4;
+            this.panel1.TabIndex = 2;
             // 
             // panel3
             // 
@@ -172,7 +172,7 @@
             this.panel3.Name = "panel3";
             this.panel3.Padding = new System.Windows.Forms.Padding(10);
             this.panel3.Size = new System.Drawing.Size(616, 219);
-            this.panel3.TabIndex = 6;
+            this.panel3.TabIndex = 0;
             // 
             // buttonEdit
             // 
@@ -180,7 +180,7 @@
             this.buttonEdit.Location = new System.Drawing.Point(3, 67);
             this.buttonEdit.Name = "buttonEdit";
             this.buttonEdit.Size = new System.Drawing.Size(75, 23);
-            this.buttonEdit.TabIndex = 1;
+            this.buttonEdit.TabIndex = 2;
             this.buttonEdit.Text = "Edit";
             this.buttonEdit.UseVisualStyleBackColor = true;
             this.buttonEdit.Click += new System.EventHandler(this.buttonEdit_Click);
@@ -202,7 +202,7 @@
             this.buttonAdd.Location = new System.Drawing.Point(3, 9);
             this.buttonAdd.Name = "buttonAdd";
             this.buttonAdd.Size = new System.Drawing.Size(75, 23);
-            this.buttonAdd.TabIndex = 1;
+            this.buttonAdd.TabIndex = 0;
             this.buttonAdd.Text = "Add";
             this.buttonAdd.UseVisualStyleBackColor = true;
             this.buttonAdd.Click += new System.EventHandler(this.buttonAdd_Click);
@@ -216,7 +216,7 @@
             this.panel2.Location = new System.Drawing.Point(616, 0);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(84, 219);
-            this.panel2.TabIndex = 5;
+            this.panel2.TabIndex = 1;
             // 
             // FormConfigureOverview
             // 

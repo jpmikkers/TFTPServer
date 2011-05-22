@@ -51,7 +51,7 @@
             this.comboBoxUnicast.Location = new System.Drawing.Point(12, 39);
             this.comboBoxUnicast.Name = "comboBoxUnicast";
             this.comboBoxUnicast.Size = new System.Drawing.Size(375, 21);
-            this.comboBoxUnicast.TabIndex = 0;
+            this.comboBoxUnicast.TabIndex = 1;
             // 
             // buttonCancel
             // 
@@ -59,7 +59,7 @@
             this.buttonCancel.Location = new System.Drawing.Point(312, 66);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
-            this.buttonCancel.TabIndex = 17;
+            this.buttonCancel.TabIndex = 3;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.UseVisualStyleBackColor = true;
             // 
@@ -69,7 +69,7 @@
             this.buttonOk.Location = new System.Drawing.Point(231, 66);
             this.buttonOk.Name = "buttonOk";
             this.buttonOk.Size = new System.Drawing.Size(75, 23);
-            this.buttonOk.TabIndex = 16;
+            this.buttonOk.TabIndex = 2;
             this.buttonOk.Text = "OK";
             this.buttonOk.UseVisualStyleBackColor = true;
             this.buttonOk.Click += new System.EventHandler(this.buttonOk_Click);
@@ -91,6 +91,7 @@
             this.Name = "FormPickAdapter";
             this.Text = "Pick network adapter";
             this.ResumeLayout(false);
+
         }
 
         #endregion
