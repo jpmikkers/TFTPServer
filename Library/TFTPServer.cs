@@ -41,7 +41,7 @@ namespace CodePlex.JPMikkers.TFTP
             private Regex m_Regex;
             public ushort WindowSize { get; set; }
 
-            internal bool Match(string s)
+            public bool Match(string s)
             {
                 return m_Regex.IsMatch(s);
             }

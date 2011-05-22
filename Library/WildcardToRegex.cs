@@ -113,7 +113,7 @@ namespace CodePlex.JPMikkers.TFTP
                         FlushEscapeStringToRegex(sb1, regexPattern);
                         regexPattern.Append("[0-9]");
                         break;
-
+/*
                     case '\\':
                         t++;
                         if (t < wildcardPattern.Length)
@@ -171,7 +171,7 @@ namespace CodePlex.JPMikkers.TFTP
                             }
                         }
                         break;
-
+*/
                     default:
                         sb1.Append(c);
                         break;
