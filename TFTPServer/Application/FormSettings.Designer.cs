@@ -60,6 +60,7 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.errorProvider1 = new System.Windows.Forms.ErrorProvider(this.components);
+            this.buttonAlternatives = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -79,7 +80,7 @@
             // 
             // textBoxRootPath
             // 
-            this.textBoxRootPath.Location = new System.Drawing.Point(72, 164);
+            this.textBoxRootPath.Location = new System.Drawing.Point(72, 175);
             this.textBoxRootPath.Name = "textBoxRootPath";
             this.textBoxRootPath.Size = new System.Drawing.Size(272, 20);
             this.textBoxRootPath.TabIndex = 9;
@@ -105,7 +106,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 167);
+            this.label3.Location = new System.Drawing.Point(12, 178);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(54, 13);
             this.label3.TabIndex = 8;
@@ -114,7 +115,7 @@
             // buttonOk
             // 
             this.buttonOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.buttonOk.Location = new System.Drawing.Point(222, 243);
+            this.buttonOk.Location = new System.Drawing.Point(222, 254);
             this.buttonOk.Name = "buttonOk";
             this.buttonOk.Size = new System.Drawing.Size(75, 23);
             this.buttonOk.TabIndex = 14;
@@ -124,7 +125,7 @@
             // buttonCancel
             // 
             this.buttonCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.buttonCancel.Location = new System.Drawing.Point(303, 243);
+            this.buttonCancel.Location = new System.Drawing.Point(303, 254);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 15;
@@ -143,7 +144,7 @@
             // 
             // buttonSelectPath
             // 
-            this.buttonSelectPath.Location = new System.Drawing.Point(350, 162);
+            this.buttonSelectPath.Location = new System.Drawing.Point(350, 173);
             this.buttonSelectPath.Name = "buttonSelectPath";
             this.buttonSelectPath.Size = new System.Drawing.Size(28, 23);
             this.buttonSelectPath.TabIndex = 10;
@@ -154,7 +155,7 @@
             // checkBoxAllowReads
             // 
             this.checkBoxAllowReads.AutoSize = true;
-            this.checkBoxAllowReads.Location = new System.Drawing.Point(72, 190);
+            this.checkBoxAllowReads.Location = new System.Drawing.Point(72, 201);
             this.checkBoxAllowReads.Name = "checkBoxAllowReads";
             this.checkBoxAllowReads.Size = new System.Drawing.Size(85, 17);
             this.checkBoxAllowReads.TabIndex = 11;
@@ -164,7 +165,7 @@
             // checkBoxAllowWrites
             // 
             this.checkBoxAllowWrites.AutoSize = true;
-            this.checkBoxAllowWrites.Location = new System.Drawing.Point(72, 213);
+            this.checkBoxAllowWrites.Location = new System.Drawing.Point(72, 224);
             this.checkBoxAllowWrites.Name = "checkBoxAllowWrites";
             this.checkBoxAllowWrites.Size = new System.Drawing.Size(84, 17);
             this.checkBoxAllowWrites.TabIndex = 12;
@@ -174,7 +175,7 @@
             // checkBoxAutoCreateSubDirectories
             // 
             this.checkBoxAutoCreateSubDirectories.AutoSize = true;
-            this.checkBoxAutoCreateSubDirectories.Location = new System.Drawing.Point(178, 213);
+            this.checkBoxAutoCreateSubDirectories.Location = new System.Drawing.Point(178, 224);
             this.checkBoxAutoCreateSubDirectories.Name = "checkBoxAutoCreateSubDirectories";
             this.checkBoxAutoCreateSubDirectories.Size = new System.Drawing.Size(189, 17);
             this.checkBoxAutoCreateSubDirectories.TabIndex = 13;
@@ -270,7 +271,7 @@
             // checkBoxConvertPathSeparator
             // 
             this.checkBoxConvertPathSeparator.AutoSize = true;
-            this.checkBoxConvertPathSeparator.Location = new System.Drawing.Point(178, 191);
+            this.checkBoxConvertPathSeparator.Location = new System.Drawing.Point(178, 202);
             this.checkBoxConvertPathSeparator.Name = "checkBoxConvertPathSeparator";
             this.checkBoxConvertPathSeparator.Size = new System.Drawing.Size(170, 17);
             this.checkBoxConvertPathSeparator.TabIndex = 13;
@@ -322,13 +323,23 @@
             // 
             this.errorProvider1.ContainerControl = this;
             // 
+            // buttonAlternatives
+            // 
+            this.buttonAlternatives.Location = new System.Drawing.Point(225, 136);
+            this.buttonAlternatives.Name = "buttonAlternatives";
+            this.buttonAlternatives.Size = new System.Drawing.Size(153, 23);
+            this.buttonAlternatives.TabIndex = 2;
+            this.buttonAlternatives.Text = "Alternative Configurations";
+            this.buttonAlternatives.UseVisualStyleBackColor = true;
+            this.buttonAlternatives.Click += new System.EventHandler(this.buttonAlternatives_Click);
+            // 
             // FormSettings
             // 
             this.AcceptButton = this.buttonOk;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.buttonCancel;
-            this.ClientSize = new System.Drawing.Size(386, 275);
+            this.ClientSize = new System.Drawing.Size(388, 287);
             this.Controls.Add(this.checkBoxConvertPathSeparator);
             this.Controls.Add(this.checkBoxAutoCreateSubDirectories);
             this.Controls.Add(this.checkBoxAllowWrites);
@@ -336,6 +347,7 @@
             this.Controls.Add(this.checkBoxSinglePortMode);
             this.Controls.Add(this.checkBoxAllowReads);
             this.Controls.Add(this.buttonSelectPath);
+            this.Controls.Add(this.buttonAlternatives);
             this.Controls.Add(this.buttonPickAddress);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonOk);
@@ -402,5 +414,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ErrorProvider errorProvider1;
+        private System.Windows.Forms.Button buttonAlternatives;
     }
 }

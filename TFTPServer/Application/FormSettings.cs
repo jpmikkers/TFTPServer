@@ -135,5 +135,17 @@ namespace TFTPServerApp
                 Bind();
             }
         }
+
+        private void buttonAlternatives_Click(object sender, EventArgs e)
+        {
+            FormAlternatives f = new FormAlternatives();
+            f.Configuration = m_Configuration.Alternatives;
+
+            if (f.ShowDialog(this) == DialogResult.OK)
+            {
+                m_Configuration.Alternatives = f.Configuration;
+                Bind();
+            }
+        }
     }
 }
