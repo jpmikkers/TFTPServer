@@ -55,6 +55,11 @@ namespace TFTPServerApp
             InitializeComponent();
             textBoxWindowSize.Validating += new CancelEventHandler(textBoxWindowSize_Validating);
             textBoxWindowSize.Validated += new EventHandler(textBoxWindowSize_Validated);
+            toolTip1.SetToolTip(textBoxWindowSize, 
+                "The number of packets to send in bulk, speeding up the file transfer rate.\r\n" +
+                "This is an advanced option, only use a value greater than 1 if you've\r\n" +
+                "tested that your TFTP client can cope with windowed transfers.\r\n" +
+                "(default: 1)");
         }
 
         void textBoxWindowSize_Validated(object sender, EventArgs e)

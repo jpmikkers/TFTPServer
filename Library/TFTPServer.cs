@@ -49,6 +49,7 @@ namespace CodePlex.JPMikkers.TFTP
             private ConfigurationAlternative(Regex regex)
             {
                 m_Regex = regex;
+                WindowSize = 1;
             }
 
             public static ConfigurationAlternative CreateRegex(string regex)
@@ -291,10 +292,11 @@ namespace CodePlex.JPMikkers.TFTP
                                 if(m_ConvertPathSeparator) filename = filename.Replace('/','\\');
                                 Mode mode = ReadMode(ms);
                                 var requestedOptions = ReadOptions(ms);
-                                ITFTPSession newSession=new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, GetWindowSize(filename), OnUDPReceive);
+                                ushort windowSize = GetWindowSize(filename);
+                                ITFTPSession newSession = new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, windowSize, OnUDPReceive);
                                 m_Sessions.Add(newSession.RemoteEndPoint, newSession);
                                 notify = true;
-                                Trace(string.Format("Starting transfer of file '{0}' from local '{1}' to remote '{2}', send window size {3}", newSession.Filename, newSession.LocalEndPoint, newSession.RemoteEndPoint, m_WindowSize));
+                                Trace(string.Format("Starting transfer of file '{0}' from local '{1}' to remote '{2}', send window size {3}", newSession.Filename, newSession.LocalEndPoint, newSession.RemoteEndPoint, windowSize));
                                 newSession.Start();
                             }
                             break;
