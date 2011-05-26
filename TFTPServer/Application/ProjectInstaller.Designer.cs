@@ -44,6 +44,7 @@
             this.serviceInstaller1.ServiceName = "TFTPServer";
             this.serviceInstaller1.ServicesDependedOn = new string[] {
         "tcpip"};
+            this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller
             // 

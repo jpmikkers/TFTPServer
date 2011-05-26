@@ -43,21 +43,9 @@ namespace CodePlex.JPMikkers.TFTP
          #
          Matches any single digit. For example, 7# matches numbers that include 7 followed by another number, such as 71, but not 17. 
          
-        Characters not in set
-         [! ]
-         Matches any one character that is not specified in the set.
-         
-        Escape
-         \
-         Matches the character that follows the backslash (\) as a literal. This allows you to find the characters used in wildcard notation, such as * and #. 
-         
         One or more characters
          *
          Matches zero or more characters. For example, new* matches any text that includes "new", such as newfile.txt. 
-         
-        Set of characters
-         [ ]
-         Matches any one of the characters specified in the set.
         */
 
         private static void FlushEscapeStringToRegex(StringBuilder escapeString, StringBuilder regexString)
@@ -113,65 +101,7 @@ namespace CodePlex.JPMikkers.TFTP
                         FlushEscapeStringToRegex(sb1, regexPattern);
                         regexPattern.Append("[0-9]");
                         break;
-/*
-                    case '\\':
-                        t++;
-                        if (t < wildcardPattern.Length)
-                        {
-                            switch (wildcardPattern[t])
-                            {
-                                case 't':
-                                    sb1.Append('\t');
-                                    break;
 
-                                case 'n':
-                                    sb1.Append('\n');
-                                    break;
-
-                                case 'r':
-                                    sb1.Append('\r');
-                                    break;
-
-                                default:
-                                    sb1.Append(wildcardPattern[t]);
-                                    break;
-                            }
-                        }
-                        break;
-
-                    case '%':
-                        t++;
-                        if (t < wildcardPattern.Length)
-                        {
-                            string groupName = GetGroupName(wildcardPattern, ref t);
-
-                            if (t < wildcardPattern.Length)
-                            {
-                                switch (wildcardPattern[t])
-                                {
-                                    case 'd':
-                                        FlushEscapeStringToRegex(sb1, regexPattern);
-                                        AppendGroupPattern(regexPattern, groupName, @"[0-9]+");
-                                        break;
-
-                                    case 'f':
-                                        FlushEscapeStringToRegex(sb1, regexPattern);
-                                        AppendGroupPattern(regexPattern, groupName, @"[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?");
-                                        break;
-
-                                    case 'w':
-                                        FlushEscapeStringToRegex(sb1, regexPattern);
-                                        AppendGroupPattern(regexPattern, groupName, @"[_0-9a-zA-Z]+");
-                                        break;
-
-                                    default:
-                                        sb1.Append(wildcardPattern[t]);
-                                        break;
-                                }
-                            }
-                        }
-                        break;
-*/
                     default:
                         sb1.Append(c);
                         break;
@@ -181,18 +111,6 @@ namespace CodePlex.JPMikkers.TFTP
             regexPattern.Insert(0, '^');
             regexPattern.Append('$');
             return regexPattern.ToString();
-        }
-
-        private static void AppendGroupPattern(StringBuilder regexPattern, string groupName, string regex)
-        {
-            if (string.IsNullOrEmpty(groupName))
-            {
-                regexPattern.Append(regex);
-            }
-            else
-            {
-                regexPattern.Append(string.Format("(?<{0}>{1})", groupName, regex));
-            }
         }
     }
 }
