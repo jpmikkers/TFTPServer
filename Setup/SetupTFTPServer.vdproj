@@ -200,7 +200,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:TFTPLibrary, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL"
+            "AssemblyAsmDisplayName" = "8:TFTPLibrary, Version=1.1.1.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
                     "_A822A28F0CCAB69B28EB32C0548C4FD7"
@@ -328,14 +328,14 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TFTP Server"
-        "ProductCode" = "8:{53E1CC45-6A52-4A42-B67F-849062DC8EE1}"
-        "PackageCode" = "8:{EFFD6EC2-61E1-45B4-B077-96C6344EBE2C}"
+        "ProductCode" = "8:{9381D7B3-67D3-4CD0-8191-D088F6CF71BF}"
+        "PackageCode" = "8:{B61ADDF9-D612-4608-929E-AC47590E86D1}"
         "UpgradeCode" = "8:{BB45E0DB-73BF-4FDE-B761-28629765805D}"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.1.1"
+        "ProductVersion" = "8:1.2"
         "Manufacturer" = "8:JPMikkers"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
