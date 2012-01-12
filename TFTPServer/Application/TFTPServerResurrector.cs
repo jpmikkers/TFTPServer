@@ -54,6 +54,17 @@ namespace TFTPServerApp
             Dispose(false);
         }
 
+        public TFTPServer Server
+        {
+            get
+            {
+                lock (m_Lock)
+                {
+                    return m_Server;
+                }
+            }
+        }
+
         private void Resurrect()
         {
             lock (m_Lock)
@@ -63,6 +74,7 @@ namespace TFTPServerApp
                     try
                     {
                         m_Server = new TFTPServer();
+                        m_Server.Name = m_Config.Name;
                         m_Server.EndPoint = m_Config.EndPoint;
                         m_Server.SinglePort = m_Config.SinglePort;
                         m_Server.Ttl = (short)m_Config.Ttl;

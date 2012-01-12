@@ -99,6 +99,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         #endregion TFTP definitions
 
+        private string m_Name;
         private UDPSocket m_Socket;
 
         internal const int MaxBlockSize = 65464 + 4;
@@ -120,7 +121,13 @@ namespace CodePlex.JPMikkers.TFTP
         private object m_Sync = new object();
         private bool m_Active = false;
 
-        private Dictionary<IPEndPoint, ITFTPSession> m_Sessions;
+        private readonly Dictionary<IPEndPoint, ITFTPSession> m_Sessions;
+        private readonly SessionLog m_SessionLog = new SessionLog();
+
+        public SessionLog SessionLog
+        {
+            get { return m_SessionLog; }
+        }
 
         private void Stop(Exception reason)
         {
@@ -212,6 +219,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         public TFTPServer()
         {
+            m_Name = "TFTPServer";
             m_Sessions = new Dictionary<IPEndPoint, ITFTPSession>();
         }
 
@@ -390,6 +398,19 @@ namespace CodePlex.JPMikkers.TFTP
 
         public event EventHandler<TFTPTraceEventArgs> OnTrace = (sender, data) => { };
         public event EventHandler<TFTPStopEventArgs> OnStatusChange = (sender, data) => { };
+
+        public string Name
+        {
+            get
+            {
+                return m_Name;
+            }
+            set
+            {
+                m_Name = value;
+            }
+        }
+
 
         public IPEndPoint EndPoint
         {

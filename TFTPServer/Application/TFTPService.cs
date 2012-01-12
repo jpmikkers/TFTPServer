@@ -32,14 +32,40 @@ using System.Text;
 using System.Configuration;
 using System.Threading;
 using CodePlex.JPMikkers.TFTP;
+using System.Collections;
+using System.ServiceModel;
+using System.ServiceModel.Description;
 
 namespace TFTPServerApp
 {
     public partial class TFTPService : ServiceBase
     {
+        private object m_Sync = new object();
         private EventLog m_EventLog;
         private TFTPServerConfigurationList m_Configuration;
         private List<TFTPServerResurrector> m_Servers;
+        private ServiceHost m_SelfHost;
+
+        private static object m_ServiceInstanceLock = new object();
+        private static TFTPService m_ServiceInstance;
+
+        public static TFTPService Instance
+        {
+            get
+            {
+                lock (m_ServiceInstanceLock)
+                {
+                    return m_ServiceInstance;
+                }
+            }
+            private set
+            {
+                lock (m_ServiceInstanceLock)
+                {
+                    m_ServiceInstance = value;
+                }
+            }
+        }
 
         public TFTPService()
         {
@@ -49,27 +75,67 @@ namespace TFTPServerApp
 
         protected override void OnStart(string[] args)
         {
-            m_Configuration = TFTPServerConfigurationList.Read(Program.GetConfigurationPath());
-            m_Servers = new List<TFTPServerResurrector>();
-
-            foreach (var config in m_Configuration)
+            lock (m_Sync)
             {
-                m_Servers.Add(new TFTPServerResurrector(config, m_EventLog));
+                m_Configuration = TFTPServerConfigurationList.Read(Program.GetConfigurationPath());
+                m_Servers = new List<TFTPServerResurrector>();
+
+                foreach (var config in m_Configuration)
+                {
+                    m_Servers.Add(new TFTPServerResurrector(config, m_EventLog));
+                }
+            }
+            Instance = this;
+
+            m_SelfHost = new ServiceHost(typeof(TFTPServiceContractImpl));
+
+            try
+            {
+                NetNamedPipeBinding binding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.None);
+                m_SelfHost.AddServiceEndpoint(typeof(ITFTPServiceContract), binding, "net.pipe://localhost/JPMikkers/TFTPServer/Service");
+                m_SelfHost.Open();
+            }
+            catch (CommunicationException)
+            {
+                m_SelfHost.Abort();
             }
         }
 
         protected override void OnStop()
         {
-            foreach (var server in m_Servers)
+            try
             {
-                server.Dispose();
+                // Close the ServiceHostBase to shutdown the service.
+                m_SelfHost.Close();
             }
-            m_Servers.Clear();
+            catch (CommunicationException)
+            {
+                m_SelfHost.Abort();
+            }
+
+            Instance = null;
+
+            lock (m_Sync)
+            {
+                foreach (var server in m_Servers)
+                {
+                    server.Dispose();
+                }
+                m_Servers.Clear();
+            }
         }
 
         protected override void OnCustomCommand(int command)
         {
             base.OnCustomCommand(command);
+        }
+
+        public List<TFTPServer> GetServers()
+        {
+            lock (m_Sync)
+            {
+                return m_Servers.Select(x => x.Server).ToList();
+            }
         }
     }
 }
