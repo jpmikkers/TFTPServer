@@ -53,12 +53,16 @@
     <Compile Include="DelayedDisposer.cs" />
     <Compile Include="ITFTPServer.cs" />
     <Compile Include="ITFTPSession.cs" />
+    <Compile Include="SessionLogEntry.cs" />
+    <Compile Include="SimpleMovingAverage.cs" />
+    <Compile Include="SessionLog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TFTPServer.cs" />
     <Compile Include="DownloadSession.cs" />
     <Compile Include="SessionBase.cs" />
     <Compile Include="UploadSession.cs" />
     <Compile Include="UDPSocket.cs" />
+    <Compile Include="WeakTimer.cs" />
     <Compile Include="WildcardToRegex.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

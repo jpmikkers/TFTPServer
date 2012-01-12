@@ -28,11 +28,19 @@ using System.Threading;
 
 namespace CodePlex.JPMikkers.TFTP
 {
+    internal class WindowEntry
+    {
+        public bool IsData;
+        public int Length;
+        public ArraySegment<byte> Segment;
+    }
+
     internal class DownloadSession : TFTPSession
     {
+        private long m_Position;
         private ushort m_WindowSize;
 
-        private List<ArraySegment<byte>> m_Window = new List<ArraySegment<byte>>();
+        private List<WindowEntry> m_Window = new List<WindowEntry>();
 
         public DownloadSession(
             TFTPServer parent, 
@@ -49,6 +57,17 @@ namespace CodePlex.JPMikkers.TFTP
 
         public override void Start()
         {
+            var sessionLogConfiguration = new SessionLogEntry.TConfiguration()
+                                            {
+                                                FileLength = -1,
+                                                Filename = m_Filename,
+                                                IsUpload = false,
+                                                LocalEndPoint = m_LocalEndPoint,
+                                                RemoteEndPoint = m_RemoteEndPoint,
+                                                StartTime = DateTime.Now,
+                                                WindowSize = m_WindowSize
+                                            };
+
             try
             {
                 lock (m_Lock)
@@ -57,11 +76,17 @@ namespace CodePlex.JPMikkers.TFTP
                     {
                         m_Stream = m_Parent.GetReadStream(m_Filename);
                         m_Length = m_Stream.Length;
+                        sessionLogConfiguration.FileLength = m_Length;
+                        m_Position = 0;
                     }
                     catch (Exception e)
                     {
                         TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
                         throw;
+                    }
+                    finally
+                    {
+                        m_SessionLog = m_Parent.SessionLog.CreateSession(sessionLogConfiguration);
                     }
 
                     // handle tsize option
@@ -96,7 +121,7 @@ namespace CodePlex.JPMikkers.TFTP
             // resend blocks in the window
             for (int t = 0; t < m_Window.Count; t++)
             {
-                TFTPServer.Send(m_Socket, m_RemoteEndPoint, m_Window[t]);
+                TFTPServer.Send(m_Socket, m_RemoteEndPoint, m_Window[t].Segment);
             }
             StartTimer();
         }
@@ -104,7 +129,7 @@ namespace CodePlex.JPMikkers.TFTP
         private void SendOptionsAck()
         {
             var seg = TFTPServer.GetOptionsAckPacket(m_AcceptedOptions);
-            m_Window.Add(seg);
+            m_Window.Add(new WindowEntry() { IsData = false, Length = 0, Segment = seg });
             TFTPServer.Send(m_Socket, m_RemoteEndPoint, seg);
             m_BlockRetry = 0;
             StartTimer();
@@ -118,7 +143,7 @@ namespace CodePlex.JPMikkers.TFTP
                 byte[] buffer = new byte[m_CurrentBlockSize];
                 int dataSize = m_Stream.Read(buffer, 0, m_CurrentBlockSize);
                 var seg = TFTPServer.GetDataPacket((ushort)(m_BlockNumber + m_Window.Count), buffer, dataSize);
-                m_Window.Add(seg);
+                m_Window.Add(new WindowEntry() { IsData = true, Length = dataSize, Segment=seg });
                 m_LastBlock = (dataSize < m_CurrentBlockSize);
                 TFTPServer.Send(m_Socket, m_RemoteEndPoint, seg);
                 m_BlockRetry = 0;
@@ -142,9 +167,12 @@ namespace CodePlex.JPMikkers.TFTP
                 {
                     while (WindowContainsBlock(blockNr))
                     {
+                        if(m_Window[0].IsData) m_Position += m_Window[0].Length;
                         m_BlockNumber++;
                         m_Window.RemoveAt(0);
                     }
+
+                    m_SessionLog.Progress(m_Position);
 
                     SendData();
 
@@ -153,6 +181,7 @@ namespace CodePlex.JPMikkers.TFTP
                         // Everything was acked
                         isComplete = true;
                         StopTimer();
+                        m_SessionLog.Complete();
                     }
                 }
             }

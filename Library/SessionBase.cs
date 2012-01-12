@@ -35,6 +35,7 @@ namespace CodePlex.JPMikkers.TFTP
         private Timer m_Timer;
         private int m_ResponseTimeout;
         protected object m_Lock = new object();
+        protected SessionLog.ISession m_SessionLog;
         protected TFTPServer m_Parent;
         protected Stream m_Stream;
         protected UDPSocket m_Socket;
@@ -191,6 +192,11 @@ namespace CodePlex.JPMikkers.TFTP
             {
                 if (!m_Disposed)
                 {
+                    if (m_SessionLog != null)
+                    {
+                        m_SessionLog.Stop(reason);
+                    }
+
                     m_Disposed = true;
                     m_Timer.Change(Timeout.Infinite, Timeout.Infinite);
                     m_Timer.Dispose();
@@ -255,7 +261,10 @@ namespace CodePlex.JPMikkers.TFTP
 
         protected virtual void Dispose(bool disposing)
         {
-            Stop(disposing, null);
+            if (disposing)
+            {
+                Stop(disposing, null);
+            }
         }
 
         public void Dispose()

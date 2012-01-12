@@ -1,6 +1,6 @@
 ﻿/*
 
-Copyright (c) 2010 Jean-Paul Mikkers
+Copyright (c) 2012 Jean-Paul Mikkers
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,48 +23,32 @@ THE SOFTWARE.
 */
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
+using System.Linq;
+using System.Text;
 
 namespace CodePlex.JPMikkers.TFTP
 {
-    public class TFTPTraceEventArgs : EventArgs
+    public class SimpleMovingAverage
     {
-        public string Message { get; set; }
-    }
+        private Queue<double> m_History;
+        private int m_WindowSize;
+        private double m_Sum;
 
-    public class TFTPStopEventArgs : EventArgs
-    {
-        public Exception Reason { get; set; }
-    }
+        public SimpleMovingAverage(int windowSize)
+        {
+            m_History = new Queue<double>();
+            m_WindowSize = windowSize;
+        }
 
-    public interface ITFTPServer : IDisposable
-    {
-        event EventHandler<TFTPTraceEventArgs> OnTrace;
-        event EventHandler<TFTPStopEventArgs> OnStatusChange;
-
-        string Name { get; set; }
-        IPEndPoint EndPoint { get; set; }
-        bool SinglePort { get; set; }
-        short Ttl { get; set; }
-        bool DontFragment { get; set; }
-
-        int ResponseTimeout { get; set; }
-        int Retries { get; set; }
-
-        string RootPath { get; set; }
-        bool AutoCreateDirectories { get; set; }
-        bool ConvertPathSeparator { get; set; }
-        bool AllowRead { get; set; }
-        bool AllowWrite { get; set; }
-
-        ushort WindowSize { get; set; }
-
-        bool Active { get; }
-        int ActiveTransfers { get; }
-
-        void Start();
-        void Stop();
+        public double Add(double v)
+        {
+            if (m_History.Count == m_WindowSize)
+            {
+                m_Sum -= m_History.Dequeue();
+            }
+            m_Sum += v;
+            m_History.Enqueue(v);
+            return m_Sum / m_History.Count;
+        }
     }
 }

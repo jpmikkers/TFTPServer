@@ -22,49 +22,36 @@ THE SOFTWARE.
 
 */
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Net.Sockets;
 
 namespace CodePlex.JPMikkers.TFTP
 {
-    public class TFTPTraceEventArgs : EventArgs
+    public class SessionLogEntry
     {
-        public string Message { get; set; }
-    }
+        public class TConfiguration
+        {
+            public DateTime StartTime;
+            public bool IsUpload;
+            public string Filename;
+            public long FileLength;
+            public IPEndPoint LocalEndPoint;
+            public IPEndPoint RemoteEndPoint;
+            public int WindowSize;
+        }
 
-    public class TFTPStopEventArgs : EventArgs
-    {
-        public Exception Reason { get; set; }
-    }
+        public enum TState
+        {
+            Busy,
+            Stopped,
+            Completed,
+            Zombie
+        }
 
-    public interface ITFTPServer : IDisposable
-    {
-        event EventHandler<TFTPTraceEventArgs> OnTrace;
-        event EventHandler<TFTPStopEventArgs> OnStatusChange;
-
-        string Name { get; set; }
-        IPEndPoint EndPoint { get; set; }
-        bool SinglePort { get; set; }
-        short Ttl { get; set; }
-        bool DontFragment { get; set; }
-
-        int ResponseTimeout { get; set; }
-        int Retries { get; set; }
-
-        string RootPath { get; set; }
-        bool AutoCreateDirectories { get; set; }
-        bool ConvertPathSeparator { get; set; }
-        bool AllowRead { get; set; }
-        bool AllowWrite { get; set; }
-
-        ushort WindowSize { get; set; }
-
-        bool Active { get; }
-        int ActiveTransfers { get; }
-
-        void Start();
-        void Stop();
+        public long Id;
+        public TConfiguration Configuration;
+        public TState State;
+        public long Transferred;
+        public double Speed;
+        public Exception Exception;
     }
 }
