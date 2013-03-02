@@ -30,7 +30,13 @@ namespace CodePlex.JPMikkers.TFTP
 {
     public class UDPSocket : IDisposable
     {
-        public delegate void OnReceiveDelegate(UDPSocket sender,IPEndPoint endPoint,ArraySegment<byte> data);
+        // See: http://stackoverflow.com/questions/5199026/c-sharp-async-udp-listener-socketexception
+
+        const uint IOC_IN = 0x80000000;
+        const uint IOC_VENDOR = 0x18000000;
+        const uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+
+        public delegate void OnReceiveDelegate(UDPSocket sender, IPEndPoint endPoint, ArraySegment<byte> data);
         public delegate void OnStopDelegate(UDPSocket sender, Exception reason);
 
         #region private types, members
@@ -46,7 +52,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         private Queue<PacketBuffer> m_SendFifo;             // queue of the outgoing packets
         private bool m_SendPending;                         // true => an asynchronous send is in progress
-        private int m_ReceivePending;   
+        private int m_ReceivePending;
 
         private AutoPumpQueue<PacketBuffer> m_ReceiveFifo;  // queue of the incoming packets
         private int m_PacketSize;                           // size of packets we'll try to receive
@@ -97,7 +103,7 @@ namespace CodePlex.JPMikkers.TFTP
             m_SendFifo = new Queue<PacketBuffer>();
 
             m_ReceiveFifo = new AutoPumpQueue<PacketBuffer>(
-                (sender, data) => 
+                (sender, data) =>
                 {
                     bool isDisposed = false;
 
@@ -120,13 +126,16 @@ namespace CodePlex.JPMikkers.TFTP
             m_Socket = new Socket(localEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
             m_Socket.SendBufferSize = 65536;
             m_Socket.ReceiveBufferSize = 65536;
-            if(!m_IPv6) m_Socket.DontFragment = dontFragment;
+            if (!m_IPv6) m_Socket.DontFragment = dontFragment;
             if (ttl >= 0)
             {
                 m_Socket.Ttl = ttl;
             }
             m_Socket.Bind(localEndPoint);
             m_LocalEndPoint = m_Socket.LocalEndPoint;
+
+            m_Socket.IOControl((IOControlCode)SIO_UDP_CONNRESET, new byte[] { 0, 0, 0, 0 }, null);
+
             BeginReceive();
         }
 
@@ -144,7 +153,7 @@ namespace CodePlex.JPMikkers.TFTP
         /// </summary>
         /// <param name="endPoint">Target for the data</param>
         /// <param name="msg">Data to send</param>
-        public void Send(IPEndPoint endPoint,ArraySegment<byte> msg)
+        public void Send(IPEndPoint endPoint, ArraySegment<byte> msg)
         {
             try
             {
@@ -293,8 +302,15 @@ namespace CodePlex.JPMikkers.TFTP
                         try
                         {
                             PacketBuffer buf = (PacketBuffer)ar.AsyncState;
-                            int packetSize = m_Socket.EndReceiveFrom(ar, ref buf.EndPoint);
-                            m_ReceivePending--;
+                            int packetSize;
+                            try
+                            {
+                                packetSize = m_Socket.EndReceiveFrom(ar, ref buf.EndPoint);
+                            }
+                            finally
+                            {
+                                m_ReceivePending--;
+                            }
                             buf.Data = new ArraySegment<byte>(buf.Data.Array, 0, packetSize);
                             m_ReceiveFifo.Enqueue(buf);
                             // BeginReceive should check state again because Stop() could have been called synchronously at NotifyReceive()
