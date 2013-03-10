@@ -141,7 +141,14 @@ namespace CodePlex.JPMikkers.TFTP
 
         ~UDPSocket()
         {
-            Dispose(false);
+            try
+            {
+                Dispose(false);
+            }
+            catch
+            {
+                // never let any exception escape the finalizer, or else your process will be killed.
+            }
         }
 
         #endregion
@@ -350,7 +357,10 @@ namespace CodePlex.JPMikkers.TFTP
 
         protected virtual void Dispose(bool disposing)
         {
-            Stop(null);
+            if (disposing)
+            {
+                Stop(null);
+            }
         }
 
         #endregion
