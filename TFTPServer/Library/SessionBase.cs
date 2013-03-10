@@ -256,7 +256,14 @@ namespace CodePlex.JPMikkers.TFTP
 
         ~TFTPSession()
         {
-            Dispose(false);
+            try
+            {
+                Dispose(false);
+            }
+            catch
+            {
+                // never let any exception escape the finalizer, or else your process will be killed.
+            }
         }
 
         protected virtual void Dispose(bool disposing)
