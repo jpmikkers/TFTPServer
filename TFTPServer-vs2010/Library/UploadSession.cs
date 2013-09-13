@@ -41,16 +41,6 @@ namespace CodePlex.JPMikkers.TFTP
 
         public override void Start()
         {
-            var sessionLogConfiguration = new SessionLogEntry.TConfiguration()
-                                             {
-                                                 FileLength = -1,
-                                                 Filename = m_Filename,
-                                                 IsUpload = true,
-                                                 LocalEndPoint = m_LocalEndPoint,
-                                                 RemoteEndPoint = m_RemoteEndPoint,
-                                                 StartTime = DateTime.Now,
-                                                 WindowSize = 1
-                                             };
             try
             {
                 lock (m_Lock)
@@ -58,7 +48,6 @@ namespace CodePlex.JPMikkers.TFTP
                     try
                     {
                         m_Length = m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize) ? Int64.Parse(m_RequestedOptions[TFTPServer.Option_TransferSize]) : -1;
-                        sessionLogConfiguration.FileLength = m_Length;
                         m_Stream = m_Parent.GetWriteStream(m_Filename, m_Length);
                         m_Position = 0;
                     }
@@ -66,11 +55,6 @@ namespace CodePlex.JPMikkers.TFTP
                     {
                         TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
                         throw;
-                    }
-                    finally
-                    {
-                        // always create a SessionLog (even if the file couldn't be opened), so Stop() will have somewhere to store its errors
-                        m_SessionLog = m_Parent.SessionLog.CreateSession(sessionLogConfiguration);
                     }
 
                     // handle tsize option
@@ -123,7 +107,6 @@ namespace CodePlex.JPMikkers.TFTP
                     m_Stream.Write(data.Array, data.Offset, data.Count);
 
                     m_Position += data.Count;
-                    m_SessionLog.Progress(m_Position);
 
                     // send ack for current block, client will respond with next block
                     m_Window = TFTPServer.GetDataAckPacket(m_BlockNumber);
@@ -133,7 +116,6 @@ namespace CodePlex.JPMikkers.TFTP
                     if (m_LastBlock)
                     {
                         StopTimer();
-                        m_SessionLog.Complete();
                     }
                     else
                     {

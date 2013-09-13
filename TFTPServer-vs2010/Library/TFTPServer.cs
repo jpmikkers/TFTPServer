@@ -121,13 +121,7 @@ namespace CodePlex.JPMikkers.TFTP
         private object m_Sync = new object();
         private bool m_Active = false;
 
-        private readonly Dictionary<IPEndPoint, ITFTPSession> m_Sessions;
-        private readonly SessionLog m_SessionLog = new SessionLog();
-
-        public SessionLog SessionLog
-        {
-            get { return m_SessionLog; }
-        }
+        private Dictionary<IPEndPoint, ITFTPSession> m_Sessions;
 
         private void Stop(Exception reason)
         {
@@ -374,12 +368,22 @@ namespace CodePlex.JPMikkers.TFTP
 
         ~TFTPServer()
         {
-            Dispose(false);
+            try
+            {
+                Dispose(false);
+            }
+            catch
+            {
+                // never let any exception escape the finalizer, or else your process will be killed.
+            }
         }
 
         protected void Dispose(bool disposing)
         {
-            Stop();
+            if (disposing)
+            {
+                Stop();
+            }
         }
 
         #endregion

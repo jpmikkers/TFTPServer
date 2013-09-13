@@ -26,27 +26,28 @@ namespace TFTPServerApp
                 if (!EventLog.SourceExists(Program.CustomEventSource))
                 {
                     EventLog.CreateEventSource(Program.CustomEventSource, Program.CustomEventLog);
-                    //EventLog.
                 }
                 // write something to the event log, or else the EventLog component in the UI
                 // won't fire the updating events. I know, it sucks.
                 EventLog tmp = new EventLog(Program.CustomEventLog, ".", Program.CustomEventSource);
                 // The default for XP is s DoNotOverwrite, but we want OverwriteAsNeeded
-                tmp.ModifyOverflowPolicy(OverflowAction.OverwriteAsNeeded,10);
                 tmp.WriteEntry("Installation complete");
+                tmp.MaximumKilobytes = 16000;   // value MUST be a factor of 64
+                tmp.ModifyOverflowPolicy(OverflowAction.OverwriteAsNeeded,7);
+                tmp.Close();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.WriteLine(String.Format("Exception: {0}", ex));
             }
 
-            Context.Parameters["assemblypath"] += "\" \"/service";
+            Context.Parameters["assemblypath"] = string.Format("\"{0}\" {1}", Context.Parameters["assemblypath"], "/service");
             base.OnBeforeInstall(savedState);
         }
 
         protected override void OnBeforeUninstall(IDictionary savedState)
         {
-            Context.Parameters["assemblypath"] += "\" \"/service";
+            Context.Parameters["assemblypath"] = string.Format("\"{0}\" {1}", Context.Parameters["assemblypath"], "/service");
             base.OnBeforeUninstall(savedState);
         }
 

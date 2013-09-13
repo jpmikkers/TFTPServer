@@ -36,7 +36,7 @@ namespace CodePlex.JPMikkers.TFTP
         const uint IOC_VENDOR = 0x18000000;
         const uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
 
-        public delegate void OnReceiveDelegate(UDPSocket sender, IPEndPoint endPoint, ArraySegment<byte> data);
+        public delegate void OnReceiveDelegate(UDPSocket sender,IPEndPoint endPoint,ArraySegment<byte> data);
         public delegate void OnStopDelegate(UDPSocket sender, Exception reason);
 
         #region private types, members
@@ -52,7 +52,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         private Queue<PacketBuffer> m_SendFifo;             // queue of the outgoing packets
         private bool m_SendPending;                         // true => an asynchronous send is in progress
-        private int m_ReceivePending;
+        private int m_ReceivePending;   
 
         private AutoPumpQueue<PacketBuffer> m_ReceiveFifo;  // queue of the incoming packets
         private int m_PacketSize;                           // size of packets we'll try to receive
@@ -103,7 +103,7 @@ namespace CodePlex.JPMikkers.TFTP
             m_SendFifo = new Queue<PacketBuffer>();
 
             m_ReceiveFifo = new AutoPumpQueue<PacketBuffer>(
-                (sender, data) =>
+                (sender, data) => 
                 {
                     bool isDisposed = false;
 
@@ -126,7 +126,7 @@ namespace CodePlex.JPMikkers.TFTP
             m_Socket = new Socket(localEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
             m_Socket.SendBufferSize = 65536;
             m_Socket.ReceiveBufferSize = 65536;
-            if (!m_IPv6) m_Socket.DontFragment = dontFragment;
+            if(!m_IPv6) m_Socket.DontFragment = dontFragment;
             if (ttl >= 0)
             {
                 m_Socket.Ttl = ttl;
@@ -141,7 +141,14 @@ namespace CodePlex.JPMikkers.TFTP
 
         ~UDPSocket()
         {
-            Dispose(false);
+			try
+			{
+	            Dispose(false);
+			}
+            catch
+			{
+                // never let any exception escape the finalizer, or else your process will be killed.
+			}			
         }
 
         #endregion
@@ -153,7 +160,7 @@ namespace CodePlex.JPMikkers.TFTP
         /// </summary>
         /// <param name="endPoint">Target for the data</param>
         /// <param name="msg">Data to send</param>
-        public void Send(IPEndPoint endPoint, ArraySegment<byte> msg)
+        public void Send(IPEndPoint endPoint,ArraySegment<byte> msg)
         {
             try
             {
@@ -350,7 +357,10 @@ namespace CodePlex.JPMikkers.TFTP
 
         protected virtual void Dispose(bool disposing)
         {
-            Stop(null);
+            if (disposing)
+            {
+                Stop(null);
+            }
         }
 
         #endregion
