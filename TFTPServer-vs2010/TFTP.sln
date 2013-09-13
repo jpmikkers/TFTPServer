@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library", "Library\Library.csproj", "{75CBACB4-34BA-4994-BF36-90A86B8F9372}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\SetupTFTPServer.vdproj", "{FEE01A3C-4006-4235-A776-0F1110304533}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{83AB486F-9859-48EB-870C-57745C16A232}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs02.codeplex.com/
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = Setup\\SetupTFTPServer.vdproj
+		SccProjectName1 = Setup
+		SccLocalPath1 = Setup
+		SccProjectUniqueName2 = Library\\Library.csproj
+		SccProjectName2 = Library
+		SccLocalPath2 = Library
+		SccProjectUniqueName3 = Application\\Application.csproj
+		SccProjectName3 = Application
+		SccLocalPath3 = Application
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{75CBACB4-34BA-4994-BF36-90A86B8F9372}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75CBACB4-34BA-4994-BF36-90A86B8F9372}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75CBACB4-34BA-4994-BF36-90A86B8F9372}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75CBACB4-34BA-4994-BF36-90A86B8F9372}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEE01A3C-4006-4235-A776-0F1110304533}.Debug|Any CPU.ActiveCfg = Debug
+		{FEE01A3C-4006-4235-A776-0F1110304533}.Debug|Any CPU.Build.0 = Debug
+		{FEE01A3C-4006-4235-A776-0F1110304533}.Release|Any CPU.ActiveCfg = Release
+		{FEE01A3C-4006-4235-A776-0F1110304533}.Release|Any CPU.Build.0 = Release
+		{83AB486F-9859-48EB-870C-57745C16A232}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83AB486F-9859-48EB-870C-57745C16A232}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83AB486F-9859-48EB-870C-57745C16A232}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83AB486F-9859-48EB-870C-57745C16A232}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
