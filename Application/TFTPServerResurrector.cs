@@ -54,17 +54,6 @@ namespace TFTPServerApp
             Dispose(false);
         }
 
-        public TFTPServer Server
-        {
-            get
-            {
-                lock (m_Lock)
-                {
-                    return m_Server;
-                }
-            }
-        }
-
         private void Resurrect()
         {
             lock (m_Lock)

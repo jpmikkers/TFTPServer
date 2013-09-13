@@ -57,17 +57,6 @@ namespace CodePlex.JPMikkers.TFTP
 
         public override void Start()
         {
-            var sessionLogConfiguration = new SessionLogEntry.TConfiguration()
-                                            {
-                                                FileLength = -1,
-                                                Filename = m_Filename,
-                                                IsUpload = false,
-                                                LocalEndPoint = m_LocalEndPoint,
-                                                RemoteEndPoint = m_RemoteEndPoint,
-                                                StartTime = DateTime.Now,
-                                                WindowSize = m_WindowSize
-                                            };
-
             try
             {
                 lock (m_Lock)
@@ -76,17 +65,12 @@ namespace CodePlex.JPMikkers.TFTP
                     {
                         m_Stream = m_Parent.GetReadStream(m_Filename);
                         m_Length = m_Stream.Length;
-                        sessionLogConfiguration.FileLength = m_Length;
                         m_Position = 0;
                     }
                     catch (Exception e)
                     {
                         TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
                         throw;
-                    }
-                    finally
-                    {
-                        m_SessionLog = m_Parent.SessionLog.CreateSession(sessionLogConfiguration);
                     }
 
                     // handle tsize option
@@ -172,8 +156,6 @@ namespace CodePlex.JPMikkers.TFTP
                         m_Window.RemoveAt(0);
                     }
 
-                    m_SessionLog.Progress(m_Position);
-
                     SendData();
 
                     if (m_Window.Count == 0)
@@ -181,7 +163,6 @@ namespace CodePlex.JPMikkers.TFTP
                         // Everything was acked
                         isComplete = true;
                         StopTimer();
-                        m_SessionLog.Complete();
                     }
                 }
             }
