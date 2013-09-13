@@ -78,9 +78,8 @@ namespace TFTPServerApp
                 comboBoxFilterMode.SelectedIndex = alternative.IsRegularExpression ? 1 : 0;
                 groupBox1.Enabled = true;
 
-                var bs = new BindingSource(alternative, null);
-                textBoxFilter.DataBindings.Add("Text", bs, "Filter");
-                textBoxWindowSize.DataBindings.Add("Text", bs, "WindowSize");
+                textBoxFilter.DataBindings.Add("Text", alternative, "Filter");
+                textBoxWindowSize.DataBindings.Add("Text", alternative, "WindowSize");
             }
             else
             {

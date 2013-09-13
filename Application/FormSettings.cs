@@ -115,21 +115,20 @@ namespace TFTPServerApp
             checkBoxDontFragment.DataBindings.Clear();
             checkBoxConvertPathSeparator.DataBindings.Clear();
 
-            BindingSource bs = new BindingSource(m_Configuration, null);
-            checkBoxAllowReads.DataBindings.Add("Checked", bs, "AllowRead");
-            checkBoxAllowWrites.DataBindings.Add("Checked", bs, "AllowWrite");
-            checkBoxSinglePortMode.DataBindings.Add("Checked", bs, "SinglePort");
-            checkBoxAutoCreateSubDirectories.DataBindings.Add("Checked", bs, "AutoCreateDirectories");
-            checkBoxDontFragment.DataBindings.Add("Checked", bs, "DontFragment");
-            checkBoxConvertPathSeparator.DataBindings.Add("Checked", bs, "ConvertPathSeparator");
-            textBoxTTL.DataBindings.Add("Text", bs, "Ttl");
-            textBoxName.DataBindings.Add("Text", bs, "Name");
-            textBoxAddress.DataBindings.Add("Text", bs, "EndPoint.Address");
-            textBoxPort.DataBindings.Add("Text", bs, "EndPoint.Port");
-            textBoxRootPath.DataBindings.Add("Text", bs, "RootPath");
-            textBoxTimeout.DataBindings.Add("Text", bs, "Timeout");
-            textBoxRetries.DataBindings.Add("Text", bs, "Retries");
-            textBoxWindowSize.DataBindings.Add("Text", bs, "WindowSize");
+            checkBoxAllowReads.DataBindings.Add("Checked", m_Configuration, "AllowRead");
+            checkBoxAllowWrites.DataBindings.Add("Checked", m_Configuration, "AllowWrite");
+            checkBoxSinglePortMode.DataBindings.Add("Checked", m_Configuration, "SinglePort");
+            checkBoxAutoCreateSubDirectories.DataBindings.Add("Checked", m_Configuration, "AutoCreateDirectories");
+            checkBoxDontFragment.DataBindings.Add("Checked", m_Configuration, "DontFragment");
+            checkBoxConvertPathSeparator.DataBindings.Add("Checked", m_Configuration, "ConvertPathSeparator");
+            textBoxTTL.DataBindings.Add("Text", m_Configuration, "Ttl");
+            textBoxName.DataBindings.Add("Text", m_Configuration, "Name");
+            textBoxAddress.DataBindings.Add("Text", m_Configuration, "EndPoint.Address");
+            textBoxPort.DataBindings.Add("Text", m_Configuration, "EndPoint.Port");
+            textBoxRootPath.DataBindings.Add("Text", m_Configuration, "RootPath");
+            textBoxTimeout.DataBindings.Add("Text", m_Configuration, "Timeout");
+            textBoxRetries.DataBindings.Add("Text", m_Configuration, "Retries");
+            textBoxWindowSize.DataBindings.Add("Text", m_Configuration, "WindowSize");
         }
 
         private void buttonPickAddress_Click(object sender, EventArgs e)

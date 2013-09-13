@@ -64,7 +64,6 @@ namespace TFTPServerApp
             Retries = 5;
             ConvertPathSeparator = true;
             WindowSize = 1;
-            Alternatives = new BindingList<ConfigurationAlternative>();
         }
 
         public TFTPServerConfiguration Clone()

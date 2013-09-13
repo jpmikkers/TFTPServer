@@ -374,22 +374,12 @@ namespace CodePlex.JPMikkers.TFTP
 
         ~TFTPServer()
         {
-            try
-            {
-                Dispose(false);
-            }
-            catch
-            {
-                // never let any exception escape the finalizer, or else your process will be killed.
-            }
+            Dispose(false);
         }
 
         protected void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                Stop();
-            }
+            Stop();
         }
 
         #endregion
