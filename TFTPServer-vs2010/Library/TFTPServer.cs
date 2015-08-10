@@ -240,87 +240,100 @@ namespace CodePlex.JPMikkers.TFTP
             int packetSize = data.Count;
             MemoryStream ms = new MemoryStream(data.Array, data.Offset, data.Count, false, true);
 
-            lock (m_Sessions)
+            ITFTPSession session;
+            bool found;
+            ushort opCode = ReadUInt16(ms);
+
+            lock(m_Sessions)
             {
-                ITFTPSession session;
-                ushort opCode = ReadUInt16(ms);
+                found = m_Sessions.TryGetValue(endPoint, out session);
+            }
 
-                // is there a session in progress for that endpoint?
-                if (m_Sessions.TryGetValue(endPoint, out session))
+            // is there a session in progress for that endpoint?
+            if (found)
+            {
+                // yes.
+                switch ((Opcode)opCode)
                 {
-                    // yes.
-                    switch ((Opcode)opCode)
-                    {
-                        case Opcode.ReadRequest:
-                            // session already exists, and we're getting a new readrequest?
-                            SendError(sender, endPoint, ErrorCode.IllegalOperation, "Read session already in progress");
-                            break;
+                    case Opcode.ReadRequest:
+                        // session already exists, and we're getting a new readrequest?
+                        SendError(sender, endPoint, ErrorCode.IllegalOperation, "Read session already in progress");
+                        break;
 
-                        case Opcode.WriteRequest:
-                            // session already exists, and we're getting a new writerequest?
-                            SendError(sender, endPoint, ErrorCode.IllegalOperation, "Write session already in progress");
-                            break;
+                    case Opcode.WriteRequest:
+                        // session already exists, and we're getting a new writerequest?
+                        SendError(sender, endPoint, ErrorCode.IllegalOperation, "Write session already in progress");
+                        break;
 
-                        case Opcode.Data:
-                            session.ProcessData(ReadUInt16(ms), new ArraySegment<byte>(data.Array,(int)(data.Offset+ms.Position),(int)(data.Count-ms.Position)));
-                            break;
+                    case Opcode.Data:
+                        session.ProcessData(ReadUInt16(ms), new ArraySegment<byte>(data.Array,(int)(data.Offset+ms.Position),(int)(data.Count-ms.Position)));
+                        break;
 
-                        case Opcode.Ack:
-                            session.ProcessAck(ReadUInt16(ms));
-                            break;
+                    case Opcode.Ack:
+                        session.ProcessAck(ReadUInt16(ms));
+                        break;
 
-                        case Opcode.Error:
-                            ushort code = ReadUInt16(ms);
-                            string msg = ReadZString(ms);
-                            session.ProcessError(code, msg);
-                            break;
+                    case Opcode.Error:
+                        ushort code = ReadUInt16(ms);
+                        string msg = ReadZString(ms);
+                        session.ProcessError(code, msg);
+                        break;
 
-                        case Opcode.OptionsAck:
-                            break;
+                    case Opcode.OptionsAck:
+                        break;
 
-                        default:
-                            SendError(sender, endPoint, ErrorCode.IllegalOperation, "Unknown opcode");
-                            break;
-                    }
+                    default:
+                        SendError(sender, endPoint, ErrorCode.IllegalOperation, "Unknown opcode");
+                        break;
                 }
-                else // session==null
+            }
+            else // session==null
+            {
+                // no session in progress for the endpoint that sent the packet
+                switch ((Opcode)opCode)
                 {
-                    // no session in progress for the endpoint that sent the packet
-                    switch ((Opcode)opCode)
-                    {
-                        case Opcode.ReadRequest:
-                            {
-                                string filename = ReadZString(ms);
-                                if(m_ConvertPathSeparator) filename = filename.Replace('/','\\');
-                                Mode mode = ReadMode(ms);
-                                var requestedOptions = ReadOptions(ms);
-                                ushort windowSize = GetWindowSize(filename);
-                                ITFTPSession newSession = new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, windowSize, OnUDPReceive);
-                                m_Sessions.Add(newSession.RemoteEndPoint, newSession);
-                                notify = true;
-                                Trace(string.Format("Starting transfer of file '{0}' from local '{1}' to remote '{2}', send window size {3}", newSession.Filename, newSession.LocalEndPoint, newSession.RemoteEndPoint, windowSize));
-                                newSession.Start();
-                            }
-                            break;
+                    case Opcode.ReadRequest:
+                        {
+                            string filename = ReadZString(ms);
+                            if (m_ConvertPathSeparator) filename = filename.Replace('/', '\\');
+                            Mode mode = ReadMode(ms);
+                            var requestedOptions = ReadOptions(ms);
+                            ushort windowSize = GetWindowSize(filename);
+                            ITFTPSession newSession = new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, windowSize, OnUDPReceive);
 
-                        case Opcode.WriteRequest:
+                            lock(m_Sessions)
                             {
-                                string filename = ReadZString(ms);
-                                if (m_ConvertPathSeparator) filename = filename.Replace('/', '\\');
-                                Mode mode = ReadMode(ms);
-                                var requestedOptions = ReadOptions(ms);
-                                ITFTPSession newSession=new UploadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
                                 m_Sessions.Add(newSession.RemoteEndPoint, newSession);
-                                notify = true;
-                                Trace(string.Format("Starting transfer of file '{0}' from remote '{1}' to local '{2}'", newSession.Filename, newSession.RemoteEndPoint, newSession.LocalEndPoint));
-                                newSession.Start();
                             }
-                            break;
 
-                        default:
-                            SendError(m_Socket, endPoint, (ushort)ErrorCode.UnknownTransferID, "Unknown transfer ID");
-                            break;
-                    }
+                            notify = true;
+                            Trace(string.Format("Starting transfer of file '{0}' from local '{1}' to remote '{2}', send window size {3}", newSession.Filename, newSession.LocalEndPoint, newSession.RemoteEndPoint, windowSize));
+                            newSession.Start();
+                        }
+                        break;
+
+                    case Opcode.WriteRequest:
+                        {
+                            string filename = ReadZString(ms);
+                            if (m_ConvertPathSeparator) filename = filename.Replace('/', '\\');
+                            Mode mode = ReadMode(ms);
+                            var requestedOptions = ReadOptions(ms);
+                            ITFTPSession newSession = new UploadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
+
+                            lock(m_Sessions)
+                            {
+                                m_Sessions.Add(newSession.RemoteEndPoint, newSession);
+                            }
+
+                            notify = true;
+                            Trace(string.Format("Starting transfer of file '{0}' from remote '{1}' to local '{2}'", newSession.Filename, newSession.RemoteEndPoint, newSession.LocalEndPoint));
+                            newSession.Start();
+                        }
+                        break;
+
+                    default:
+                        SendError(m_Socket, endPoint, (ushort)ErrorCode.UnknownTransferID, "Unknown transfer ID");
+                        break;
                 }
             }
 
@@ -598,12 +611,17 @@ namespace CodePlex.JPMikkers.TFTP
                 {
                     try
                     {
+                        int maxWorkerThreads, maxCompletionPortThreads;
+
                         Trace(string.Format("Starting TFTP server '{0}'",m_ServerEndPoint));
                         m_Active = true;
                         m_Socket = new UDPSocket(m_ServerEndPoint, MaxBlockSize, m_DontFragment, m_Ttl, OnUDPReceive, OnUDPStop);
                         Trace(string.Format("TFTP Server start succeeded, serving at '{0}'",m_Socket.LocalEndPoint));
+                        System.Threading.ThreadPool.GetMaxThreads(out maxWorkerThreads, out maxCompletionPortThreads);
+                        Trace(string.Format("Threadpool maxWorkerThreads={0} maxCompletionPortThreads={1}", maxWorkerThreads, maxCompletionPortThreads));
+                        Trace(string.Format("GCSettings.IsServerGC={0}", System.Runtime.GCSettings.IsServerGC));
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         Trace(string.Format("TFTP Server start failed, reason '{0}'",e));
                         m_Active = false;
