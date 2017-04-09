@@ -19,7 +19,7 @@ Managed TFTP server implementation with the following features:
 
 ## Screenshots
 
-See [Screenshots](Screenshots).
+See [Screenshots](docs/Screenshots.md).
 
 ## Tested clients
 
