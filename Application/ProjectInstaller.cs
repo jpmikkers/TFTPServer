@@ -26,14 +26,15 @@ namespace TFTPServerApp
                 if (!EventLog.SourceExists(Program.CustomEventSource))
                 {
                     EventLog.CreateEventSource(Program.CustomEventSource, Program.CustomEventLog);
-                    //EventLog.
                 }
                 // write something to the event log, or else the EventLog component in the UI
                 // won't fire the updating events. I know, it sucks.
                 EventLog tmp = new EventLog(Program.CustomEventLog, ".", Program.CustomEventSource);
                 // The default for XP is s DoNotOverwrite, but we want OverwriteAsNeeded
-                tmp.ModifyOverflowPolicy(OverflowAction.OverwriteAsNeeded,10);
                 tmp.WriteEntry("Installation complete");
+                tmp.MaximumKilobytes = 16000;   // value MUST be a factor of 64
+                tmp.ModifyOverflowPolicy(OverflowAction.OverwriteAsNeeded,7);
+                tmp.Close();
             }
             catch (Exception ex)
             {

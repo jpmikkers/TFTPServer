@@ -246,13 +246,17 @@ namespace CodePlex.JPMikkers.TFTP
             int packetSize = data.Count;
             MemoryStream ms = new MemoryStream(data.Array, data.Offset, data.Count, false, true);
 
+            ITFTPSession session;
+            bool found;
+            ushort opCode = ReadUInt16(ms);
+
             lock (m_Sessions)
             {
-                ITFTPSession session;
-                ushort opCode = ReadUInt16(ms);
+                found = m_Sessions.TryGetValue(endPoint, out session);
+            }
 
                 // is there a session in progress for that endpoint?
-                if (m_Sessions.TryGetValue(endPoint, out session))
+            if (found)
                 {
                     // yes.
                     switch ((Opcode)opCode)
@@ -302,7 +306,12 @@ namespace CodePlex.JPMikkers.TFTP
                                 var requestedOptions = ReadOptions(ms);
                                 ushort windowSize = GetWindowSize(filename);
                                 ITFTPSession newSession = new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, windowSize, OnUDPReceive);
+
+                            lock(m_Sessions)
+                            {
                                 m_Sessions.Add(newSession.RemoteEndPoint, newSession);
+                            }
+
                                 notify = true;
                                 Trace(string.Format("Starting transfer of file '{0}' from local '{1}' to remote '{2}', send window size {3}", newSession.Filename, newSession.LocalEndPoint, newSession.RemoteEndPoint, windowSize));
                                 newSession.Start();
@@ -316,7 +325,12 @@ namespace CodePlex.JPMikkers.TFTP
                                 Mode mode = ReadMode(ms);
                                 var requestedOptions = ReadOptions(ms);
                                 ITFTPSession newSession=new UploadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
+
+                            lock(m_Sessions)
+                            {
                                 m_Sessions.Add(newSession.RemoteEndPoint, newSession);
+                            }
+
                                 notify = true;
                                 Trace(string.Format("Starting transfer of file '{0}' from remote '{1}' to local '{2}'", newSession.Filename, newSession.RemoteEndPoint, newSession.LocalEndPoint));
                                 newSession.Start();
@@ -328,7 +342,6 @@ namespace CodePlex.JPMikkers.TFTP
                             break;
                     }
                 }
-            }
 
             if (notify)
             {
@@ -604,10 +617,15 @@ namespace CodePlex.JPMikkers.TFTP
                 {
                     try
                     {
+                        int maxWorkerThreads, maxCompletionPortThreads;
+
                         Trace(string.Format("Starting TFTP server '{0}'",m_ServerEndPoint));
                         m_Active = true;
                         m_Socket = new UDPSocket(m_ServerEndPoint, MaxBlockSize, m_DontFragment, m_Ttl, OnUDPReceive, OnUDPStop);
                         Trace(string.Format("TFTP Server start succeeded, serving at '{0}'",m_Socket.LocalEndPoint));
+                        System.Threading.ThreadPool.GetMaxThreads(out maxWorkerThreads, out maxCompletionPortThreads);
+                        Trace(string.Format("Threadpool maxWorkerThreads={0} maxCompletionPortThreads={1}", maxWorkerThreads, maxCompletionPortThreads));
+                        Trace(string.Format("GCSettings.IsServerGC={0}", System.Runtime.GCSettings.IsServerGC));
                     }
                     catch(Exception e)
                     {
