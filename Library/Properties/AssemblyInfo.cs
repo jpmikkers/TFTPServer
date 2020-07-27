@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("TFTPLibrary")]
 [assembly: AssemblyDescription(
-    "Copyright (c) 2010-2019 Jean-Paul Mikkers" +
+    "Copyright (c) 2010-2020 Jean-Paul Mikkers" +
     "\r\n" +
     "\r\n" +
     "Permission is hereby granted, free of charge, to any person obtaining a copy of this software" +
@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("JPMikkers")]
 [assembly: AssemblyProduct("TFTPLibrary")]
-[assembly: AssemblyCopyright("Copyright © Jean-Paul Mikkers 2010-2013")]
+[assembly: AssemblyCopyright("Copyright © Jean-Paul Mikkers 2010-2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -50,5 +50,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.3.1.0")]
-[assembly: AssemblyFileVersion("1.3.1.0")]
+[assembly: AssemblyVersion("1.3.2.0")]
+[assembly: AssemblyFileVersion("1.3.2.0")]
