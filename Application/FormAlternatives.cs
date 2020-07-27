@@ -175,7 +175,7 @@ namespace TFTPServerApp
                     buttonMatchResult.BackColor = SystemColors.Control;
                 }
             }
-            catch (Exception e)
+            catch
             {
                 buttonMatchResult.Text = "Invalid filter";
                 buttonMatchResult.BackColor = Color.Red;
