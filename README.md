@@ -33,7 +33,8 @@ The server has been successfully tested with the following clients:
 
 ## Tested platforms (so far)
 
+* 64 bit Windows 10
+* 64 bit Windows 7
 * 32 bit Windows XP
 * 64 bit Windows Vista
-* 64 bit Windows 7
 * Linux! The main TFTP library compiles and runs without modifications in [Mono](http://www.mono-project.com/) . All I had to do was create a small console app that instantiates the TFTPServer class.
