@@ -36,21 +36,21 @@ namespace CodePlex.JPMikkers.TFTP
     /// </summary>
     public class WeakTimer
     {
-        private readonly Timer m_Timer;
-        private readonly WeakReference m_WeakTarget;
-        private readonly Action<object, object> m_Invoker;
+        private readonly Timer _timer;
+        private readonly WeakReference _weakTarget;
+        private readonly Action<object, object> _invoker;
 
         public WeakTimer(TimerCallback tc, object state, int dueTime, int period)
         {
             if (tc.Method.IsStatic)
             {
-                m_Timer = new Timer(tc, state, dueTime, period);
+                _timer = new Timer(tc, state, dueTime, period);
             }
             else
             {
-                m_WeakTarget = new WeakReference(tc.Target);
-                m_Invoker = GenerateInvoker(tc.Method);
-                m_Timer = new Timer(MyCallback, state, dueTime, period);
+                _weakTarget = new WeakReference(tc.Target);
+                _invoker = GenerateInvoker(tc.Method);
+                _timer = new Timer(MyCallback, state, dueTime, period);
             }
         }
 
@@ -65,24 +65,24 @@ namespace CodePlex.JPMikkers.TFTP
 
         private void MyCallback(object state)
         {
-            object handler = m_WeakTarget.Target;
+            object handler = _weakTarget.Target;
 
             // check whether target has been disposed.
             if (handler != null)
             {
                 // target is still alive, call it
-                m_Invoker(handler, state);
+                _invoker(handler, state);
             }
             else
             {
                 // target was collected, stop trying to call it
-                m_Timer.Change(Timeout.Infinite, Timeout.Infinite);
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
             }
         }
 
         public void Change(int dueTime, int period)
         {
-            m_Timer.Change(dueTime, period);
+            _timer.Change(dueTime, period);
         }
     }
 }

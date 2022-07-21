@@ -31,32 +31,32 @@ namespace CodePlex.JPMikkers.TFTP
 {
     internal abstract class TFTPSession : ITFTPSession
     {
-        protected volatile bool m_Disposed = false;
-        private Timer m_Timer;
-        private int m_ResponseTimeout;
-        protected object m_Lock = new object();
-        protected SessionLog.ISession m_SessionLog;
-        protected TFTPServer m_Parent;
-        protected Stream m_Stream;
-        protected UDPSocket m_Socket;
-        protected bool m_OwnSocket;
-        protected IPEndPoint m_LocalEndPoint;
-        protected IPEndPoint m_RemoteEndPoint;
-        protected int m_SocketDisposeDelay;
-        protected long m_Length;
-        protected int m_CurrentBlockSize;
-        protected bool m_LastBlock;
-        protected ushort m_BlockNumber;
-        protected ushort m_BlockRetry;
-        protected Dictionary<string, string> m_RequestedOptions;
-        protected string m_Filename;
-        protected Dictionary<string, string> m_AcceptedOptions = new Dictionary<string, string>();
+        protected volatile bool _disposed = false;
+        private Timer _timer;
+        private int _responseTimeout;
+        protected object _lock = new object();
+        protected SessionLog.ISession _sessionLog;
+        protected TFTPServer _parent;
+        protected Stream _stream;
+        protected UDPSocket _socket;
+        protected bool _ownSocket;
+        protected IPEndPoint _localEndPoint;
+        protected IPEndPoint _remoteEndPoint;
+        protected int _socketDisposeDelay;
+        protected long _length;
+        protected int _currentBlockSize;
+        protected bool _lastBlock;
+        protected ushort _blockNumber;
+        protected ushort _blockRetry;
+        protected Dictionary<string, string> _requestedOptions;
+        protected string _filename;
+        protected Dictionary<string, string> _acceptedOptions = new Dictionary<string, string>();
 
         public IPEndPoint LocalEndPoint
         {
             get
             {
-                return m_LocalEndPoint;
+                return _localEndPoint;
             }
         }
 
@@ -64,7 +64,7 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_RemoteEndPoint;
+                return _remoteEndPoint;
             }
         }
 
@@ -72,7 +72,7 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_Filename;
+                return _filename;
             }
         }
 
@@ -80,18 +80,18 @@ namespace CodePlex.JPMikkers.TFTP
         {
             bool notify = false;
 
-            lock (m_Lock)
+            lock (_lock)
             {
-                if (!m_Disposed)
+                if (!_disposed)
                 {
-                    if (m_BlockRetry < m_Parent.m_MaxRetries)
+                    if (_blockRetry < _parent._maxRetries)
                     {
-                        m_BlockRetry++;
+                        _blockRetry++;
                         SendResponse();
                     }
                     else
                     {
-                        TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.Undefined, "Timeout");
+                        TFTPServer.SendError(_socket, _remoteEndPoint, TFTPServer.ErrorCode.Undefined, "Timeout");
                         notify = true;
                     }
                 }
@@ -105,31 +105,31 @@ namespace CodePlex.JPMikkers.TFTP
 
         protected void StartTimer()
         {
-            m_Timer.Change(m_ResponseTimeout, Timeout.Infinite);
+            _timer.Change(_responseTimeout, Timeout.Infinite);
         }
 
         protected void StopTimer()
         {
-            m_Timer.Change(Timeout.Infinite, Timeout.Infinite);
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
         public TFTPSession(TFTPServer parent, UDPSocket socket, IPEndPoint remoteEndPoint, Dictionary<string, string> requestedOptions, string filename, UDPSocket.OnReceiveDelegate onReceive, int socketDisposeDelay)
         {
-            m_Parent = parent;
-            m_CurrentBlockSize = TFTPServer.DefaultBlockSize;
-            m_ResponseTimeout = m_Parent.m_ResponseTimeout;
-            m_RemoteEndPoint = remoteEndPoint;
-            m_Timer = new Timer(new System.Threading.TimerCallback(OnTimer), this, Timeout.Infinite, Timeout.Infinite);
-            m_RequestedOptions = requestedOptions;
-            m_Filename = filename;
-            m_SocketDisposeDelay = socketDisposeDelay;
+            _parent = parent;
+            _currentBlockSize = TFTPServer.DefaultBlockSize;
+            _responseTimeout = _parent._responseTimeout;
+            _remoteEndPoint = remoteEndPoint;
+            _timer = new Timer(new System.Threading.TimerCallback(OnTimer), this, Timeout.Infinite, Timeout.Infinite);
+            _requestedOptions = requestedOptions;
+            _filename = filename;
+            _socketDisposeDelay = socketDisposeDelay;
 
-            m_Length = 0;
-            m_LastBlock = false;
-            m_BlockNumber = 0;
-            m_BlockRetry = 0;
+            _length = 0;
+            _lastBlock = false;
+            _blockNumber = 0;
+            _blockRetry = 0;
 
-            foreach (var kvp in m_RequestedOptions)
+            foreach (var kvp in _requestedOptions)
             {
                 switch (kvp.Key)
                 {
@@ -143,8 +143,8 @@ namespace CodePlex.JPMikkers.TFTP
                         // rfc2349 : valid values range between "1" and "255" seconds
                         if (requestedTimeout >= 1 && requestedTimeout <= 255)
                         {
-                            m_ResponseTimeout = requestedTimeout * 1000;
-                            m_AcceptedOptions.Add(TFTPServer.Option_Timeout, kvp.Value);
+                            _responseTimeout = requestedTimeout * 1000;
+                            _acceptedOptions.Add(TFTPServer.Option_Timeout, kvp.Value);
                         }
                         break;
 
@@ -158,8 +158,8 @@ namespace CodePlex.JPMikkers.TFTP
                         // rfc2348 : valid values range between "8" and "65464" octets, inclusive
                         if (requestedBlockSize >= 8 && requestedBlockSize <= 65464)
                         {
-                            m_CurrentBlockSize = Math.Min(TFTPServer.MaxBlockSize, requestedBlockSize);
-                            m_AcceptedOptions.Add(TFTPServer.Option_BlockSize, m_CurrentBlockSize.ToString());
+                            _currentBlockSize = Math.Min(TFTPServer.MaxBlockSize, requestedBlockSize);
+                            _acceptedOptions.Add(TFTPServer.Option_BlockSize, _currentBlockSize.ToString());
                         }
                         break;
                 }
@@ -167,60 +167,60 @@ namespace CodePlex.JPMikkers.TFTP
 
             if (socket != null)
             {
-                m_OwnSocket = false;
-                m_Socket = socket;
+                _ownSocket = false;
+                _socket = socket;
             }
             else
             {
-                m_OwnSocket = true;
-                m_Socket = new UDPSocket(
-                    new IPEndPoint(m_Parent.m_ServerEndPoint.Address, 0), 
-                    m_CurrentBlockSize + 4, 
-                    m_Parent.m_DontFragment, 
-                    m_Parent.m_Ttl, 
+                _ownSocket = true;
+                _socket = new UDPSocket(
+                    new IPEndPoint(_parent._serverEndPoint.Address, 0), 
+                    _currentBlockSize + 4, 
+                    _parent._dontFragment, 
+                    _parent._Ttl, 
                     onReceive, 
                     (sender, reason) => { Stop(true, reason); });
             }
-            m_LocalEndPoint = (IPEndPoint)m_Socket.LocalEndPoint;
+            _localEndPoint = (IPEndPoint)_socket.LocalEndPoint;
         }
 
         protected void Stop(bool dally,Exception reason)
         {
             bool notify = false;
 
-            lock (m_Lock)
+            lock (_lock)
             {
-                if (!m_Disposed)
+                if (!_disposed)
                 {
-                    if (m_SessionLog != null)
+                    if (_sessionLog != null)
                     {
-                        m_SessionLog.Stop(reason);
+                        _sessionLog.Stop(reason);
                     }
 
-                    m_Disposed = true;
-                    m_Timer.Change(Timeout.Infinite, Timeout.Infinite);
-                    m_Timer.Dispose();
+                    _disposed = true;
+                    _timer.Change(Timeout.Infinite, Timeout.Infinite);
+                    _timer.Dispose();
 
-                    if (m_OwnSocket)
+                    if (_ownSocket)
                     {
-                        if (m_Socket != null)
+                        if (_socket != null)
                         {
-                            if (dally && m_Socket.SendPending)
+                            if (dally && _socket.SendPending)
                             {
-                                DelayedDisposer.QueueDelayedDispose(m_Socket, m_SocketDisposeDelay);
+                                DelayedDisposer.QueueDelayedDispose(_socket, _socketDisposeDelay);
                             }
                             else
                             {
-                                m_Socket.Dispose();
+                                _socket.Dispose();
                             }
                         }
                     }
 
-                    if (m_Stream != null)
+                    if (_stream != null)
                     {
-                        if (m_Stream.CanWrite) m_Stream.Flush();
-                        m_Stream.Close();
-                        m_Stream = null;
+                        if (_stream.CanWrite) _stream.Flush();
+                        _stream.Close();
+                        _stream = null;
                     }
 
                     notify = true;
@@ -229,7 +229,7 @@ namespace CodePlex.JPMikkers.TFTP
 
             if (notify)
             {
-                m_Parent.TransferComplete(this, reason);
+                _parent.TransferComplete(this, reason);
             }
         }
 
@@ -249,7 +249,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         public void ProcessError(ushort code, string msg)
         {
-            Stop(false,new IOException(string.Format("Remote side responded with error code {0}, message '{1}'", code, msg)));
+            Stop(false,new IOException($"Remote side responded with error code {code}, message '{msg}'"));
         }
 
         #endregion

@@ -30,31 +30,31 @@ namespace CodePlex.JPMikkers.TFTP
 {
     public class SessionLog
     {
-        private static long IDCounter = 0;
-        private readonly HashSet<Slot> m_Sessions = new HashSet<Slot>();
-        private readonly Queue<Slot> m_SessionQueue = new Queue<Slot>();
-        private int m_MaxItems = 100;
-        private readonly WeakTimer m_Timer;
-        private readonly System.Diagnostics.Stopwatch m_StopWatch;
+        private static long s_IDCounter = 0;
+        private readonly HashSet<Slot> _sessions = new HashSet<Slot>();
+        private readonly Queue<Slot> _sessionQueue = new Queue<Slot>();
+        private int _maxItems = 100;
+        private readonly WeakTimer _timer;
+        private readonly System.Diagnostics.Stopwatch _stopWatch;
 
         private double ElapsedSeconds
         {
             get
             {
-                lock (m_StopWatch)
+                lock (_stopWatch)
                 {
-                    return m_StopWatch.Elapsed.TotalSeconds;
+                    return _stopWatch.Elapsed.TotalSeconds;
                 }
             }
         }
 
         public int MaxItems
         {
-            get { return m_MaxItems; }
+            get { return _maxItems; }
             set 
             {
                 if (value < 0) throw new ArgumentException("Argument must be >= 0", "MaxItems");
-                m_MaxItems = value;
+                _maxItems = value;
                 Purge();
             }
         }
@@ -63,7 +63,7 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_Sessions;
+                return _sessions;
             }
         }
 
@@ -76,53 +76,53 @@ namespace CodePlex.JPMikkers.TFTP
 
         private class Slot : ISession
         {
-            private long m_Id;
-            private long m_Transferred;
-            private SessionLogEntry.TState m_State;
-            private SessionLog m_Parent;
-            private Exception m_Exception;
-            private double m_Speed;
-            private double m_StartTime;
-            private double m_LastSpeedCalculation;
-            private long m_LastTransferred;
-            private SimpleMovingAverage m_RunningAverage = new SimpleMovingAverage(2);
-            protected internal volatile bool m_TriggerSpeedCalculation;
+            private long _id;
+            private long _transferred;
+            private SessionLogEntry.TState _state;
+            private SessionLog _parent;
+            private Exception _exception;
+            private double _speed;
+            private double _startTime;
+            private double _lastSpeedCalculation;
+            private long _lastTransferred;
+            private SimpleMovingAverage _runningAverage = new SimpleMovingAverage(2);
+            protected internal volatile bool _triggerSpeedCalculation;
 
             public long Id
             {
-                get { return m_Id; }
+                get { return _id; }
             }
 
             public Exception Exception
             {
-                get { return m_Exception; }
+                get { return _exception; }
             }
 
-            private readonly SessionLogEntry.TConfiguration m_Configuration;
+            private readonly SessionLogEntry.TConfiguration _configuration;
 
             public SessionLogEntry.TConfiguration Configuration 
             {
-                get { return m_Configuration; }
+                get { return _configuration; }
             }
 
             public SessionLogEntry.TState State
             {
                 get
                 {
-                    return m_State;
+                    return _state;
                 }
             }
             
             public long Transferred 
             { 
-                get { return Interlocked.Read(ref m_Transferred); }
+                get { return Interlocked.Read(ref _transferred); }
             }
 
             public double Speed
             {
                 get
                 {
-                    return m_Speed;
+                    return _speed;
                 }
             }
 
@@ -133,37 +133,37 @@ namespace CodePlex.JPMikkers.TFTP
 
             public Slot(SessionLog parent, long id, SessionLogEntry.TConfiguration sessionInfo)
             {
-                m_Id = id;
-                m_Parent = parent;
-                m_Configuration = sessionInfo;
-                m_State = SessionLogEntry.TState.Busy;
-                m_Exception = null;
-                m_Transferred = 0;
-                m_Speed = 0.0;
-                m_StartTime = m_Parent.ElapsedSeconds;
-                m_LastSpeedCalculation = m_StartTime;
+                _id = id;
+                _parent = parent;
+                _configuration = sessionInfo;
+                _state = SessionLogEntry.TState.Busy;
+                _exception = null;
+                _transferred = 0;
+                _speed = 0.0;
+                _startTime = _parent.ElapsedSeconds;
+                _lastSpeedCalculation = _startTime;
             }
 
             public void Progress(long transferred)
             {
-                if (m_State == SessionLogEntry.TState.Busy)
+                if (_state == SessionLogEntry.TState.Busy)
                 {
-                    Interlocked.Exchange(ref m_Transferred, transferred);
+                    Interlocked.Exchange(ref _transferred, transferred);
 
-                    if (m_TriggerSpeedCalculation)
+                    if (_triggerSpeedCalculation)
                     {
-                        m_TriggerSpeedCalculation = false;
-                        double currentTime = m_Parent.ElapsedSeconds;
+                        _triggerSpeedCalculation = false;
+                        double currentTime = _parent.ElapsedSeconds;
 
-                        lock (m_RunningAverage)
+                        lock (_runningAverage)
                         {
-                            double elapsed = (currentTime - m_LastSpeedCalculation);
+                            double elapsed = (currentTime - _lastSpeedCalculation);
 
                             if (elapsed > 0.01)
                             {
-                                m_Speed = m_RunningAverage.Add(CalculateSpeed(transferred - m_LastTransferred, m_LastSpeedCalculation, currentTime));
-                                m_LastTransferred = transferred;
-                                m_LastSpeedCalculation = currentTime;
+                                _speed = _runningAverage.Add(CalculateSpeed(transferred - _lastTransferred, _lastSpeedCalculation, currentTime));
+                                _lastTransferred = transferred;
+                                _lastSpeedCalculation = currentTime;
                             }
                         }
                     }
@@ -172,19 +172,19 @@ namespace CodePlex.JPMikkers.TFTP
 
             public void Stop(Exception e)
             {
-                lock (m_Parent.SyncObject)
+                lock (_parent.SyncObject)
                 {
-                    if (m_State == SessionLogEntry.TState.Busy)
+                    if (_state == SessionLogEntry.TState.Busy)
                     {
-                        m_Speed = CalculateSpeed(m_Transferred, m_StartTime, m_Parent.ElapsedSeconds);
+                        _speed = CalculateSpeed(_transferred, _startTime, _parent.ElapsedSeconds);
                         if (e == null)
                         {
-                            m_State = SessionLogEntry.TState.Completed;
+                            _state = SessionLogEntry.TState.Completed;
                         }
                         else
                         {
-                            m_State = SessionLogEntry.TState.Stopped;
-                            m_Exception = e;
+                            _state = SessionLogEntry.TState.Stopped;
+                            _exception = e;
                         }
                     }
                 }
@@ -197,48 +197,48 @@ namespace CodePlex.JPMikkers.TFTP
 
             public void Invalidate()
             {
-                m_State = SessionLogEntry.TState.Zombie;
+                _state = SessionLogEntry.TState.Zombie;
             }
         }
 
         private void Purge()
         {
-            lock (m_Sessions)
+            lock (_sessions)
             {
-                while (m_SessionQueue.Count > m_MaxItems)
+                while (_sessionQueue.Count > _maxItems)
                 {
-                    var sessionToRemove = m_SessionQueue.Dequeue();
+                    var sessionToRemove = _sessionQueue.Dequeue();
                     sessionToRemove.Invalidate();
-                    m_Sessions.Remove(sessionToRemove);
+                    _sessions.Remove(sessionToRemove);
                 }
             }
         }
 
         public SessionLog()
         {
-            m_StopWatch = new System.Diagnostics.Stopwatch();
-            m_StopWatch.Start();
-            m_Timer = new WeakTimer(OnTimer, null, 1000, 1000);
+            _stopWatch = new System.Diagnostics.Stopwatch();
+            _stopWatch.Start();
+            _timer = new WeakTimer(OnTimer, null, 1000, 1000);
         }
 
         private void OnTimer(object state)
         {
-            lock (m_Sessions)
+            lock (_sessions)
             {
-                foreach (var session in m_Sessions)
+                foreach (var session in _sessions)
                 {
-                    session.m_TriggerSpeedCalculation = true;
+                    session._triggerSpeedCalculation = true;
                 }
             }
         }
 
         public ISession CreateSession(SessionLogEntry.TConfiguration args)
         {
-            lock (m_Sessions)
+            lock (_sessions)
             {
-                var result = new Slot(this, Interlocked.Increment(ref IDCounter), args);
-                m_SessionQueue.Enqueue(result);
-                m_Sessions.Add(result);
+                var result = new Slot(this, Interlocked.Increment(ref s_IDCounter), args);
+                _sessionQueue.Enqueue(result);
+                _sessions.Add(result);
                 Purge();
                 return result;
             }
@@ -246,9 +246,9 @@ namespace CodePlex.JPMikkers.TFTP
 
         public List<SessionLogEntry> GetHistory()
         {
-            lock (m_Sessions)
+            lock (_sessions)
             {
-                return m_Sessions
+                return _sessions
                     .Select(
                         x => new SessionLogEntry() 
                         { 

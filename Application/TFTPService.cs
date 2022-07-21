@@ -40,29 +40,29 @@ namespace TFTPServerApp
 {
     public partial class TFTPService : ServiceBase
     {
-        private object m_Sync = new object();
-        private EventLog m_EventLog;
-        private TFTPServerConfigurationList m_Configuration;
-        private List<TFTPServerResurrector> m_Servers;
-        private ServiceHost m_SelfHost;
+        private object _sync = new object();
+        private EventLog _eventLog;
+        private TFTPServerConfigurationList _configuration;
+        private List<TFTPServerResurrector> _servers;
+        private ServiceHost _selfHost;
 
-        private static object m_ServiceInstanceLock = new object();
-        private static TFTPService m_ServiceInstance;
+        private static object s_serviceInstanceLock = new object();
+        private static TFTPService s_serviceInstance;
 
         public static TFTPService Instance
         {
             get
             {
-                lock (m_ServiceInstanceLock)
+                lock (s_serviceInstanceLock)
                 {
-                    return m_ServiceInstance;
+                    return s_serviceInstance;
                 }
             }
             private set
             {
-                lock (m_ServiceInstanceLock)
+                lock (s_serviceInstanceLock)
                 {
-                    m_ServiceInstance = value;
+                    s_serviceInstance = value;
                 }
             }
         }
@@ -70,34 +70,34 @@ namespace TFTPServerApp
         public TFTPService()
         {
             InitializeComponent();
-            m_EventLog = new EventLog(Program.CustomEventLog, ".", Program.CustomEventSource);
+            _eventLog = new EventLog(Program.CustomEventLog, ".", Program.CustomEventSource);
         }
 
         protected override void OnStart(string[] args)
         {
-            lock (m_Sync)
+            lock(_sync)
             {
-                m_Configuration = TFTPServerConfigurationList.Read(Program.GetConfigurationPath());
-                m_Servers = new List<TFTPServerResurrector>();
+                _configuration = TFTPServerConfigurationList.Read(Program.GetConfigurationPath());
+                _servers = new List<TFTPServerResurrector>();
 
-                foreach (var config in m_Configuration)
+                foreach(var config in _configuration)
                 {
-                    m_Servers.Add(new TFTPServerResurrector(config, m_EventLog));
+                    _servers.Add(new TFTPServerResurrector(config, _eventLog));
                 }
             }
             Instance = this;
 
-            m_SelfHost = new ServiceHost(typeof(TFTPServiceContractImpl));
+            _selfHost = new ServiceHost(typeof(TFTPServiceContractImpl));
 
             try
             {
                 NetNamedPipeBinding binding = new NetNamedPipeBinding(NetNamedPipeSecurityMode.None);
-                m_SelfHost.AddServiceEndpoint(typeof(ITFTPServiceContract), binding, "net.pipe://localhost/JPMikkers/TFTPServer/Service");
-                m_SelfHost.Open();
+                _selfHost.AddServiceEndpoint(typeof(ITFTPServiceContract), binding, "net.pipe://localhost/JPMikkers/TFTPServer/Service");
+                _selfHost.Open();
             }
-            catch (CommunicationException)
+            catch(CommunicationException)
             {
-                m_SelfHost.Abort();
+                _selfHost.Abort();
             }
         }
 
@@ -106,22 +106,22 @@ namespace TFTPServerApp
             try
             {
                 // Close the ServiceHostBase to shutdown the service.
-                m_SelfHost.Close();
+                _selfHost.Close();
             }
             catch (CommunicationException)
             {
-                m_SelfHost.Abort();
+                _selfHost.Abort();
             }
 
             Instance = null;
 
-            lock (m_Sync)
+            lock (_sync)
             {
-                foreach (var server in m_Servers)
+                foreach (var server in _servers)
                 {
                     server.Dispose();
                 }
-                m_Servers.Clear();
+                _servers.Clear();
             }
         }
 
@@ -132,9 +132,9 @@ namespace TFTPServerApp
 
         public List<TFTPServer> GetServers()
         {
-            lock (m_Sync)
+            lock (_sync)
             {
-                return m_Servers.Select(x => x.Server).ToList();
+                return _servers.Select(x => x.Server).ToList();
             }
         }
     }

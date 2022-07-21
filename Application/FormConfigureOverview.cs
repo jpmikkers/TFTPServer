@@ -14,16 +14,16 @@ namespace TFTPServerApp
 {
     public partial class FormConfigureOverview : Form
     {
-        private string m_ConfigurationPath;
-        private TFTPServerConfigurationList m_ConfigurationList;
+        private string _configurationPath;
+        private TFTPServerConfigurationList _configurationList;
 
         public FormConfigureOverview(string configurationPath)
         {
             InitializeComponent();
-            m_ConfigurationPath = configurationPath;
-            m_ConfigurationList = TFTPServerConfigurationList.Read(m_ConfigurationPath);
+            _configurationPath = configurationPath;
+            _configurationList = TFTPServerConfigurationList.Read(_configurationPath);
             dataGridView1.AutoGenerateColumns = false;
-            dataGridView1.DataSource = m_ConfigurationList;
+            dataGridView1.DataSource = _configurationList;
             UpdateButtonStatus();
         }
 
@@ -81,8 +81,8 @@ namespace TFTPServerApp
             TFTPServerConfiguration result = EditConfiguration(new TFTPServerConfiguration());
             if (result != null)
             {
-                m_ConfigurationList.Add(result);
-                SelectRow(m_ConfigurationList.Count - 1);
+                _configurationList.Add(result);
+                SelectRow(_configurationList.Count - 1);
                 UpdateButtonStatus();
             }
         }
@@ -100,7 +100,7 @@ namespace TFTPServerApp
                     SelectRow(currentIndex);
                 }
                 
-                m_ConfigurationList.RemoveAt(x);
+                _configurationList.RemoveAt(x);
             }
 
             UpdateButtonStatus();
@@ -129,14 +129,14 @@ namespace TFTPServerApp
 
         private void buttonOK_Click(object sender, EventArgs e)
         {
-            m_ConfigurationList.Write(m_ConfigurationPath);
+            _configurationList.Write(_configurationPath);
         }
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (dataGridView1.Columns[e.ColumnIndex] == ColumnRootPath)
             {
-                System.Diagnostics.Process.Start(m_ConfigurationList[e.RowIndex].RootPath);
+                System.Diagnostics.Process.Start(_configurationList[e.RowIndex].RootPath);
             }
         }
 
@@ -154,13 +154,13 @@ namespace TFTPServerApp
 
         private void EditConfiguration(int index)
         {
-            if (index >= 0 && index < m_ConfigurationList.Count)
+            if (index >= 0 && index < _configurationList.Count)
             {
-                TFTPServerConfiguration result = EditConfiguration(m_ConfigurationList[index]);
+                TFTPServerConfiguration result = EditConfiguration(_configurationList[index]);
                 if (result != null)
                 {
-                    m_ConfigurationList.Insert(index,result);
-                    m_ConfigurationList.RemoveAt(index + 1);
+                    _configurationList.Insert(index,result);
+                    _configurationList.RemoveAt(index + 1);
                 }
             }
         }
@@ -172,9 +172,9 @@ namespace TFTPServerApp
 
             DialogResult dialogResult = f.ShowDialog(this);
             while(dialogResult == DialogResult.OK && 
-                m_ConfigurationList.Any(x => (x!=input && x.EndPoint.Address == f.Configuration.EndPoint.Address && x.EndPoint.Port == f.Configuration.EndPoint.Port)))
+                _configurationList.Any(x => (x!=input && x.EndPoint.Address == f.Configuration.EndPoint.Address && x.EndPoint.Port == f.Configuration.EndPoint.Port)))
             {
-                MessageBox.Show(string.Format("There already is a configuration for address {0}, port {1}.\r\nPlease select another endpoint.", f.Configuration.EndPoint.Address, f.Configuration.EndPoint.Port), "Validation error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"There already is a configuration for address {f.Configuration.EndPoint.Address}, port {f.Configuration.EndPoint.Port}.\r\nPlease select another endpoint.", "Validation error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 dialogResult = f.ShowDialog(this);
             }
             return dialogResult == DialogResult.OK ? f.Configuration : null;

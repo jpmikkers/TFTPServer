@@ -31,12 +31,12 @@ namespace CodePlex.JPMikkers.TFTP
 {
     public class DelayedDisposer
     {
-        private Timer m_Timer;
+        private Timer _timer;
 
         private DelayedDisposer(IDisposable obj, int timeOut)
         {
-            m_Timer = new Timer(x => { obj.Dispose(); m_Timer.Dispose(); });
-            m_Timer.Change(timeOut, Timeout.Infinite);
+            _timer = new Timer(x => { obj.Dispose(); _timer.Dispose(); });
+            _timer.Change(timeOut, Timeout.Infinite);
         }
 
         public static void QueueDelayedDispose(IDisposable obj, int timeOut)

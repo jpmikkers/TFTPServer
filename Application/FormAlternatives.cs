@@ -13,14 +13,14 @@ namespace TFTPServerApp
 {
     public partial class FormAlternatives : Form
     {
-        private List<ConfigurationAlternative> m_Configuration = new List<ConfigurationAlternative>();
+        private List<ConfigurationAlternative> _configuration = new List<ConfigurationAlternative>();
 
         public BindingList<ConfigurationAlternative> Configuration
         {
             get
             {
                 BindingList<ConfigurationAlternative> result = new BindingList<ConfigurationAlternative>();
-                foreach(var t in m_Configuration)
+                foreach(var t in _configuration)
                 {
                     result.Add(t.Clone());
                 }
@@ -28,13 +28,13 @@ namespace TFTPServerApp
             }
             set
             {
-                m_Configuration.Clear();
+                _configuration.Clear();
                 foreach (var t in value)
                 {
-                    m_Configuration.Add(t.Clone());
+                    _configuration.Add(t.Clone());
                 }
                 Bind();
-                comboBoxSelectAlternative.SelectedIndex = Math.Min(0, m_Configuration.Count - 1);
+                comboBoxSelectAlternative.SelectedIndex = Math.Min(0, _configuration.Count - 1);
             }
         }
 
@@ -45,16 +45,16 @@ namespace TFTPServerApp
 
         private void Bind()
         {
-            if (m_Configuration.Count > 0)
+            if (_configuration.Count > 0)
             {
                 comboBoxSelectAlternative.Items.Clear();
                 comboBoxSelectAlternative.Enabled = true;
                 buttonDeleteAlternative.Enabled = true;
                 groupBox1.Enabled = true;
 
-                for (int t = 0; t < m_Configuration.Count; t++)
+                for (int t = 0; t < _configuration.Count; t++)
                 {
-                    comboBoxSelectAlternative.Items.Add(string.Format("Alternative {0}", t+1));
+                    comboBoxSelectAlternative.Items.Add($"Alternative {t + 1}");
                 }
             }
             else
@@ -71,10 +71,10 @@ namespace TFTPServerApp
             textBoxFilter.DataBindings.Clear();
             textBoxWindowSize.DataBindings.Clear();
 
-            if (comboBoxSelectAlternative.SelectedIndex >= 0 && comboBoxSelectAlternative.SelectedIndex < m_Configuration.Count)
+            if (comboBoxSelectAlternative.SelectedIndex >= 0 && comboBoxSelectAlternative.SelectedIndex < _configuration.Count)
             {
-                ConfigurationAlternative alternative = m_Configuration[comboBoxSelectAlternative.SelectedIndex];
-                groupBox1.Text = string.Format("Alternative {0}", comboBoxSelectAlternative.SelectedIndex + 1);
+                ConfigurationAlternative alternative = _configuration[comboBoxSelectAlternative.SelectedIndex];
+                groupBox1.Text = $"Alternative {comboBoxSelectAlternative.SelectedIndex + 1}";
                 comboBoxFilterMode.SelectedIndex = alternative.IsRegularExpression ? 1 : 0;
                 groupBox1.Enabled = true;
 
@@ -92,9 +92,9 @@ namespace TFTPServerApp
 
         private void buttonNewAlternative_Click(object sender, EventArgs e)
         {
-            m_Configuration.Add(new ConfigurationAlternative());
+            _configuration.Add(new ConfigurationAlternative());
             Bind();
-            comboBoxSelectAlternative.SelectedIndex = m_Configuration.Count - 1;
+            comboBoxSelectAlternative.SelectedIndex = _configuration.Count - 1;
         }
 
         private void comboBoxSelectAlternative_SelectedIndexChanged(object sender, EventArgs e)
@@ -106,19 +106,19 @@ namespace TFTPServerApp
         {
             int index = comboBoxSelectAlternative.SelectedIndex;
 
-            if (index >= 0 && index < m_Configuration.Count)
+            if (index >= 0 && index < _configuration.Count)
             {
-                m_Configuration.RemoveAt(index);
+                _configuration.RemoveAt(index);
                 Bind();
-                comboBoxSelectAlternative.SelectedIndex = Math.Min(index,m_Configuration.Count-1);
+                comboBoxSelectAlternative.SelectedIndex = Math.Min(index,_configuration.Count-1);
             }
         }
 
         private void comboBoxFilterMode_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (comboBoxSelectAlternative.SelectedIndex >= 0 && comboBoxSelectAlternative.SelectedIndex < m_Configuration.Count)
+            if (comboBoxSelectAlternative.SelectedIndex >= 0 && comboBoxSelectAlternative.SelectedIndex < _configuration.Count)
             {
-                ConfigurationAlternative alternative = m_Configuration[comboBoxSelectAlternative.SelectedIndex];
+                ConfigurationAlternative alternative = _configuration[comboBoxSelectAlternative.SelectedIndex];
                 alternative.IsRegularExpression = (comboBoxFilterMode.SelectedIndex == 0) ? false : true;
             }
         }
@@ -154,9 +154,9 @@ namespace TFTPServerApp
             try
             {
 
-                if (comboBoxSelectAlternative.SelectedIndex >= 0 && comboBoxSelectAlternative.SelectedIndex < m_Configuration.Count)
+                if (comboBoxSelectAlternative.SelectedIndex >= 0 && comboBoxSelectAlternative.SelectedIndex < _configuration.Count)
                 {
-                    ConfigurationAlternative alternative = m_Configuration[comboBoxSelectAlternative.SelectedIndex];
+                    ConfigurationAlternative alternative = _configuration[comboBoxSelectAlternative.SelectedIndex];
                     TFTPServer.ConfigurationAlternative filter = alternative.IsRegularExpression ? TFTPServer.ConfigurationAlternative.CreateRegex(alternative.Filter) : TFTPServer.ConfigurationAlternative.CreateWildcard(alternative.Filter);
                     if (filter.Match(textBoxTestString.Text))
                     {

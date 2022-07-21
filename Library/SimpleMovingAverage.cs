@@ -30,25 +30,25 @@ namespace CodePlex.JPMikkers.TFTP
 {
     public class SimpleMovingAverage
     {
-        private Queue<double> m_History;
-        private int m_WindowSize;
-        private double m_Sum;
+        private Queue<double> _history;
+        private int _windowSize;
+        private double _sum;
 
         public SimpleMovingAverage(int windowSize)
         {
-            m_History = new Queue<double>();
-            m_WindowSize = windowSize;
+            _history = new Queue<double>();
+            _windowSize = windowSize;
         }
 
         public double Add(double v)
         {
-            if (m_History.Count == m_WindowSize)
+            if (_history.Count == _windowSize)
             {
-                m_Sum -= m_History.Dequeue();
+                _sum -= _history.Dequeue();
             }
-            m_Sum += v;
-            m_History.Enqueue(v);
-            return m_Sum / m_History.Count;
+            _sum += v;
+            _history.Enqueue(v);
+            return _sum / _history.Count;
         }
     }
 }

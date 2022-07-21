@@ -75,7 +75,7 @@ namespace TFTPServerApp
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Trace.WriteLine(String.Format("Exception: {0}", ex));
+                    System.Diagnostics.Trace.WriteLine($"Exception: {ex}");
                 }
             }
         }
@@ -99,7 +99,7 @@ namespace TFTPServerApp
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Trace.WriteLine(String.Format("Exception: {0}", ex));
+                    System.Diagnostics.Trace.WriteLine($"Exception: {ex}");
                 }
             }
         }

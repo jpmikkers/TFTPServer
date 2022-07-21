@@ -44,21 +44,22 @@ namespace TFTPServerApp
 {
     public partial class FormMain : Form
     {
-        private bool m_HasAdministrativeRight;
-        private ServiceController m_Service;
-        private DateTime m_TimeFilter;
-        private TransferUpdater m_TransferUpdater;
+        private bool _hasAdministrativeRight;
+        private ServiceController _service;
+        private DateTime _timeFilter;
+        private TransferUpdater _transferUpdater;
 
         public FormMain(ServiceController service)
         {
-            m_Service = service;
-            m_HasAdministrativeRight = Program.HasAdministrativeRight();
+            _service = service;
+            _hasAdministrativeRight = Program.HasAdministrativeRight();
             InitializeComponent();
             UpdateServiceStatus();
             timerServiceWatcher.Enabled = true;
             SetTimeFilter(DateTime.Now);
             listViewTransfers.Items.Clear();
             OverrideSetStyle(listViewTransfers,ControlStyles.AllPaintingInWmPaint | /*ControlStyles.Opaque|*/ ControlStyles.OptimizedDoubleBuffer, true);
+            eventLog1.EnableRaisingEvents = true;
         }
 
         private static void OverrideSetStyle(Control c,ControlStyles styles,bool value)
@@ -73,12 +74,12 @@ namespace TFTPServerApp
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
-            m_TransferUpdater = new TransferUpdater(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5), OnUpdateTransfers);
+            _transferUpdater = new TransferUpdater(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(5), OnUpdateTransfers);
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            m_TransferUpdater.Dispose();
+            _transferUpdater.Dispose();
             base.OnClosing(e);
         }
 
@@ -152,8 +153,8 @@ namespace TFTPServerApp
                             entry.IsUpload ? "▲" : "▼",
                             entry.Filename,
                             entry.Server,
-                            string.Format("{0}",entry.Transferred),
-                            string.Format("{0}",entry.FileLength<0 ? "?" : entry.FileLength.ToString()),
+                            $"{entry.Transferred}",
+                            $"{(entry.FileLength<0 ? "?" : entry.FileLength.ToString())}",
                             ConvertSpeed(entry.Speed),
                             entry.State.ToString(),
                             entry.ErrorMessage,
@@ -214,7 +215,7 @@ namespace TFTPServerApp
         private static string GetProgressPercentageAsString(TFTPLogEntry entry)
         {
             double progress = GetProgressFraction(entry);
-            return progress >= 0.0 ? string.Format("{0:0.0} %",progress) : "... %";
+            return progress >= 0.0 ? $"{progress:0.0} %" : "... %";
         }
 
         private static double GetProgressFraction(TFTPLogEntry entry)
@@ -248,8 +249,8 @@ namespace TFTPServerApp
 
         private void UpdateServiceStatus()
         {
-            m_Service.Refresh();
-            //System.Diagnostics.Debug.WriteLine(m_Service.Status.ToString());
+            _service.Refresh();
+            //System.Diagnostics.Debug.WriteLine(_service.Status.ToString());
             if (!Program.HasAdministrativeRight())
             {
                 buttonStart.Enabled = false;
@@ -259,20 +260,20 @@ namespace TFTPServerApp
             }
             else
             {
-                buttonStart.Enabled = (m_Service.Status == ServiceControllerStatus.Stopped);
-                buttonStop.Enabled = (m_Service.Status == ServiceControllerStatus.Running);
+                buttonStart.Enabled = (_service.Status == ServiceControllerStatus.Stopped);
+                buttonStop.Enabled = (_service.Status == ServiceControllerStatus.Running);
                 buttonConfigure.Enabled = true;
                 buttonElevate.Enabled = false;
             }
 
-            toolStripStatusLabel.Text = string.Format("Service status: {0}",m_Service.Status);
+            toolStripStatusLabel.Text = $"Service status: {_service.Status}";
         }
 
         private void StartService()
         {
             try
             {
-                m_Service.Start();
+                _service.Start();
             }
             catch (Exception)
             {
@@ -284,7 +285,7 @@ namespace TFTPServerApp
         {
             try
             {
-                m_Service.Stop();
+                _service.Stop();
             }
             catch (Exception)
             {
@@ -327,15 +328,15 @@ namespace TFTPServerApp
             if (f.ShowDialog(this) == DialogResult.OK)
             {
                 UpdateServiceStatus();
-                if(m_HasAdministrativeRight && m_Service.Status == ServiceControllerStatus.Running)
+                if(_hasAdministrativeRight && _service.Status == ServiceControllerStatus.Running)
                 {
                     if (MessageBox.Show("The TFTP Service has to be restarted to enable the new settings.\r\n" +
                         "This will cause any transfers in progress to be aborted.\r\n" +
                         "Are you sure you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                     {
-                        m_Service.Stop();
-                        m_Service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(30.0));
-                        m_Service.Start();
+                        _service.Stop();
+                        _service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(30.0));
+                        _service.Start();
                     }
                 }
             }
@@ -356,7 +357,7 @@ namespace TFTPServerApp
 
         private void AddEventLogEntry(EventLogEntry entry)
         {
-            if (entry.TimeGenerated > m_TimeFilter)
+            if (entry.TimeGenerated > _timeFilter)
             {
                 string entryType;
                 switch (entry.EntryType)
@@ -400,7 +401,7 @@ namespace TFTPServerApp
         {
             try
             {
-                SetTimeFilter(m_TimeFilter.AddDays(-1));
+                SetTimeFilter(_timeFilter.AddDays(-1));
             }
             catch (Exception)
             {
@@ -411,7 +412,7 @@ namespace TFTPServerApp
         {
             try
             {
-                SetTimeFilter(m_TimeFilter.AddHours(-1));
+                SetTimeFilter(_timeFilter.AddHours(-1));
             }
             catch (Exception)
             {
@@ -420,14 +421,14 @@ namespace TFTPServerApp
 
         private void SetTimeFilter(DateTime filter)
         {
-            m_TimeFilter = filter;
-            if (m_TimeFilter == DateTime.MinValue)
+            _timeFilter = filter;
+            if (_timeFilter == DateTime.MinValue)
             {
-                labelFilter.Text = string.Format("Showing all logging");
+                labelFilter.Text = "Showing all logging";
             }
             else
             {
-                labelFilter.Text = string.Format("Showing log starting at: {0}", filter.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                labelFilter.Text = $"Showing log starting at: {filter.ToString("yyyy-MM-dd HH:mm:ss.fff")}";
             }
             RebuildLog();
         }
@@ -446,7 +447,7 @@ namespace TFTPServerApp
                     entry.IsUpload ? "Up" : "Dn",
                     entry.Filename,
                     entry.Server,
-                    string.Format("{0} / {1}",entry.Transferred,entry.FileLength<0 ? "?" : entry.FileLength.ToString()),
+                    $"{entry.Transferred} / {(entry.FileLength<0 ? "?" : entry.FileLength.ToString())}",
                     entry.State.ToString(),
                     entry.ErrorMessage
                 }
@@ -501,7 +502,7 @@ namespace TFTPServerApp
                 if (tag.Mode == ProgressTag.ViewMode.Percentage)
                 {
                     var rf=RectangleF.FromLTRB(r.Left, r.Top, r.Right, r.Bottom);
-                    var txt=string.Format("{0:0.0} %", 100.0 * tag.Fraction);
+                    var txt=$"{100.0 * tag.Fraction:0.0} %";
 
                     Rectangle part1 = Rectangle.FromLTRB(r.Left, r.Top, r.Left + (int)(tag.Fraction * r.Width), r.Bottom);
 
@@ -594,24 +595,24 @@ namespace TFTPServerApp
 
     public class TransferUpdater : IDisposable
     {
-        private ChannelFactory<ITFTPServiceContract> m_PipeFactory = new ChannelFactory<ITFTPServiceContract>(
+        private ChannelFactory<ITFTPServiceContract> _pipeFactory = new ChannelFactory<ITFTPServiceContract>(
                         new NetNamedPipeBinding(NetNamedPipeSecurityMode.None),
                         new EndpointAddress("net.pipe://localhost/JPMikkers/TFTPServer/Service"));
 
-        private System.Threading.Timer m_Timer;
-        private ITFTPServiceContract m_PipeProxy;
-        private EventHandler<TFTPLogEventArgs> m_OnUpdate;
-        private readonly TimeSpan m_UpdatePeriod;
-        private readonly TimeSpan m_RetryPeriod;
-        private volatile bool m_Disposed = false;
+        private System.Threading.Timer _timer;
+        private ITFTPServiceContract _pipeProxy;
+        private EventHandler<TFTPLogEventArgs> _onUpdate;
+        private readonly TimeSpan _updatePeriod;
+        private readonly TimeSpan _retryPeriod;
+        private volatile bool _disposed = false;
 
         public TransferUpdater(TimeSpan updatePeriod,TimeSpan retryPeriod, EventHandler<TFTPLogEventArgs> onUpdate)
         {
-            m_UpdatePeriod = updatePeriod;
-            m_RetryPeriod = retryPeriod;
-            m_OnUpdate = onUpdate;
-            m_Timer = new System.Threading.Timer(OnTimer);
-            m_Timer.Change(0, Timeout.Infinite);
+            _updatePeriod = updatePeriod;
+            _retryPeriod = retryPeriod;
+            _onUpdate = onUpdate;
+            _timer = new System.Threading.Timer(OnTimer);
+            _timer.Change(0, Timeout.Infinite);
         }
 
         public void Stop()
@@ -620,27 +621,27 @@ namespace TFTPServerApp
 
         private void OnTimer(object state)
         {
-            if (!m_Disposed)
+            if (!_disposed)
             {
                 try
                 {
                     System.Diagnostics.Debug.WriteLine("Before");
 
-                    if (m_PipeProxy == null)
+                    if (_pipeProxy == null)
                     {
                         System.Diagnostics.Debug.WriteLine("Creating a channel");
-                        m_PipeProxy = m_PipeFactory.CreateChannel();
+                        _pipeProxy = _pipeFactory.CreateChannel();
                     }
 
-                    var entries = m_PipeProxy.GetLogEntries().OrderByDescending(x => x.StartTime).ToList();
-                    m_OnUpdate(this, new TFTPLogEventArgs() { Entries = entries });
-                    m_Timer.Change((int)m_UpdatePeriod.TotalMilliseconds, 0);
+                    var entries = _pipeProxy.GetLogEntries().OrderByDescending(x => x.StartTime).ToList();
+                    _onUpdate(this, new TFTPLogEventArgs() { Entries = entries });
+                    _timer.Change((int)_updatePeriod.TotalMilliseconds, 0);
                 }
                 catch
                 {
                     System.Diagnostics.Debug.WriteLine("Failed, retrying..");
-                    m_PipeProxy = null;
-                    m_Timer.Change((int)m_RetryPeriod.TotalMilliseconds, 0);
+                    _pipeProxy = null;
+                    _timer.Change((int)_retryPeriod.TotalMilliseconds, 0);
                 }
             }
         }
@@ -649,10 +650,10 @@ namespace TFTPServerApp
         {
             if (disposing)
             {
-                if (!m_Disposed)
+                if (!_disposed)
                 {
-                    m_Disposed = true;
-                    m_Timer.Change(Timeout.Infinite, Timeout.Infinite);
+                    _disposed = true;
+                    _timer.Change(Timeout.Infinite, Timeout.Infinite);
                 }
             }
         }

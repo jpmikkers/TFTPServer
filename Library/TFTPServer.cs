@@ -38,17 +38,17 @@ namespace CodePlex.JPMikkers.TFTP
 
         public class ConfigurationAlternative
         {
-            private Regex m_Regex;
+            private Regex _regex;
             public ushort WindowSize { get; set; }
 
             public bool Match(string s)
             {
-                return m_Regex.IsMatch(s);
+                return _regex.IsMatch(s);
             }
 
             private ConfigurationAlternative(Regex regex)
             {
-                m_Regex = regex;
+                _regex = regex;
                 WindowSize = 1;
             }
 
@@ -99,53 +99,53 @@ namespace CodePlex.JPMikkers.TFTP
 
         #endregion TFTP definitions
 
-        private string m_Name;
-        private UDPSocket m_Socket;
+        private string _name;
+        private UDPSocket _socket;
 
         internal const int MaxBlockSize = 65464 + 4;
         internal const int DefaultBlockSize = 512;
-        internal IPEndPoint m_ServerEndPoint = new IPEndPoint(IPAddress.Loopback, 69);
-        internal short m_Ttl = -1;
-        internal bool m_DontFragment = false;
-        internal int m_MaxRetries = 5;
-        internal int m_ResponseTimeout = 2000;
-        private bool m_UseSinglePort = false;
-        private string m_RootPath = ".";
-        private bool m_AllowRead = true;
-        private bool m_AllowWrite = true;
-        private bool m_AutoCreateDirectories = true;
-        private bool m_ConvertPathSeparator = true;
-        private ushort m_WindowSize = 1;
-        private List<ConfigurationAlternative> m_ConfigurationAlternatives = new List<ConfigurationAlternative>();
+        internal IPEndPoint _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 69);
+        internal short _Ttl = -1;
+        internal bool _dontFragment = false;
+        internal int _maxRetries = 5;
+        internal int _responseTimeout = 2000;
+        private bool _useSinglePort = false;
+        private string _rootPath = ".";
+        private bool _allowRead = true;
+        private bool _allowWrite = true;
+        private bool _autoCreateDirectories = true;
+        private bool _convertPathSeparator = true;
+        private ushort _windowSize = 1;
+        private List<ConfigurationAlternative> _configurationAlternatives = new List<ConfigurationAlternative>();
 
-        private object m_Sync = new object();
-        private bool m_Active = false;
+        private object _sync = new object();
+        private bool _active = false;
 
-        private readonly Dictionary<IPEndPoint, ITFTPSession> m_Sessions;
-        private readonly SessionLog m_SessionLog = new SessionLog();
+        private readonly Dictionary<IPEndPoint, ITFTPSession> _sessions;
+        private readonly SessionLog _sessionLog = new SessionLog();
 
         public SessionLog SessionLog
         {
-            get { return m_SessionLog; }
+            get { return _sessionLog; }
         }
 
         private void Stop(Exception reason)
         {
             bool notify = false;
 
-            lock (m_Sync)
+            lock (_sync)
             {
-                if (m_Active)
+                if (_active)
                 {
-                    Trace(string.Format("Stopping TFTP server '{0}'", m_ServerEndPoint));
-                    m_Active = false;
+                    Trace($"Stopping TFTP server '{_serverEndPoint}'");
+                    _active = false;
                     notify = true;
-                    m_Socket.Dispose();
+                    _socket.Dispose();
                     // get shallow copy of running sessions
                     var sessions = new List<ITFTPSession>();
-                    lock (m_Sessions)
+                    lock (_sessions)
                     {
-                        sessions.AddRange(m_Sessions.Values);
+                        sessions.AddRange(_sessions.Values);
                     }
                     // stop all of them
                     foreach (var session in sessions)
@@ -176,8 +176,8 @@ namespace CodePlex.JPMikkers.TFTP
 
         private string GetLocalFilename(string filename)
         {
-            string result = Path.GetFullPath(Path.Combine(m_RootPath, StripRoot(filename)));
-            if (!result.StartsWith(m_RootPath))
+            string result = Path.GetFullPath(Path.Combine(_rootPath, StripRoot(filename)));
+            if (!result.StartsWith(_rootPath))
             {
                 throw new ArgumentException("Illegal filename");
             }
@@ -186,7 +186,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         internal Stream GetReadStream(string filename)
         {
-            if (!m_AllowRead)
+            if (!_allowRead)
             {
                 throw new UnauthorizedAccessException("Reading not allowed");
             }
@@ -197,7 +197,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         internal Stream GetWriteStream(string filename,long length)
         {
-            if (!m_AllowWrite)
+            if (!_allowWrite)
             {
                 throw new UnauthorizedAccessException("Writing not allowed");
             }
@@ -205,7 +205,7 @@ namespace CodePlex.JPMikkers.TFTP
             string targetPath = GetLocalFilename(filename);
             //Console.WriteLine("Getting write stream for file '{0}', size {1}", targetPath, length);
 
-            if (m_AutoCreateDirectories)
+            if (_autoCreateDirectories)
             {
                 string dir = Path.GetDirectoryName(targetPath);
                 if (!Directory.Exists(dir))
@@ -219,17 +219,17 @@ namespace CodePlex.JPMikkers.TFTP
 
         public TFTPServer()
         {
-            m_Name = "TFTPServer";
-            m_Sessions = new Dictionary<IPEndPoint, ITFTPSession>();
+            _name = "TFTPServer";
+            _sessions = new Dictionary<IPEndPoint, ITFTPSession>();
         }
 
         private ushort GetWindowSize(string filename)
         {
-            if(m_ConfigurationAlternatives.Count>0)
+            if(_configurationAlternatives.Count>0)
             {
                 filename = StripRoot(filename);
 
-                foreach (ConfigurationAlternative alternative in m_ConfigurationAlternatives)
+                foreach (ConfigurationAlternative alternative in _configurationAlternatives)
                 {
                     if (alternative.Match(filename))
                     {
@@ -237,7 +237,7 @@ namespace CodePlex.JPMikkers.TFTP
                     }
                 }
             }
-            return m_WindowSize;
+            return _windowSize;
         }
 
         private void OnUDPReceive(UDPSocket sender, IPEndPoint endPoint, ArraySegment<byte> data)
@@ -250,9 +250,9 @@ namespace CodePlex.JPMikkers.TFTP
             bool found;
             ushort opCode = ReadUInt16(ms);
 
-            lock (m_Sessions)
+            lock (_sessions)
             {
-                found = m_Sessions.TryGetValue(endPoint, out session);
+                found = _sessions.TryGetValue(endPoint, out session);
             }
 
                 // is there a session in progress for that endpoint?
@@ -301,19 +301,19 @@ namespace CodePlex.JPMikkers.TFTP
                         case Opcode.ReadRequest:
                             {
                                 string filename = ReadZString(ms);
-                                if(m_ConvertPathSeparator) filename = filename.Replace('/','\\');
+                                if(_convertPathSeparator) filename = filename.Replace('/','\\');
                                 Mode mode = ReadMode(ms);
                                 var requestedOptions = ReadOptions(ms);
                                 ushort windowSize = GetWindowSize(filename);
-                                ITFTPSession newSession = new DownloadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, windowSize, OnUDPReceive);
+                                ITFTPSession newSession = new DownloadSession(this, _useSinglePort ? _socket : null, endPoint, requestedOptions, filename, windowSize, OnUDPReceive);
 
-                            lock(m_Sessions)
+                            lock(_sessions)
                             {
-                                m_Sessions.Add(newSession.RemoteEndPoint, newSession);
+                                _sessions.Add(newSession.RemoteEndPoint, newSession);
                             }
 
                                 notify = true;
-                                Trace(string.Format("Starting transfer of file '{0}' from local '{1}' to remote '{2}', send window size {3}", newSession.Filename, newSession.LocalEndPoint, newSession.RemoteEndPoint, windowSize));
+                                Trace($"Starting transfer of file '{newSession.Filename}' from local '{newSession.LocalEndPoint}' to remote '{newSession.RemoteEndPoint}', send window size {windowSize}");
                                 newSession.Start();
                             }
                             break;
@@ -321,24 +321,24 @@ namespace CodePlex.JPMikkers.TFTP
                         case Opcode.WriteRequest:
                             {
                                 string filename = ReadZString(ms);
-                                if (m_ConvertPathSeparator) filename = filename.Replace('/', '\\');
+                                if (_convertPathSeparator) filename = filename.Replace('/', '\\');
                                 Mode mode = ReadMode(ms);
                                 var requestedOptions = ReadOptions(ms);
-                                ITFTPSession newSession=new UploadSession(this, m_UseSinglePort ? m_Socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
+                                ITFTPSession newSession=new UploadSession(this, _useSinglePort ? _socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
 
-                            lock(m_Sessions)
+                            lock(_sessions)
                             {
-                                m_Sessions.Add(newSession.RemoteEndPoint, newSession);
+                                _sessions.Add(newSession.RemoteEndPoint, newSession);
                             }
 
                                 notify = true;
-                                Trace(string.Format("Starting transfer of file '{0}' from remote '{1}' to local '{2}'", newSession.Filename, newSession.RemoteEndPoint, newSession.LocalEndPoint));
+                                Trace($"Starting transfer of file '{newSession.Filename}' from remote '{newSession.RemoteEndPoint}' to local '{newSession.LocalEndPoint}'");
                                 newSession.Start();
                             }
                             break;
 
                         default:
-                            SendError(m_Socket, endPoint, (ushort)ErrorCode.UnknownTransferID, "Unknown transfer ID");
+                            SendError(_socket, endPoint, (ushort)ErrorCode.UnknownTransferID, "Unknown transfer ID");
                             break;
                     }
                 }
@@ -356,19 +356,19 @@ namespace CodePlex.JPMikkers.TFTP
 
         internal void TransferComplete(ITFTPSession session, Exception reason)
         {
-            lock (m_Sessions)
+            lock (_sessions)
             {
-                if (m_Sessions.ContainsKey(session.RemoteEndPoint))
+                if (_sessions.ContainsKey(session.RemoteEndPoint))
                 {
                     if (reason == null)
                     {
-                        Trace(string.Format("Completed transfer {0} '{1}'", session is UploadSession ? "from" : "to", session.RemoteEndPoint));
+                        Trace($"Completed transfer {(session is UploadSession ? "from" : "to")} '{session.RemoteEndPoint}'");
                     }
                     else
                     {
-                        Trace(string.Format("Aborted transfer {0} '{1}', reason '{2}'", session is UploadSession ? "from" : "to", session.RemoteEndPoint, reason));
+                        Trace($"Aborted transfer {(session is UploadSession ? "from" : "to")} '{session.RemoteEndPoint}', reason '{reason}'");
                     }
-                    m_Sessions.Remove(session.RemoteEndPoint);
+                    _sessions.Remove(session.RemoteEndPoint);
                     session.Dispose();
                 }
             }
@@ -426,11 +426,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_Name;
+                return _name;
             }
             set
             {
-                m_Name = value;
+                _name = value;
             }
         }
 
@@ -439,11 +439,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_ServerEndPoint;
+                return _serverEndPoint;
             }
             set
             {
-                m_ServerEndPoint = value;
+                _serverEndPoint = value;
             }
         }
 
@@ -451,11 +451,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_UseSinglePort;
+                return _useSinglePort;
             }
             set
             {
-                m_UseSinglePort = value;
+                _useSinglePort = value;
             }
         }
 
@@ -463,11 +463,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_Ttl;
+                return _Ttl;
             }
             set
             {
-                m_Ttl = value;
+                _Ttl = value;
             }
         }
 
@@ -475,11 +475,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_DontFragment;
+                return _dontFragment;
             }
             set
             {
-                m_DontFragment = value;
+                _dontFragment = value;
             }
         }
 
@@ -487,11 +487,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_ResponseTimeout;
+                return _responseTimeout;
             }
             set
             {
-                m_ResponseTimeout = value;
+                _responseTimeout = value;
             }
         }
 
@@ -499,11 +499,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_MaxRetries;
+                return _maxRetries;
             }
             set
             {
-                m_MaxRetries = value;
+                _maxRetries = value;
             }
         }
 
@@ -511,11 +511,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_RootPath;
+                return _rootPath;
             }
             set
             {
-                m_RootPath = Path.GetFullPath(value);
+                _rootPath = Path.GetFullPath(value);
             }
         }
 
@@ -523,11 +523,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_AutoCreateDirectories;
+                return _autoCreateDirectories;
             }
             set
             {
-                m_AutoCreateDirectories = value;
+                _autoCreateDirectories = value;
             }
         }
 
@@ -535,11 +535,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_ConvertPathSeparator;
+                return _convertPathSeparator;
             }
             set
             {
-                m_ConvertPathSeparator = value;
+                _convertPathSeparator = value;
             }
         }
 
@@ -547,11 +547,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_AllowRead;
+                return _allowRead;
             }
             set
             {
-                m_AllowRead = value;
+                _allowRead = value;
             }
         }
 
@@ -559,11 +559,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_AllowWrite;
+                return _allowWrite;
             }
             set
             {
-                m_AllowWrite = value;
+                _allowWrite = value;
             }
         }
 
@@ -571,11 +571,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_WindowSize;
+                return _windowSize;
             }
             set
             {
-                m_WindowSize=Clip<ushort>(value,1,32);
+                _windowSize=Clip<ushort>(value,1,32);
             }
         }
 
@@ -583,7 +583,7 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_ConfigurationAlternatives;
+                return _configurationAlternatives;
             }
         }
 
@@ -591,9 +591,9 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                lock (m_Sync)
+                lock (_sync)
                 {
-                    return m_Active;
+                    return _active;
                 }
             }
         }
@@ -602,35 +602,35 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                lock (m_Sessions)
+                lock (_sessions)
                 {
-                    return m_Sessions.Count;
+                    return _sessions.Count;
                 }
             }
         }
 
         public void Start()
         {
-            lock (m_Sync)
+            lock (_sync)
             {
-                if (!m_Active)
+                if (!_active)
                 {
                     try
                     {
                         int maxWorkerThreads, maxCompletionPortThreads;
 
-                        Trace(string.Format("Starting TFTP server '{0}'",m_ServerEndPoint));
-                        m_Active = true;
-                        m_Socket = new UDPSocket(m_ServerEndPoint, MaxBlockSize, m_DontFragment, m_Ttl, OnUDPReceive, OnUDPStop);
-                        Trace(string.Format("TFTP Server start succeeded, serving at '{0}'",m_Socket.LocalEndPoint));
+                        Trace($"Starting TFTP server '{_serverEndPoint}'");
+                        _active = true;
+                        _socket = new UDPSocket(_serverEndPoint, MaxBlockSize, _dontFragment, _Ttl, OnUDPReceive, OnUDPStop);
+                        Trace($"TFTP Server start succeeded, serving at '{_socket.LocalEndPoint}'");
                         System.Threading.ThreadPool.GetMaxThreads(out maxWorkerThreads, out maxCompletionPortThreads);
-                        Trace(string.Format("Threadpool maxWorkerThreads={0} maxCompletionPortThreads={1}", maxWorkerThreads, maxCompletionPortThreads));
-                        Trace(string.Format("GCSettings.IsServerGC={0}", System.Runtime.GCSettings.IsServerGC));
+                        Trace($"Threadpool maxWorkerThreads={maxWorkerThreads} maxCompletionPortThreads={maxCompletionPortThreads}");
+                        Trace($"GCSettings.IsServerGC={System.Runtime.GCSettings.IsServerGC}");
                     }
                     catch(Exception e)
                     {
-                        Trace(string.Format("TFTP Server start failed, reason '{0}'",e));
-                        m_Active = false;
+                        Trace($"TFTP Server start failed, reason '{e}'");
+                        _active = false;
                         throw;
                     }
                 }

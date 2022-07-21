@@ -31,21 +31,21 @@ namespace TFTPServerApp
     public class TFTPServerResurrector : IDisposable
     {
         private const int RetryTime = 30000;
-        private readonly object m_Lock;
-        private bool m_Disposed;
-        private TFTPServerConfiguration m_Config;
-        private EventLog m_EventLog;
+        private readonly object _lock;
+        private bool _disposed;
+        private TFTPServerConfiguration _config;
+        private EventLog _eventLog;
 
-        private TFTPServer m_Server;
-        private Timer m_RetryTimer;
+        private TFTPServer _server;
+        private Timer _retryTimer;
 
         public TFTPServerResurrector(TFTPServerConfiguration config, EventLog eventLog)
         {
-            m_Lock = new object();
-            m_Disposed = false;
-            m_Config = config;
-            m_EventLog = eventLog;
-            m_RetryTimer = new Timer(new TimerCallback(x => Resurrect()));
+            _lock = new object();
+            _disposed = false;
+            _config = config;
+            _eventLog = eventLog;
+            _retryTimer = new Timer(new TimerCallback(x => Resurrect()));
             Resurrect();
         }
 
@@ -58,46 +58,46 @@ namespace TFTPServerApp
         {
             get
             {
-                lock (m_Lock)
+                lock (_lock)
                 {
-                    return m_Server;
+                    return _server;
                 }
             }
         }
 
         private void Resurrect()
         {
-            lock (m_Lock)
+            lock (_lock)
             {
-                if (!m_Disposed)
+                if (!_disposed)
                 {
                     try
                     {
-                        m_Server = new TFTPServer();
-                        m_Server.Name = m_Config.Name;
-                        m_Server.EndPoint = m_Config.EndPoint;
-                        m_Server.SinglePort = m_Config.SinglePort;
-                        m_Server.Ttl = (short)m_Config.Ttl;
-                        m_Server.DontFragment = m_Config.DontFragment;
-                        m_Server.RootPath = m_Config.RootPath;
-                        m_Server.AutoCreateDirectories = m_Config.AutoCreateDirectories;
-                        m_Server.AllowRead = m_Config.AllowRead;
-                        m_Server.AllowWrite = m_Config.AllowWrite;
-                        m_Server.ResponseTimeout = m_Config.Timeout;
-                        m_Server.Retries = m_Config.Retries;
-                        m_Server.ConvertPathSeparator = m_Config.ConvertPathSeparator;
-                        m_Server.WindowSize = m_Config.WindowSize;
+                        _server = new TFTPServer();
+                        _server.Name = _config.Name;
+                        _server.EndPoint = _config.EndPoint;
+                        _server.SinglePort = _config.SinglePort;
+                        _server.Ttl = (short)_config.Ttl;
+                        _server.DontFragment = _config.DontFragment;
+                        _server.RootPath = _config.RootPath;
+                        _server.AutoCreateDirectories = _config.AutoCreateDirectories;
+                        _server.AllowRead = _config.AllowRead;
+                        _server.AllowWrite = _config.AllowWrite;
+                        _server.ResponseTimeout = _config.Timeout;
+                        _server.Retries = _config.Retries;
+                        _server.ConvertPathSeparator = _config.ConvertPathSeparator;
+                        _server.WindowSize = _config.WindowSize;
 
-                        foreach(var alt in m_Config.Alternatives)
+                        foreach(var alt in _config.Alternatives)
                         {
                             TFTPServer.ConfigurationAlternative tftpAlt = alt.IsRegularExpression ? TFTPServer.ConfigurationAlternative.CreateRegex(alt.Filter) : TFTPServer.ConfigurationAlternative.CreateWildcard(alt.Filter);
                             tftpAlt.WindowSize = alt.WindowSize;
-                            m_Server.ConfigurationAlternatives.Add(tftpAlt);
+                            _server.ConfigurationAlternatives.Add(tftpAlt);
                         }
 
-                        m_Server.OnStatusChange += server_OnStatusChange;
-                        m_Server.OnTrace += server_OnTrace;
-                        m_Server.Start();
+                        _server.OnStatusChange += server_OnStatusChange;
+                        _server.OnTrace += server_OnTrace;
+                        _server.Start();
                     }
                     catch (Exception)
                     {
@@ -109,7 +109,7 @@ namespace TFTPServerApp
 
         private void Log(EventLogEntryType entryType, string msg)
         {
-            m_EventLog.WriteEntry(string.Format("{0} : {1}",m_Config.Name,msg),entryType);
+            _eventLog.WriteEntry($"{_config.Name} : {msg}",entryType);
         }
 
         private void server_OnTrace(object sender, TFTPTraceEventArgs e)
@@ -123,13 +123,13 @@ namespace TFTPServerApp
 
             if (server.Active)
             {
-                Log(EventLogEntryType.Information, string.Format("{0} transfers in progress", server.ActiveTransfers));
+                Log(EventLogEntryType.Information, $"{server.ActiveTransfers} transfers in progress");
             }
             else
             {
                 if (e.Reason != null)
                 {
-                    Log(EventLogEntryType.Error, string.Format("Stopped, reason: {0}", e.Reason));
+                    Log(EventLogEntryType.Error, $"Stopped, reason: {e.Reason}");
                 }
                 CleanupAndRetry();
             }
@@ -137,41 +137,41 @@ namespace TFTPServerApp
 
         private void CleanupAndRetry()
         {
-            lock (m_Lock)
+            lock (_lock)
             {
-                if (!m_Disposed)
+                if (!_disposed)
                 {
                     // stop server
-                    if (m_Server != null)
+                    if (_server != null)
                     {
-                        m_Server.OnStatusChange -= server_OnStatusChange;
-                        m_Server.OnTrace -= server_OnTrace;
-                        m_Server.Dispose();
-                        m_Server = null;
+                        _server.OnStatusChange -= server_OnStatusChange;
+                        _server.OnTrace -= server_OnTrace;
+                        _server.Dispose();
+                        _server = null;
                     }
                     // initiate retry timer
-                    m_RetryTimer.Change(RetryTime, Timeout.Infinite);
+                    _retryTimer.Change(RetryTime, Timeout.Infinite);
                 }
             }
         }
 
         protected void Dispose(bool disposing)
         {
-            lock (m_Lock)
+            lock (_lock)
             {
-                if (!m_Disposed)
+                if (!_disposed)
                 {
-                    m_Disposed = true;
+                    _disposed = true;
 
-                    m_RetryTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                    m_RetryTimer.Dispose();
+                    _retryTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    _retryTimer.Dispose();
 
-                    if (m_Server != null)
+                    if (_server != null)
                     {
-                        m_Server.OnStatusChange -= server_OnStatusChange;
-                        m_Server.Dispose();
-                        m_Server.OnTrace -= server_OnTrace;
-                        m_Server = null;
+                        _server.OnStatusChange -= server_OnStatusChange;
+                        _server.Dispose();
+                        _server.OnTrace -= server_OnTrace;
+                        _server = null;
                     }
                 }
             }

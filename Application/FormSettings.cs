@@ -35,17 +35,17 @@ namespace TFTPServerApp
 {
     public partial class FormSettings : Form
     {
-        private TFTPServerConfiguration m_Configuration;
+        private TFTPServerConfiguration _configuration;
 
         public TFTPServerConfiguration Configuration
         {
             get
             {
-                return m_Configuration.Clone();
+                return _configuration.Clone();
             }
             set
             {
-                m_Configuration = value.Clone();
+                _configuration = value.Clone();
                 Bind();
             }
         }
@@ -92,7 +92,7 @@ namespace TFTPServerApp
         {
             if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
             {
-                m_Configuration.RootPath = folderBrowserDialog1.SelectedPath;
+                _configuration.RootPath = folderBrowserDialog1.SelectedPath;
                 Bind();
             }
         }
@@ -115,7 +115,7 @@ namespace TFTPServerApp
             checkBoxDontFragment.DataBindings.Clear();
             checkBoxConvertPathSeparator.DataBindings.Clear();
 
-            BindingSource bs = new BindingSource(m_Configuration, null);
+            BindingSource bs = new BindingSource(_configuration, null);
             checkBoxAllowReads.DataBindings.Add("Checked", bs, "AllowRead");
             checkBoxAllowWrites.DataBindings.Add("Checked", bs, "AllowWrite");
             checkBoxSinglePortMode.DataBindings.Add("Checked", bs, "SinglePort");
@@ -137,7 +137,7 @@ namespace TFTPServerApp
             FormPickAdapter f = new FormPickAdapter();
             if (f.ShowDialog(this) == DialogResult.OK)
             {
-                m_Configuration.EndPoint = new SerializableIPEndPoint( new System.Net.IPEndPoint(f.Address, m_Configuration.EndPoint.Port) );
+                _configuration.EndPoint = new SerializableIPEndPoint( new System.Net.IPEndPoint(f.Address, _configuration.EndPoint.Port) );
                 Bind();
             }
         }
@@ -145,11 +145,11 @@ namespace TFTPServerApp
         private void buttonAlternatives_Click(object sender, EventArgs e)
         {
             FormAlternatives f = new FormAlternatives();
-            f.Configuration = m_Configuration.Alternatives;
+            f.Configuration = _configuration.Alternatives;
 
             if (f.ShowDialog(this) == DialogResult.OK)
             {
-                m_Configuration.Alternatives = f.Configuration;
+                _configuration.Alternatives = f.Configuration;
                 Bind();
             }
         }

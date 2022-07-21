@@ -41,23 +41,23 @@ namespace CodePlex.JPMikkers.TFTP
 
         #region private types, members
 
-        private bool m_Disposed;                            // true => object is disposed
-        private readonly object m_Sync = new object();      // Synchronizing object
+        private bool _disposed;                            // true => object is disposed
+        private readonly object _sync = new object();      // Synchronizing object
 
-        private OnReceiveDelegate m_OnReceive;
-        private OnStopDelegate m_OnStop;
+        private OnReceiveDelegate _onReceive;
+        private OnStopDelegate _onStop;
 
-        private bool m_IPv6;                                // true => it's an IPv6 connection
-        private Socket m_Socket;                            // The active socket
+        private bool _IPv6;                                // true => it's an IPv6 connection
+        private Socket _socket;                            // The active socket
 
-        private Queue<PacketBuffer> m_SendFifo;             // queue of the outgoing packets
-        private bool m_SendPending;                         // true => an asynchronous send is in progress
-        private int m_ReceivePending;
+        private Queue<PacketBuffer> _sendFifo;             // queue of the outgoing packets
+        private bool _sendPending;                         // true => an asynchronous send is in progress
+        private int _receivePending;
 
-        private AutoPumpQueue<PacketBuffer> m_ReceiveFifo;  // queue of the incoming packets
-        private int m_PacketSize;                           // size of packets we'll try to receive
+        private AutoPumpQueue<PacketBuffer> _receiveFifo;  // queue of the incoming packets
+        private int _packetSize;                           // size of packets we'll try to receive
 
-        private EndPoint m_LocalEndPoint;
+        private EndPoint _localEndPoint;
 
         private class PacketBuffer
         {
@@ -77,9 +77,9 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                lock (m_Sync)
+                lock (_sync)
                 {
-                    return m_SendPending || m_SendFifo.Count > 0;
+                    return _sendPending || _sendFifo.Count > 0;
                 }
             }
         }
@@ -88,53 +88,59 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                return m_LocalEndPoint;
+                return _localEndPoint;
             }
         }
 
         #region constructors destructor
         public UDPSocket(IPEndPoint localEndPoint, int packetSize, bool dontFragment, short ttl, OnReceiveDelegate onReceive, OnStopDelegate onStop)
         {
-            m_PacketSize = packetSize;
-            m_Disposed = false;
-            m_OnReceive = onReceive;
-            m_OnStop = onStop;
+            _packetSize = packetSize;
+            _disposed = false;
+            _onReceive = onReceive;
+            _onStop = onStop;
 
-            m_SendFifo = new Queue<PacketBuffer>();
+            _sendFifo = new Queue<PacketBuffer>();
 
-            m_ReceiveFifo = new AutoPumpQueue<PacketBuffer>(
+            _receiveFifo = new AutoPumpQueue<PacketBuffer>(
                 (sender, data) =>
                 {
                     bool isDisposed = false;
 
-                    lock (m_Sync)
+                    lock (_sync)
                     {
-                        isDisposed = m_Disposed;
+                        isDisposed = _disposed;
                     }
 
                     if (!isDisposed)
                     {
-                        m_OnReceive(this, (IPEndPoint)data.EndPoint, data.Data);
+                        _onReceive(this, (IPEndPoint)data.EndPoint, data.Data);
                     }
                 }
             );
 
-            m_SendPending = false;
-            m_ReceivePending = 0;
+            _sendPending = false;
+            _receivePending = 0;
 
-            m_IPv6 = (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6);
-            m_Socket = new Socket(localEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            m_Socket.SendBufferSize = 65536;
-            m_Socket.ReceiveBufferSize = 65536;
-            if (!m_IPv6) m_Socket.DontFragment = dontFragment;
+            _IPv6 = (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6);
+            _socket = new Socket(localEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            _socket.SendBufferSize = 65536;
+            _socket.ReceiveBufferSize = 65536;
+            if (!_IPv6) _socket.DontFragment = dontFragment;
             if (ttl >= 0)
             {
-                m_Socket.Ttl = ttl;
+                _socket.Ttl = ttl;
             }
-            m_Socket.Bind(localEndPoint);
-            m_LocalEndPoint = m_Socket.LocalEndPoint;
+            _socket.Bind(localEndPoint);
+            _localEndPoint = _socket.LocalEndPoint;
 
-            m_Socket.IOControl((IOControlCode)SIO_UDP_CONNRESET, new byte[] { 0, 0, 0, 0 }, null);
+            try
+            {
+                _socket.IOControl((IOControlCode)SIO_UDP_CONNRESET, new byte[] { 0, 0, 0, 0 }, null);
+            }
+            catch(PlatformNotSupportedException)
+            {
+            }
 
             BeginReceive();
         }
@@ -164,11 +170,11 @@ namespace CodePlex.JPMikkers.TFTP
         {
             try
             {
-                lock (m_Sync)
+                lock (_sync)
                 {
-                    if (!m_Disposed)
+                    if (!_disposed)
                     {
-                        m_SendFifo.Enqueue(new PacketBuffer(endPoint, msg));
+                        _sendFifo.Enqueue(new PacketBuffer(endPoint, msg));
                         BeginSend();
                     }
                 }
@@ -200,17 +206,17 @@ namespace CodePlex.JPMikkers.TFTP
         {
             bool notifyStop = false;
 
-            lock (m_Sync)
+            lock (_sync)
             {
-                if (!m_Disposed)
+                if (!_disposed)
                 {
                     notifyStop = true;
-                    m_Disposed = true;
+                    _disposed = true;
 
                     try
                     {
-                        m_Socket.Shutdown(SocketShutdown.Both);
-                        m_Socket.Close();
+                        _socket.Shutdown(SocketShutdown.Both);
+                        _socket.Close();
                     }
                     catch (Exception)
                     {
@@ -221,7 +227,7 @@ namespace CodePlex.JPMikkers.TFTP
 
             if (notifyStop)
             {
-                m_OnStop(this, reason);
+                _onStop(this, reason);
             }
         }
 
@@ -230,18 +236,18 @@ namespace CodePlex.JPMikkers.TFTP
         /// </summary>
         private void BeginSend()
         {
-            lock (m_Sync)
+            lock (_sync)
             {
-                if (!m_Disposed && !m_SendPending)
+                if (!_disposed && !_sendPending)
                 {
-                    if (m_SendFifo.Count > 0)
+                    if (_sendFifo.Count > 0)
                     {
-                        m_SendPending = true;   // !! MUST BE DONE BEFORE CALLING BEGINSEND. Sometimes beginsend will call the SendDone routine synchronously!!
-                        PacketBuffer sendPacket = m_SendFifo.Dequeue();
+                        _sendPending = true;   // !! MUST BE DONE BEFORE CALLING BEGINSEND. Sometimes beginsend will call the SendDone routine synchronously!!
+                        PacketBuffer sendPacket = _sendFifo.Dequeue();
 
                         try
                         {
-                            m_Socket.BeginSendTo(sendPacket.Data.Array, sendPacket.Data.Offset, sendPacket.Data.Count, SocketFlags.None, sendPacket.EndPoint, new AsyncCallback(SendDone), sendPacket);
+                            _socket.BeginSendTo(sendPacket.Data.Array, sendPacket.Data.Offset, sendPacket.Data.Count, SocketFlags.None, sendPacket.EndPoint, new AsyncCallback(SendDone), sendPacket);
                         }
                         catch (Exception)
                         {
@@ -262,19 +268,19 @@ namespace CodePlex.JPMikkers.TFTP
         /// <param name="ar">Represents the status of an asynchronous operation</param>
         private void SendDone(IAsyncResult ar)
         {
-            lock (m_Sync)
+            lock (_sync)
             {
-                if (!m_Disposed)
+                if (!_disposed)
                 {
                     try
                     {
-                        m_Socket.EndSendTo(ar);
+                        _socket.EndSendTo(ar);
                     }
                     catch (Exception)
                     {
                         // don't care about any exceptions here because the TFTP protocol will take care of retrying to send the packet
                     }
-                    m_SendPending = false;
+                    _sendPending = false;
                     BeginSend();
                 }
             }
@@ -286,11 +292,11 @@ namespace CodePlex.JPMikkers.TFTP
         private void BeginReceive()
         {
             // just one pending receive for now. Anything more causes packet reordering at ReceiveDone (even on loopback connections) which doesn't feel right.
-            while (m_ReceivePending < 1)
+            while (_receivePending < 1)
             {
-                m_ReceivePending++;
-                PacketBuffer receivePacket = new PacketBuffer(new IPEndPoint(m_IPv6 ? IPAddress.IPv6Any : IPAddress.Any, 0), new ArraySegment<byte>(new byte[m_PacketSize], 0, m_PacketSize));
-                m_Socket.BeginReceiveFrom(receivePacket.Data.Array, receivePacket.Data.Offset, receivePacket.Data.Count, SocketFlags.None, ref receivePacket.EndPoint, new AsyncCallback(ReceiveDone), receivePacket);
+                _receivePending++;
+                PacketBuffer receivePacket = new PacketBuffer(new IPEndPoint(_IPv6 ? IPAddress.IPv6Any : IPAddress.Any, 0), new ArraySegment<byte>(new byte[_packetSize], 0, _packetSize));
+                _socket.BeginReceiveFrom(receivePacket.Data.Array, receivePacket.Data.Offset, receivePacket.Data.Count, SocketFlags.None, ref receivePacket.EndPoint, new AsyncCallback(ReceiveDone), receivePacket);
             }
         }
 
@@ -302,9 +308,9 @@ namespace CodePlex.JPMikkers.TFTP
         {
             try
             {
-                lock (m_Sync)
+                lock (_sync)
                 {
-                    if (!m_Disposed)
+                    if (!_disposed)
                     {
                         try
                         {
@@ -312,14 +318,14 @@ namespace CodePlex.JPMikkers.TFTP
                             int packetSize;
                             try
                             {
-                                packetSize = m_Socket.EndReceiveFrom(ar, ref buf.EndPoint);
+                                packetSize = _socket.EndReceiveFrom(ar, ref buf.EndPoint);
                             }
                             finally
                             {
-                                m_ReceivePending--;
+                                _receivePending--;
                             }
                             buf.Data = new ArraySegment<byte>(buf.Data.Array, 0, packetSize);
-                            m_ReceiveFifo.Enqueue(buf);
+                            _receiveFifo.Enqueue(buf);
                             // BeginReceive should check state again because Stop() could have been called synchronously at NotifyReceive()
                             BeginReceive();
                         }
@@ -334,7 +340,7 @@ namespace CodePlex.JPMikkers.TFTP
                                     break;
 
                                 case SocketError.MessageSize:
-                                    // someone tried to send a message bigger than m_MaxPacketSize
+                                    // someone tried to send a message bigger than _MaxPacketSize
                                     // discard it, and start receiving the next packet
                                     BeginReceive();
                                     break;

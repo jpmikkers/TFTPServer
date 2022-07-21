@@ -138,17 +138,17 @@ namespace TFTPServerApp
     [Serializable()]
     public class SerializableIPEndPoint
     {
-        private IPEndPoint m_EndPoint;
+        private IPEndPoint _endPoint;
 
         public string Address
         {
             get
             {
-                return m_EndPoint.Address.ToString();
+                return _endPoint.Address.ToString();
             }
             set
             {
-                m_EndPoint = new IPEndPoint(IPAddress.Parse(value), m_EndPoint.Port);
+                _endPoint = new IPEndPoint(IPAddress.Parse(value), _endPoint.Port);
             }
         }
 
@@ -156,22 +156,22 @@ namespace TFTPServerApp
         {
             get
             {
-                return m_EndPoint.Port;
+                return _endPoint.Port;
             }
             set
             {
-                m_EndPoint = new IPEndPoint(m_EndPoint.Address, value);
+                _endPoint = new IPEndPoint(_endPoint.Address, value);
             }
         }
 
         public SerializableIPEndPoint()
         {
-            m_EndPoint = new IPEndPoint(IPAddress.Loopback, 0);
+            _endPoint = new IPEndPoint(IPAddress.Loopback, 0);
         }
 
         public SerializableIPEndPoint(IPEndPoint p)
         {
-            m_EndPoint = (IPEndPoint)p.Create(p.Serialize());
+            _endPoint = (IPEndPoint)p.Create(p.Serialize());
         }
 
         static public implicit operator SerializableIPEndPoint(IPEndPoint c)
@@ -181,12 +181,12 @@ namespace TFTPServerApp
 
         static public implicit operator IPEndPoint(SerializableIPEndPoint c)
         {
-            return (IPEndPoint)c.m_EndPoint.Create(c.m_EndPoint.Serialize());
+            return (IPEndPoint)c._endPoint.Create(c._endPoint.Serialize());
         }
 
         public SerializableIPEndPoint Clone()
         {
-            return new SerializableIPEndPoint(m_EndPoint);
+            return new SerializableIPEndPoint(_endPoint);
         }
     }
 

@@ -31,8 +31,8 @@ namespace CodePlex.JPMikkers.TFTP
 {
     internal class UploadSession : TFTPSession
     {
-        private long m_Position;
-        private ArraySegment<byte> m_Window;
+        private long _position;
+        private ArraySegment<byte> _window;
 
         public UploadSession(TFTPServer parent, UDPSocket socket, IPEndPoint remoteEndPoint, Dictionary<string, string> requestedOptions, string filename, UDPSocket.OnReceiveDelegate onReceive)
             : base(parent,socket,remoteEndPoint,requestedOptions,filename, onReceive, 1000)
@@ -44,56 +44,56 @@ namespace CodePlex.JPMikkers.TFTP
             var sessionLogConfiguration = new SessionLogEntry.TConfiguration()
                                              {
                                                  FileLength = -1,
-                                                 Filename = m_Filename,
+                                                 Filename = _filename,
                                                  IsUpload = true,
-                                                 LocalEndPoint = m_LocalEndPoint,
-                                                 RemoteEndPoint = m_RemoteEndPoint,
+                                                 LocalEndPoint = _localEndPoint,
+                                                 RemoteEndPoint = _remoteEndPoint,
                                                  StartTime = DateTime.Now,
                                                  WindowSize = 1
                                              };
             try
             {
-                lock (m_Lock)
+                lock (_lock)
                 {
                     try
                     {
-                        m_Length = m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize) ? Int64.Parse(m_RequestedOptions[TFTPServer.Option_TransferSize]) : -1;
-                        sessionLogConfiguration.FileLength = m_Length;
-                        m_Stream = m_Parent.GetWriteStream(m_Filename, m_Length);
-                        m_Position = 0;
+                        _length = _requestedOptions.ContainsKey(TFTPServer.Option_TransferSize) ? Int64.Parse(_requestedOptions[TFTPServer.Option_TransferSize]) : -1;
+                        sessionLogConfiguration.FileLength = _length;
+                        _stream = _parent.GetWriteStream(_filename, _length);
+                        _position = 0;
                     }
                     catch (Exception e)
                     {
-                        TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
+                        TFTPServer.SendError(_socket, _remoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
                         throw;
                     }
                     finally
                     {
                         // always create a SessionLog (even if the file couldn't be opened), so Stop() will have somewhere to store its errors
-                        m_SessionLog = m_Parent.SessionLog.CreateSession(sessionLogConfiguration);
+                        _sessionLog = _parent.SessionLog.CreateSession(sessionLogConfiguration);
                     }
 
                     // handle tsize option
-                    if (m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize))
+                    if (_requestedOptions.ContainsKey(TFTPServer.Option_TransferSize))
                     {
                         // rfc2349: in Write Request packets, the size of the file, in octets, is specified in the 
                         // request and echoed back in the OACK
-                        m_AcceptedOptions.Add(TFTPServer.Option_TransferSize, m_RequestedOptions[TFTPServer.Option_TransferSize]);
+                        _acceptedOptions.Add(TFTPServer.Option_TransferSize, _requestedOptions[TFTPServer.Option_TransferSize]);
                     }
 
-                    if (m_AcceptedOptions.Count > 0)
+                    if (_acceptedOptions.Count > 0)
                     {
                         // send options ack, client will respond with block number 1
-                        m_Window = TFTPServer.GetOptionsAckPacket(m_AcceptedOptions);
+                        _window = TFTPServer.GetOptionsAckPacket(_acceptedOptions);
                     }
                     else
                     {
                         // send ack for current block, client will respond with next block
-                        m_Window = TFTPServer.GetDataAckPacket(m_BlockNumber);
+                        _window = TFTPServer.GetDataAckPacket(_blockNumber);
                     }
 
-                    TFTPServer.Send(m_Socket, m_RemoteEndPoint, m_Window);
-                    m_BlockRetry = 0;
+                    TFTPServer.Send(_socket, _remoteEndPoint, _window);
+                    _blockRetry = 0;
                     StartTimer();
                 }
             }
@@ -105,7 +105,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         protected override void SendResponse()
         {
-            TFTPServer.Send(m_Socket, m_RemoteEndPoint, m_Window);
+            TFTPServer.Send(_socket, _remoteEndPoint, _window);
             StartTimer();
         }
 
@@ -113,27 +113,27 @@ namespace CodePlex.JPMikkers.TFTP
         {
             bool isComplete = false;
 
-            lock (m_Lock)
+            lock (_lock)
             {
-                if (blockNr == ((ushort)(m_BlockNumber+1)))
+                if (blockNr == ((ushort)(_blockNumber+1)))
                 {
-                    m_BlockNumber = blockNr;
-                    m_LastBlock = data.Count < m_CurrentBlockSize;
-                    isComplete = m_LastBlock;
-                    m_Stream.Write(data.Array, data.Offset, data.Count);
+                    _blockNumber = blockNr;
+                    _lastBlock = data.Count < _currentBlockSize;
+                    isComplete = _lastBlock;
+                    _stream.Write(data.Array, data.Offset, data.Count);
 
-                    m_Position += data.Count;
-                    m_SessionLog.Progress(m_Position);
+                    _position += data.Count;
+                    _sessionLog.Progress(_position);
 
                     // send ack for current block, client will respond with next block
-                    m_Window = TFTPServer.GetDataAckPacket(m_BlockNumber);
-                    TFTPServer.Send(m_Socket, m_RemoteEndPoint, m_Window);
-                    m_BlockRetry = 0;
+                    _window = TFTPServer.GetDataAckPacket(_blockNumber);
+                    TFTPServer.Send(_socket, _remoteEndPoint, _window);
+                    _blockRetry = 0;
 
-                    if (m_LastBlock)
+                    if (_lastBlock)
                     {
                         StopTimer();
-                        m_SessionLog.Complete();
+                        _sessionLog.Complete();
                     }
                     else
                     {

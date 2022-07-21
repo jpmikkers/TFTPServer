@@ -57,16 +57,16 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPageTransfers = new System.Windows.Forms.TabPage();
             this.listViewTransfers = new System.Windows.Forms.ListView();
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader9 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader8 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader6 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader7 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader10 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader9 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader8 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader6 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader7 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader10 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tabPageEventLog = new System.Windows.Forms.TabPage();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.panel1.SuspendLayout();
@@ -80,9 +80,10 @@
             // 
             // buttonStart
             // 
-            this.buttonStart.Location = new System.Drawing.Point(8, 12);
+            this.buttonStart.Location = new System.Drawing.Point(11, 15);
+            this.buttonStart.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonStart.Name = "buttonStart";
-            this.buttonStart.Size = new System.Drawing.Size(75, 23);
+            this.buttonStart.Size = new System.Drawing.Size(100, 28);
             this.buttonStart.TabIndex = 0;
             this.buttonStart.Text = "&Start";
             this.buttonStart.UseVisualStyleBackColor = true;
@@ -90,9 +91,10 @@
             // 
             // buttonStop
             // 
-            this.buttonStop.Location = new System.Drawing.Point(89, 12);
+            this.buttonStop.Location = new System.Drawing.Point(119, 15);
+            this.buttonStop.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonStop.Name = "buttonStop";
-            this.buttonStop.Size = new System.Drawing.Size(75, 23);
+            this.buttonStop.Size = new System.Drawing.Size(100, 28);
             this.buttonStop.TabIndex = 1;
             this.buttonStop.Text = "S&top";
             this.buttonStop.UseVisualStyleBackColor = true;
@@ -100,9 +102,10 @@
             // 
             // buttonElevate
             // 
-            this.buttonElevate.Location = new System.Drawing.Point(251, 12);
+            this.buttonElevate.Location = new System.Drawing.Point(335, 15);
+            this.buttonElevate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonElevate.Name = "buttonElevate";
-            this.buttonElevate.Size = new System.Drawing.Size(75, 23);
+            this.buttonElevate.Size = new System.Drawing.Size(100, 28);
             this.buttonElevate.TabIndex = 3;
             this.buttonElevate.Text = "&Elevate";
             this.buttonElevate.UseVisualStyleBackColor = true;
@@ -116,9 +119,10 @@
             // 
             // buttonConfigure
             // 
-            this.buttonConfigure.Location = new System.Drawing.Point(170, 12);
+            this.buttonConfigure.Location = new System.Drawing.Point(227, 15);
+            this.buttonConfigure.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonConfigure.Name = "buttonConfigure";
-            this.buttonConfigure.Size = new System.Drawing.Size(75, 23);
+            this.buttonConfigure.Size = new System.Drawing.Size(100, 28);
             this.buttonConfigure.TabIndex = 2;
             this.buttonConfigure.Text = "&Configure";
             this.buttonConfigure.UseVisualStyleBackColor = true;
@@ -127,9 +131,10 @@
             // buttonAbout
             // 
             this.buttonAbout.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonAbout.Location = new System.Drawing.Point(922, 7);
+            this.buttonAbout.Location = new System.Drawing.Point(1229, 9);
+            this.buttonAbout.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonAbout.Name = "buttonAbout";
-            this.buttonAbout.Size = new System.Drawing.Size(63, 32);
+            this.buttonAbout.Size = new System.Drawing.Size(84, 39);
             this.buttonAbout.TabIndex = 4;
             this.buttonAbout.Text = "About";
             this.buttonAbout.UseVisualStyleBackColor = true;
@@ -138,9 +143,10 @@
             // buttonHistoryOneDay
             // 
             this.buttonHistoryOneDay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonHistoryOneDay.Location = new System.Drawing.Point(788, 9);
+            this.buttonHistoryOneDay.Location = new System.Drawing.Point(1054, 11);
+            this.buttonHistoryOneDay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonHistoryOneDay.Name = "buttonHistoryOneDay";
-            this.buttonHistoryOneDay.Size = new System.Drawing.Size(57, 23);
+            this.buttonHistoryOneDay.Size = new System.Drawing.Size(76, 28);
             this.buttonHistoryOneDay.TabIndex = 3;
             this.buttonHistoryOneDay.Text = "+1 day";
             this.buttonHistoryOneDay.UseVisualStyleBackColor = true;
@@ -149,9 +155,10 @@
             // buttonClear
             // 
             this.buttonClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonClear.Location = new System.Drawing.Point(914, 9);
+            this.buttonClear.Location = new System.Drawing.Point(1222, 11);
+            this.buttonClear.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonClear.Name = "buttonClear";
-            this.buttonClear.Size = new System.Drawing.Size(57, 23);
+            this.buttonClear.Size = new System.Drawing.Size(76, 28);
             this.buttonClear.TabIndex = 5;
             this.buttonClear.Text = "Clear";
             this.buttonClear.UseVisualStyleBackColor = true;
@@ -166,8 +173,9 @@
             this.panel1.Controls.Add(this.buttonElevate);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(993, 46);
+            this.panel1.Size = new System.Drawing.Size(1324, 57);
             this.panel1.TabIndex = 0;
             // 
             // panel2
@@ -180,36 +188,40 @@
             this.panel2.Controls.Add(this.buttonHistoryOneDay);
             this.panel2.Controls.Add(this.buttonClear);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(3, 299);
+            this.panel2.Location = new System.Drawing.Point(4, 371);
+            this.panel2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(979, 41);
+            this.panel2.Size = new System.Drawing.Size(1308, 50);
             this.panel2.TabIndex = 2;
             // 
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(652, 14);
+            this.label1.Location = new System.Drawing.Point(872, 17);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(67, 13);
+            this.label1.Size = new System.Drawing.Size(83, 16);
             this.label1.TabIndex = 1;
             this.label1.Text = "More history:";
             // 
             // labelFilter
             // 
             this.labelFilter.AutoSize = true;
-            this.labelFilter.Location = new System.Drawing.Point(5, 14);
+            this.labelFilter.Location = new System.Drawing.Point(7, 17);
+            this.labelFilter.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelFilter.Name = "labelFilter";
-            this.labelFilter.Size = new System.Drawing.Size(117, 13);
+            this.labelFilter.Size = new System.Drawing.Size(143, 16);
             this.labelFilter.TabIndex = 0;
             this.labelFilter.Text = "Showing log starting at:";
             // 
             // buttonHistoryAll
             // 
             this.buttonHistoryAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonHistoryAll.Location = new System.Drawing.Point(851, 9);
+            this.buttonHistoryAll.Location = new System.Drawing.Point(1138, 11);
+            this.buttonHistoryAll.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonHistoryAll.Name = "buttonHistoryAll";
-            this.buttonHistoryAll.Size = new System.Drawing.Size(57, 23);
+            this.buttonHistoryAll.Size = new System.Drawing.Size(76, 28);
             this.buttonHistoryAll.TabIndex = 4;
             this.buttonHistoryAll.Text = "All";
             this.buttonHistoryAll.UseVisualStyleBackColor = true;
@@ -218,9 +230,10 @@
             // buttonHistoryOneHour
             // 
             this.buttonHistoryOneHour.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonHistoryOneHour.Location = new System.Drawing.Point(725, 9);
+            this.buttonHistoryOneHour.Location = new System.Drawing.Point(970, 11);
+            this.buttonHistoryOneHour.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonHistoryOneHour.Name = "buttonHistoryOneHour";
-            this.buttonHistoryOneHour.Size = new System.Drawing.Size(57, 23);
+            this.buttonHistoryOneHour.Size = new System.Drawing.Size(76, 28);
             this.buttonHistoryOneHour.TabIndex = 2;
             this.buttonHistoryOneHour.Text = "+1 hour";
             this.buttonHistoryOneHour.UseVisualStyleBackColor = true;
@@ -228,23 +241,24 @@
             // 
             // statusStrip1
             // 
+            this.statusStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 415);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 512);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(993, 22);
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
+            this.statusStrip1.Size = new System.Drawing.Size(1324, 26);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel
             // 
             this.toolStripStatusLabel.Name = "toolStripStatusLabel";
-            this.toolStripStatusLabel.Size = new System.Drawing.Size(93, 17);
+            this.toolStripStatusLabel.Size = new System.Drawing.Size(117, 20);
             this.toolStripStatusLabel.Text = "Service Status : -";
             // 
             // eventLog1
             // 
-            this.eventLog1.EnableRaisingEvents = true;
             this.eventLog1.Log = "TFTPServerLog";
             this.eventLog1.SynchronizingObject = this;
             this.eventLog1.EntryWritten += new System.Diagnostics.EntryWrittenEventHandler(this.eventLog1_EntryWritten);
@@ -254,20 +268,22 @@
             this.tabControl1.Controls.Add(this.tabPageTransfers);
             this.tabControl1.Controls.Add(this.tabPageEventLog);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 46);
+            this.tabControl1.Location = new System.Drawing.Point(0, 57);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(993, 369);
+            this.tabControl1.Size = new System.Drawing.Size(1324, 455);
             this.tabControl1.TabIndex = 4;
             // 
             // tabPageTransfers
             // 
             this.tabPageTransfers.BackColor = System.Drawing.Color.Transparent;
             this.tabPageTransfers.Controls.Add(this.listViewTransfers);
-            this.tabPageTransfers.Location = new System.Drawing.Point(4, 22);
+            this.tabPageTransfers.Location = new System.Drawing.Point(4, 25);
+            this.tabPageTransfers.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabPageTransfers.Name = "tabPageTransfers";
-            this.tabPageTransfers.Padding = new System.Windows.Forms.Padding(5);
-            this.tabPageTransfers.Size = new System.Drawing.Size(985, 343);
+            this.tabPageTransfers.Padding = new System.Windows.Forms.Padding(7, 6, 7, 6);
+            this.tabPageTransfers.Size = new System.Drawing.Size(1316, 426);
             this.tabPageTransfers.TabIndex = 1;
             this.tabPageTransfers.Text = "Transfers";
             this.tabPageTransfers.UseVisualStyleBackColor = true;
@@ -287,13 +303,15 @@
             this.columnHeader10});
             this.listViewTransfers.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewTransfers.FullRowSelect = true;
+            this.listViewTransfers.HideSelection = false;
             this.listViewTransfers.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
             listViewItem1});
-            this.listViewTransfers.Location = new System.Drawing.Point(5, 5);
+            this.listViewTransfers.Location = new System.Drawing.Point(7, 6);
+            this.listViewTransfers.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.listViewTransfers.Name = "listViewTransfers";
             this.listViewTransfers.OwnerDraw = true;
             this.listViewTransfers.ShowGroups = false;
-            this.listViewTransfers.Size = new System.Drawing.Size(975, 333);
+            this.listViewTransfers.Size = new System.Drawing.Size(1302, 414);
             this.listViewTransfers.TabIndex = 0;
             this.listViewTransfers.UseCompatibleStateImageBehavior = false;
             this.listViewTransfers.View = System.Windows.Forms.View.Details;
@@ -355,10 +373,11 @@
             this.tabPageEventLog.BackColor = System.Drawing.Color.Transparent;
             this.tabPageEventLog.Controls.Add(this.textBox1);
             this.tabPageEventLog.Controls.Add(this.panel2);
-            this.tabPageEventLog.Location = new System.Drawing.Point(4, 22);
+            this.tabPageEventLog.Location = new System.Drawing.Point(4, 25);
+            this.tabPageEventLog.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabPageEventLog.Name = "tabPageEventLog";
-            this.tabPageEventLog.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageEventLog.Size = new System.Drawing.Size(985, 343);
+            this.tabPageEventLog.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tabPageEventLog.Size = new System.Drawing.Size(1316, 425);
             this.tabPageEventLog.TabIndex = 0;
             this.tabPageEventLog.Text = "Event Log";
             this.tabPageEventLog.UseVisualStyleBackColor = true;
@@ -366,24 +385,26 @@
             // textBox1
             // 
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBox1.Location = new System.Drawing.Point(3, 3);
+            this.textBox1.Location = new System.Drawing.Point(4, 4);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox1.Size = new System.Drawing.Size(979, 296);
+            this.textBox1.Size = new System.Drawing.Size(1308, 367);
             this.textBox1.TabIndex = 0;
             this.textBox1.WordWrap = false;
             // 
             // FormMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(993, 437);
+            this.ClientSize = new System.Drawing.Size(1324, 538);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(420, 200);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.MinimumSize = new System.Drawing.Size(554, 235);
             this.Name = "FormMain";
             this.Text = "TFTP Server";
             this.panel1.ResumeLayout(false);

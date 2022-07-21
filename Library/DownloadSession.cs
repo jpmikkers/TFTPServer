@@ -37,10 +37,10 @@ namespace CodePlex.JPMikkers.TFTP
 
     internal class DownloadSession : TFTPSession
     {
-        private long m_Position;
-        private ushort m_WindowSize;
+        private long _position;
+        private ushort _windowSize;
 
-        private List<WindowEntry> m_Window = new List<WindowEntry>();
+        private List<WindowEntry> _window = new List<WindowEntry>();
 
         public DownloadSession(
             TFTPServer parent, 
@@ -52,7 +52,7 @@ namespace CodePlex.JPMikkers.TFTP
             UDPSocket.OnReceiveDelegate onReceive)
             : base(parent,socket,remoteEndPoint,requestedOptions,filename, onReceive, 0)
         {
-            m_WindowSize = windowSize;
+            _windowSize = windowSize;
         }
 
         public override void Start()
@@ -60,52 +60,52 @@ namespace CodePlex.JPMikkers.TFTP
             var sessionLogConfiguration = new SessionLogEntry.TConfiguration()
                                             {
                                                 FileLength = -1,
-                                                Filename = m_Filename,
+                                                Filename = _filename,
                                                 IsUpload = false,
-                                                LocalEndPoint = m_LocalEndPoint,
-                                                RemoteEndPoint = m_RemoteEndPoint,
+                                                LocalEndPoint = _localEndPoint,
+                                                RemoteEndPoint = _remoteEndPoint,
                                                 StartTime = DateTime.Now,
-                                                WindowSize = m_WindowSize
+                                                WindowSize = _windowSize
                                             };
 
             try
             {
-                lock (m_Lock)
+                lock (_lock)
                 {
                     try
                     {
-                        m_Stream = m_Parent.GetReadStream(m_Filename);
-                        m_Length = m_Stream.Length;
-                        sessionLogConfiguration.FileLength = m_Length;
-                        m_Position = 0;
+                        _stream = _parent.GetReadStream(_filename);
+                        _length = _stream.Length;
+                        sessionLogConfiguration.FileLength = _length;
+                        _position = 0;
                     }
                     catch (Exception e)
                     {
-                        TFTPServer.SendError(m_Socket, m_RemoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
+                        TFTPServer.SendError(_socket, _remoteEndPoint, TFTPServer.ErrorCode.FileNotFound, e.Message);
                         throw;
                     }
                     finally
                     {
-                        m_SessionLog = m_Parent.SessionLog.CreateSession(sessionLogConfiguration);
+                        _sessionLog = _parent.SessionLog.CreateSession(sessionLogConfiguration);
                     }
 
                     // handle tsize option
-                    if (m_RequestedOptions.ContainsKey(TFTPServer.Option_TransferSize))
+                    if (_requestedOptions.ContainsKey(TFTPServer.Option_TransferSize))
                     {
-                        if (m_Length >= 0)
+                        if (_length >= 0)
                         {
-                            m_AcceptedOptions.Add(TFTPServer.Option_TransferSize, m_Length.ToString());
+                            _acceptedOptions.Add(TFTPServer.Option_TransferSize, _length.ToString());
                         }
                     }
 
-                    if (m_AcceptedOptions.Count > 0)
+                    if (_acceptedOptions.Count > 0)
                     {
-                        m_BlockNumber = 0;
+                        _blockNumber = 0;
                         SendOptionsAck();
                     }
                     else
                     {
-                        m_BlockNumber = 1;
+                        _blockNumber = 1;
                         SendData();
                     }
                 }
@@ -119,69 +119,69 @@ namespace CodePlex.JPMikkers.TFTP
         protected override void SendResponse()
         {
             // resend blocks in the window
-            for (int t = 0; t < m_Window.Count; t++)
+            for (int t = 0; t < _window.Count; t++)
             {
-                TFTPServer.Send(m_Socket, m_RemoteEndPoint, m_Window[t].Segment);
+                TFTPServer.Send(_socket, _remoteEndPoint, _window[t].Segment);
             }
             StartTimer();
         }
 
         private void SendOptionsAck()
         {
-            var seg = TFTPServer.GetOptionsAckPacket(m_AcceptedOptions);
-            m_Window.Add(new WindowEntry() { IsData = false, Length = 0, Segment = seg });
-            TFTPServer.Send(m_Socket, m_RemoteEndPoint, seg);
-            m_BlockRetry = 0;
+            var seg = TFTPServer.GetOptionsAckPacket(_acceptedOptions);
+            _window.Add(new WindowEntry() { IsData = false, Length = 0, Segment = seg });
+            TFTPServer.Send(_socket, _remoteEndPoint, seg);
+            _blockRetry = 0;
             StartTimer();
         }
 
         private void SendData()
         {
             // fill the window up to the window size & send all the new packets
-            while (m_Window.Count < m_WindowSize && !m_LastBlock)
+            while (_window.Count < _windowSize && !_lastBlock)
             {
-                byte[] buffer = new byte[m_CurrentBlockSize];
-                int dataSize = m_Stream.Read(buffer, 0, m_CurrentBlockSize);
-                var seg = TFTPServer.GetDataPacket((ushort)(m_BlockNumber + m_Window.Count), buffer, dataSize);
-                m_Window.Add(new WindowEntry() { IsData = true, Length = dataSize, Segment=seg });
-                m_LastBlock = (dataSize < m_CurrentBlockSize);
-                TFTPServer.Send(m_Socket, m_RemoteEndPoint, seg);
-                m_BlockRetry = 0;
+                byte[] buffer = new byte[_currentBlockSize];
+                int dataSize = _stream.Read(buffer, 0, _currentBlockSize);
+                var seg = TFTPServer.GetDataPacket((ushort)(_blockNumber + _window.Count), buffer, dataSize);
+                _window.Add(new WindowEntry() { IsData = true, Length = dataSize, Segment=seg });
+                _lastBlock = (dataSize < _currentBlockSize);
+                TFTPServer.Send(_socket, _remoteEndPoint, seg);
+                _blockRetry = 0;
                 StartTimer();
             }
         }
 
         private bool WindowContainsBlock(ushort blocknr)
         {
-            // rollover safe way of checking: m_BlockNumber <= blocknr < (m_BlockNumber+m_Window.Count)
-            return ((ushort)(blocknr-m_BlockNumber)) < m_Window.Count;
+            // rollover safe way of checking: _BlockNumber <= blocknr < (_BlockNumber+_Window.Count)
+            return ((ushort)(blocknr-_blockNumber)) < _window.Count;
         }
 
         public override void ProcessAck(ushort blockNr)
         {
             bool isComplete = false;
 
-            lock (m_Lock)
+            lock (_lock)
             {
                 if (WindowContainsBlock(blockNr))
                 {
                     while (WindowContainsBlock(blockNr))
                     {
-                        if(m_Window[0].IsData) m_Position += m_Window[0].Length;
-                        m_BlockNumber++;
-                        m_Window.RemoveAt(0);
+                        if(_window[0].IsData) _position += _window[0].Length;
+                        _blockNumber++;
+                        _window.RemoveAt(0);
                     }
 
-                    m_SessionLog.Progress(m_Position);
+                    _sessionLog.Progress(_position);
 
                     SendData();
 
-                    if (m_Window.Count == 0)
+                    if (_window.Count == 0)
                     {
                         // Everything was acked
                         isComplete = true;
                         StopTimer();
-                        m_SessionLog.Complete();
+                        _sessionLog.Complete();
                     }
                 }
             }
