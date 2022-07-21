@@ -1,25 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library", "Library\Library.csproj", "{75CBACB4-34BA-4994-BF36-90A86B8F9372}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library", "Library\Library.csproj", "{75CBACB4-34BA-4994-BF36-90A86B8F9372}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\SetupTFTPServer.vdproj", "{FEE01A3C-4006-4235-A776-0F1110304533}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "TFTPServerSetup", "Setup\SetupTFTPServer.vdproj", "{FEE01A3C-4006-4235-A776-0F1110304533}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{83AB486F-9859-48EB-870C-57745C16A232}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{83AB486F-9859-48EB-870C-57745C16A232}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E8B2D27B-2330-41AC-AC49-2BC9CB617E11}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 3
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs02
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Library\\Library.csproj
-		SccProjectName1 = Library
-		SccLocalPath1 = Library
-		SccProjectUniqueName2 = Application\\Application.csproj
-		SccProjectName2 = Application
-		SccLocalPath2 = Application
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -40,5 +35,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {99D99578-9B72-4B79-921A-4ABA3D698C20}
 	EndGlobalSection
 EndGlobal
