@@ -1,51 +1,24 @@
-﻿/*
-
-Copyright (c) 2010 Jean-Paul Mikkers
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.ServiceProcess;
-using System.Security;
-using System.Security.Principal;
-using System.IO;
 using System.Diagnostics;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.Threading;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.ServiceModel;
+using System.ServiceProcess;
+using System.Threading;
+using System.Windows.Forms;
 
 
 namespace TFTPServerApp
 {
     public partial class FormMain : Form
     {
-        private bool _hasAdministrativeRight;
-        private ServiceController _service;
+        private readonly bool _hasAdministrativeRight;
+        private readonly ServiceController _service;
         private DateTime _timeFilter;
         private TransferUpdater _transferUpdater;
 
@@ -58,14 +31,14 @@ namespace TFTPServerApp
             timerServiceWatcher.Enabled = true;
             SetTimeFilter(DateTime.Now);
             listViewTransfers.Items.Clear();
-            OverrideSetStyle(listViewTransfers,ControlStyles.AllPaintingInWmPaint | /*ControlStyles.Opaque|*/ ControlStyles.OptimizedDoubleBuffer, true);
+            OverrideSetStyle(listViewTransfers, ControlStyles.AllPaintingInWmPaint | /*ControlStyles.Opaque|*/ ControlStyles.OptimizedDoubleBuffer, true);
             eventLog1.EnableRaisingEvents = true;
         }
 
-        private static void OverrideSetStyle(Control c,ControlStyles styles,bool value)
+        private static void OverrideSetStyle(Control c, ControlStyles styles, bool value)
         {
-            MethodInfo info=c.GetType().GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (info != null)
+            MethodInfo info = c.GetType().GetMethod("SetStyle", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if(info != null)
             {
                 info.Invoke(c, new object[] { styles, value });
             }
@@ -92,15 +65,15 @@ namespace TFTPServerApp
                 ProgressWalker,
             }
 
-            public long   Id;
-            public long   PreviousBytesTransferred;
+            public long Id;
+            public long PreviousBytesTransferred;
             public ViewMode Mode;
             public double Fraction;
         }
 
         private void OnUpdateTransfers(object sender, TFTPLogEventArgs data)
         {
-            if (InvokeRequired)
+            if(InvokeRequired)
             {
                 Invoke(new EventHandler<TFTPLogEventArgs>(OnUpdateTransfers), sender, data);
             }
@@ -115,18 +88,18 @@ namespace TFTPServerApp
                     //lv.BeginUpdate();
 
                     // append new items at the front
-                    while (lv.Items.Count < data.Entries.Count)
+                    while(lv.Items.Count < data.Entries.Count)
                     {
                         lv.Items.Insert(0, new ListViewItem(new string[nrOfColumns]));
                     }
 
                     // remove items from the back
-                    while (lv.Items.Count > data.Entries.Count)
+                    while(lv.Items.Count > data.Entries.Count)
                     {
                         lv.Items.RemoveAt(lv.Items.Count - 1);
                     }
 
-                    for (int t = 0; t < lv.Items.Count; t++)
+                    for(int t = 0; t < lv.Items.Count; t++)
                     {
                         ListViewItem lvItem = lv.Items[t];
                         TFTPLogEntry entry = data.Entries[t];
@@ -161,10 +134,10 @@ namespace TFTPServerApp
                             ""
                         };
 
-                        for (int c = 0; c < rowAsStrings.Length; c++)
+                        for(int c = 0; c < rowAsStrings.Length; c++)
                         {
                             ListViewItem.ListViewSubItem subItem = lvItem.SubItems[c];
-                            if (subItem.Text != rowAsStrings[c])
+                            if(subItem.Text != rowAsStrings[c])
                             {
                                 subItem.Text = rowAsStrings[c];
                             }
@@ -172,30 +145,30 @@ namespace TFTPServerApp
 
                         var sub = lvItem.SubItems[rowAsStrings.Length - 1];
 
-                        if (sub.Tag == null || ((ProgressTag)sub.Tag).Id != entry.Id)
+                        if(sub.Tag == null || ((ProgressTag)sub.Tag).Id != entry.Id)
                         {
                             sub.Tag = new ProgressTag() { Id = entry.Id, PreviousBytesTransferred = entry.Transferred };
                         }
 
                         ProgressTag tag = (ProgressTag)sub.Tag;
 
-                        double fraction=GetProgressFraction(entry);
+                        double fraction = GetProgressFraction(entry);
 
-                        if (fraction >= 0.0)
+                        if(fraction >= 0.0)
                         {
                             tag.Fraction = fraction;
                             tag.Mode = ProgressTag.ViewMode.Percentage;
                         }
                         else
                         {
-                            if (entry.State == TFTPLogState.Stopped)
+                            if(entry.State == TFTPLogState.Stopped)
                             {
                                 tag.Mode = ProgressTag.ViewMode.None;
                             }
                             else
                             {
                                 tag.Mode = ProgressTag.ViewMode.ProgressWalker;
-                                if (tag.PreviousBytesTransferred != entry.Transferred)
+                                if(tag.PreviousBytesTransferred != entry.Transferred)
                                 {
                                     tag.Fraction = (tag.Fraction + 0.25) % 1.0;
                                     tag.PreviousBytesTransferred = entry.Transferred;
@@ -205,7 +178,7 @@ namespace TFTPServerApp
                     }
                     //lv.EndUpdate();
                 }
-                catch (Exception e)
+                catch(Exception e)
                 {
                     System.Diagnostics.Debug.WriteLine(e);
                 }
@@ -222,11 +195,11 @@ namespace TFTPServerApp
         {
             double result;
 
-            if (entry.State == TFTPLogState.Completed)
+            if(entry.State == TFTPLogState.Completed)
             {
                 result = 1.0;
             }
-            else if (entry.FileLength >= 0.0)
+            else if(entry.FileLength >= 0.0)
             {
                 result = (1.0 * Math.Min(entry.Transferred, entry.FileLength)) / entry.FileLength;
             }
@@ -251,7 +224,7 @@ namespace TFTPServerApp
         {
             _service.Refresh();
             //System.Diagnostics.Debug.WriteLine(_service.Status.ToString());
-            if (!Program.HasAdministrativeRight())
+            if(!Program.HasAdministrativeRight())
             {
                 buttonStart.Enabled = false;
                 buttonStop.Enabled = false;
@@ -275,7 +248,7 @@ namespace TFTPServerApp
             {
                 _service.Start();
             }
-            catch (Exception)
+            catch(Exception)
             {
             }
             UpdateServiceStatus();
@@ -287,7 +260,7 @@ namespace TFTPServerApp
             {
                 _service.Stop();
             }
-            catch (Exception)
+            catch(Exception)
             {
             }
             UpdateServiceStatus();
@@ -305,7 +278,7 @@ namespace TFTPServerApp
 
         private void buttonElevate_Click(object sender, EventArgs e)
         {
-            if (Program.RunElevated(""))
+            if(Program.RunElevated(""))
             {
                 Close();
             }
@@ -324,13 +297,13 @@ namespace TFTPServerApp
 
         private void buttonConfigure_Click(object sender, EventArgs e)
         {
-            FormConfigureOverview f = new FormConfigureOverview(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),"JPMikkers\\TFTP Server\\Configuration.xml"));
-            if (f.ShowDialog(this) == DialogResult.OK)
+            FormConfigureOverview f = new FormConfigureOverview(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "JPMikkers\\TFTP Server\\Configuration.xml"));
+            if(f.ShowDialog(this) == DialogResult.OK)
             {
                 UpdateServiceStatus();
                 if(_hasAdministrativeRight && _service.Status == ServiceControllerStatus.Running)
                 {
-                    if (MessageBox.Show("The TFTP Service has to be restarted to enable the new settings.\r\n" +
+                    if(MessageBox.Show("The TFTP Service has to be restarted to enable the new settings.\r\n" +
                         "This will cause any transfers in progress to be aborted.\r\n" +
                         "Are you sure you want to continue?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                     {
@@ -357,10 +330,10 @@ namespace TFTPServerApp
 
         private void AddEventLogEntry(EventLogEntry entry)
         {
-            if (entry.TimeGenerated > _timeFilter)
+            if(entry.TimeGenerated > _timeFilter)
             {
                 string entryType;
-                switch (entry.EntryType)
+                switch(entry.EntryType)
                 {
                     case EventLogEntryType.Error:
                         entryType = "ERROR";
@@ -390,7 +363,7 @@ namespace TFTPServerApp
             //textBox1.Up
             textBox1.Clear();
 
-            foreach (EventLogEntry entry in eventLog1.Entries)
+            foreach(EventLogEntry entry in eventLog1.Entries)
             {
                 AddEventLogEntry(entry);
             }
@@ -403,7 +376,7 @@ namespace TFTPServerApp
             {
                 SetTimeFilter(_timeFilter.AddDays(-1));
             }
-            catch (Exception)
+            catch(Exception)
             {
             }
         }
@@ -414,7 +387,7 @@ namespace TFTPServerApp
             {
                 SetTimeFilter(_timeFilter.AddHours(-1));
             }
-            catch (Exception)
+            catch(Exception)
             {
             }
         }
@@ -422,7 +395,7 @@ namespace TFTPServerApp
         private void SetTimeFilter(DateTime filter)
         {
             _timeFilter = filter;
-            if (_timeFilter == DateTime.MinValue)
+            if(_timeFilter == DateTime.MinValue)
             {
                 labelFilter.Text = "Showing all logging";
             }
@@ -455,24 +428,24 @@ namespace TFTPServerApp
             return item;
         }
 
-/*
-        private void fastListView1_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
-        {
-            ColumnHeader c = fastListView1.Columns[e.ColumnIndex];
-            if (c.Tag is string)
-            {
-                int minWidth;
-
-                if (int.TryParse((string)c.Tag, out minWidth))
+        /*
+                private void fastListView1_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
                 {
-                    if (c.Width < minWidth)
+                    ColumnHeader c = fastListView1.Columns[e.ColumnIndex];
+                    if (c.Tag is string)
                     {
-                        c.Width = minWidth;
+                        int minWidth;
+
+                        if (int.TryParse((string)c.Tag, out minWidth))
+                        {
+                            if (c.Width < minWidth)
+                            {
+                                c.Width = minWidth;
+                            }
+                        }
                     }
                 }
-            }
-        }
-*/
+        */
         private void listViewTransfers_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
             e.SubItem.BackColor = e.Item.BackColor;
@@ -482,7 +455,7 @@ namespace TFTPServerApp
 
             Action<DrawListViewSubItemEventArgs, string> drawSubItemText = (x, text) => TextRenderer.DrawText(x.Graphics, text, x.SubItem.Font, x.Bounds, x.SubItem.ForeColor, x.SubItem.BackColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Right | TextFormatFlags.NoPadding | TextFormatFlags.SingleLine | TextFormatFlags.GlyphOverhangPadding);
 
-            if (tag != null)
+            if(tag != null)
             {
                 StringFormat sf = new StringFormat();
                 sf.Alignment = StringAlignment.Center;
@@ -499,10 +472,10 @@ namespace TFTPServerApp
                 r.Height = r.Height - 1;
                 e.Graphics.FillRectangle(Brushes.LightYellow, r);
 
-                if (tag.Mode == ProgressTag.ViewMode.Percentage)
+                if(tag.Mode == ProgressTag.ViewMode.Percentage)
                 {
-                    var rf=RectangleF.FromLTRB(r.Left, r.Top, r.Right, r.Bottom);
-                    var txt=$"{100.0 * tag.Fraction:0.0} %";
+                    var rf = RectangleF.FromLTRB(r.Left, r.Top, r.Right, r.Bottom);
+                    var txt = $"{100.0 * tag.Fraction:0.0} %";
 
                     Rectangle part1 = Rectangle.FromLTRB(r.Left, r.Top, r.Left + (int)(tag.Fraction * r.Width), r.Bottom);
 
@@ -515,14 +488,14 @@ namespace TFTPServerApp
                     e.Graphics.SetClip(part2);
                     e.Graphics.DrawString(txt, this.Font, Brushes.Black, rf, sf);
                 }
-                else if (tag.Mode == ProgressTag.ViewMode.ProgressWalker)
+                else if(tag.Mode == ProgressTag.ViewMode.ProgressWalker)
                 {
                     int partLocation1 = (int)(tag.Fraction * r.Width);
                     int partLocation2 = r.Width - (int)((0.75 - tag.Fraction) * r.Width);
                     Rectangle partRectangle = Rectangle.FromLTRB(r.Left + partLocation1, r.Top, r.Left + partLocation2, r.Bottom);
                     e.Graphics.FillRectangle(Brushes.Green, partRectangle);
                 }
-                else if (tag.Mode == ProgressTag.ViewMode.None)
+                else if(tag.Mode == ProgressTag.ViewMode.None)
                 {
                 }
             }
@@ -531,7 +504,7 @@ namespace TFTPServerApp
                 e.DrawDefault = true;
             }
         }
-        
+
         /*
         private void listViewTransfers_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
@@ -595,18 +568,18 @@ namespace TFTPServerApp
 
     public class TransferUpdater : IDisposable
     {
-        private ChannelFactory<ITFTPServiceContract> _pipeFactory = new ChannelFactory<ITFTPServiceContract>(
+        private readonly ChannelFactory<ITFTPServiceContract> _pipeFactory = new ChannelFactory<ITFTPServiceContract>(
                         new NetNamedPipeBinding(NetNamedPipeSecurityMode.None),
                         new EndpointAddress("net.pipe://localhost/JPMikkers/TFTPServer/Service"));
 
-        private System.Threading.Timer _timer;
+        private readonly System.Threading.Timer _timer;
         private ITFTPServiceContract _pipeProxy;
-        private EventHandler<TFTPLogEventArgs> _onUpdate;
+        private readonly EventHandler<TFTPLogEventArgs> _onUpdate;
         private readonly TimeSpan _updatePeriod;
         private readonly TimeSpan _retryPeriod;
         private volatile bool _disposed = false;
 
-        public TransferUpdater(TimeSpan updatePeriod,TimeSpan retryPeriod, EventHandler<TFTPLogEventArgs> onUpdate)
+        public TransferUpdater(TimeSpan updatePeriod, TimeSpan retryPeriod, EventHandler<TFTPLogEventArgs> onUpdate)
         {
             _updatePeriod = updatePeriod;
             _retryPeriod = retryPeriod;
@@ -621,13 +594,13 @@ namespace TFTPServerApp
 
         private void OnTimer(object state)
         {
-            if (!_disposed)
+            if(!_disposed)
             {
                 try
                 {
                     System.Diagnostics.Debug.WriteLine("Before");
 
-                    if (_pipeProxy == null)
+                    if(_pipeProxy == null)
                     {
                         System.Diagnostics.Debug.WriteLine("Creating a channel");
                         _pipeProxy = _pipeFactory.CreateChannel();
@@ -648,9 +621,9 @@ namespace TFTPServerApp
 
         protected void Dispose(bool disposing)
         {
-            if (disposing)
+            if(disposing)
             {
-                if (!_disposed)
+                if(!_disposed)
                 {
                     _disposed = true;
                     _timer.Change(Timeout.Infinite, Timeout.Infinite);

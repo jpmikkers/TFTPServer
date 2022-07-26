@@ -1,26 +1,4 @@
-﻿/*
-
-Copyright (c) 2010 Jean-Paul Mikkers
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,7 +19,7 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                lock (_stopWatch)
+                lock(_stopWatch)
                 {
                     return _stopWatch.Elapsed.TotalSeconds;
                 }
@@ -51,9 +29,9 @@ namespace CodePlex.JPMikkers.TFTP
         public int MaxItems
         {
             get { return _maxItems; }
-            set 
+            set
             {
-                if (value < 0) throw new ArgumentException("Argument must be >= 0", "MaxItems");
+                if(value < 0) throw new ArgumentException("Argument must be >= 0", "MaxItems");
                 _maxItems = value;
                 Purge();
             }
@@ -76,16 +54,16 @@ namespace CodePlex.JPMikkers.TFTP
 
         private class Slot : ISession
         {
-            private long _id;
+            private readonly long _id;
             private long _transferred;
             private SessionLogEntry.TState _state;
-            private SessionLog _parent;
+            private readonly SessionLog _parent;
             private Exception _exception;
             private double _speed;
-            private double _startTime;
+            private readonly double _startTime;
             private double _lastSpeedCalculation;
             private long _lastTransferred;
-            private SimpleMovingAverage _runningAverage = new SimpleMovingAverage(2);
+            private readonly SimpleMovingAverage _runningAverage = new SimpleMovingAverage(2);
             protected internal volatile bool _triggerSpeedCalculation;
 
             public long Id
@@ -100,7 +78,7 @@ namespace CodePlex.JPMikkers.TFTP
 
             private readonly SessionLogEntry.TConfiguration _configuration;
 
-            public SessionLogEntry.TConfiguration Configuration 
+            public SessionLogEntry.TConfiguration Configuration
             {
                 get { return _configuration; }
             }
@@ -112,9 +90,9 @@ namespace CodePlex.JPMikkers.TFTP
                     return _state;
                 }
             }
-            
-            public long Transferred 
-            { 
+
+            public long Transferred
+            {
                 get { return Interlocked.Read(ref _transferred); }
             }
 
@@ -128,7 +106,7 @@ namespace CodePlex.JPMikkers.TFTP
 
             private double CalculateSpeed(long transferred, double startTime, double endTime)
             {
-                return Math.Max(0,transferred) / Math.Max(0.001,endTime - startTime);
+                return Math.Max(0, transferred) / Math.Max(0.001, endTime - startTime);
             }
 
             public Slot(SessionLog parent, long id, SessionLogEntry.TConfiguration sessionInfo)
@@ -146,20 +124,20 @@ namespace CodePlex.JPMikkers.TFTP
 
             public void Progress(long transferred)
             {
-                if (_state == SessionLogEntry.TState.Busy)
+                if(_state == SessionLogEntry.TState.Busy)
                 {
                     Interlocked.Exchange(ref _transferred, transferred);
 
-                    if (_triggerSpeedCalculation)
+                    if(_triggerSpeedCalculation)
                     {
                         _triggerSpeedCalculation = false;
                         double currentTime = _parent.ElapsedSeconds;
 
-                        lock (_runningAverage)
+                        lock(_runningAverage)
                         {
                             double elapsed = (currentTime - _lastSpeedCalculation);
 
-                            if (elapsed > 0.01)
+                            if(elapsed > 0.01)
                             {
                                 _speed = _runningAverage.Add(CalculateSpeed(transferred - _lastTransferred, _lastSpeedCalculation, currentTime));
                                 _lastTransferred = transferred;
@@ -172,12 +150,12 @@ namespace CodePlex.JPMikkers.TFTP
 
             public void Stop(Exception e)
             {
-                lock (_parent.SyncObject)
+                lock(_parent.SyncObject)
                 {
-                    if (_state == SessionLogEntry.TState.Busy)
+                    if(_state == SessionLogEntry.TState.Busy)
                     {
                         _speed = CalculateSpeed(_transferred, _startTime, _parent.ElapsedSeconds);
-                        if (e == null)
+                        if(e == null)
                         {
                             _state = SessionLogEntry.TState.Completed;
                         }
@@ -203,9 +181,9 @@ namespace CodePlex.JPMikkers.TFTP
 
         private void Purge()
         {
-            lock (_sessions)
+            lock(_sessions)
             {
-                while (_sessionQueue.Count > _maxItems)
+                while(_sessionQueue.Count > _maxItems)
                 {
                     var sessionToRemove = _sessionQueue.Dequeue();
                     sessionToRemove.Invalidate();
@@ -223,9 +201,9 @@ namespace CodePlex.JPMikkers.TFTP
 
         private void OnTimer(object state)
         {
-            lock (_sessions)
+            lock(_sessions)
             {
-                foreach (var session in _sessions)
+                foreach(var session in _sessions)
                 {
                     session._triggerSpeedCalculation = true;
                 }
@@ -234,7 +212,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         public ISession CreateSession(SessionLogEntry.TConfiguration args)
         {
-            lock (_sessions)
+            lock(_sessions)
             {
                 var result = new Slot(this, Interlocked.Increment(ref s_IDCounter), args);
                 _sessionQueue.Enqueue(result);
@@ -246,16 +224,16 @@ namespace CodePlex.JPMikkers.TFTP
 
         public List<SessionLogEntry> GetHistory()
         {
-            lock (_sessions)
+            lock(_sessions)
             {
                 return _sessions
                     .Select(
-                        x => new SessionLogEntry() 
-                        { 
+                        x => new SessionLogEntry()
+                        {
                             Id = x.Id,
-                            Configuration = x.Configuration, 
-                            State = x.State, 
-                            Transferred = x.Transferred, 
+                            Configuration = x.Configuration,
+                            State = x.State,
+                            Transferred = x.Transferred,
                             Speed = x.Speed,
                             Exception = x.Exception
                         }

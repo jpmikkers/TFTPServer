@@ -1,33 +1,8 @@
-﻿/*
-
-Copyright (c) 2010 Jean-Paul Mikkers
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace CodePlex.JPMikkers.TFTP
@@ -38,7 +13,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         public class ConfigurationAlternative
         {
-            private Regex _regex;
+            private readonly Regex _regex;
             public ushort WindowSize { get; set; }
 
             public bool Match(string s)
@@ -116,9 +91,9 @@ namespace CodePlex.JPMikkers.TFTP
         private bool _autoCreateDirectories = true;
         private bool _convertPathSeparator = true;
         private ushort _windowSize = 1;
-        private List<ConfigurationAlternative> _configurationAlternatives = new List<ConfigurationAlternative>();
+        private readonly List<ConfigurationAlternative> _configurationAlternatives = new List<ConfigurationAlternative>();
 
-        private object _sync = new object();
+        private readonly object _sync = new object();
         private bool _active = false;
 
         private readonly Dictionary<IPEndPoint, ITFTPSession> _sessions;
@@ -133,9 +108,9 @@ namespace CodePlex.JPMikkers.TFTP
         {
             bool notify = false;
 
-            lock (_sync)
+            lock(_sync)
             {
-                if (_active)
+                if(_active)
                 {
                     Trace($"Stopping TFTP server '{_serverEndPoint}'");
                     _active = false;
@@ -143,12 +118,12 @@ namespace CodePlex.JPMikkers.TFTP
                     _socket.Dispose();
                     // get shallow copy of running sessions
                     var sessions = new List<ITFTPSession>();
-                    lock (_sessions)
+                    lock(_sessions)
                     {
                         sessions.AddRange(_sessions.Values);
                     }
                     // stop all of them
-                    foreach (var session in sessions)
+                    foreach(var session in sessions)
                     {
                         session.Stop();
                     }
@@ -156,7 +131,7 @@ namespace CodePlex.JPMikkers.TFTP
                 }
             }
 
-            if (notify)
+            if(notify)
             {
                 var data = new TFTPStopEventArgs();
                 data.Reason = reason;
@@ -167,7 +142,7 @@ namespace CodePlex.JPMikkers.TFTP
         private static string StripRoot(string filename)
         {
             // strip root from filename before calling Path.Combine(). Some clients like to prepend a leading backslash, resulting in an 'Illegal filename' error.
-            if (Path.IsPathRooted(filename))
+            if(Path.IsPathRooted(filename))
             {
                 filename = filename.Substring(Path.GetPathRoot(filename).Length);
             }
@@ -177,7 +152,7 @@ namespace CodePlex.JPMikkers.TFTP
         private string GetLocalFilename(string filename)
         {
             string result = Path.GetFullPath(Path.Combine(_rootPath, StripRoot(filename)));
-            if (!result.StartsWith(_rootPath))
+            if(!result.StartsWith(_rootPath))
             {
                 throw new ArgumentException("Illegal filename");
             }
@@ -186,7 +161,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         internal Stream GetReadStream(string filename)
         {
-            if (!_allowRead)
+            if(!_allowRead)
             {
                 throw new UnauthorizedAccessException("Reading not allowed");
             }
@@ -195,9 +170,9 @@ namespace CodePlex.JPMikkers.TFTP
             return File.OpenRead(targetPath);
         }
 
-        internal Stream GetWriteStream(string filename,long length)
+        internal Stream GetWriteStream(string filename, long length)
         {
-            if (!_allowWrite)
+            if(!_allowWrite)
             {
                 throw new UnauthorizedAccessException("Writing not allowed");
             }
@@ -205,10 +180,10 @@ namespace CodePlex.JPMikkers.TFTP
             string targetPath = GetLocalFilename(filename);
             //Console.WriteLine("Getting write stream for file '{0}', size {1}", targetPath, length);
 
-            if (_autoCreateDirectories)
+            if(_autoCreateDirectories)
             {
                 string dir = Path.GetDirectoryName(targetPath);
-                if (!Directory.Exists(dir))
+                if(!Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);
                 }
@@ -225,13 +200,13 @@ namespace CodePlex.JPMikkers.TFTP
 
         private ushort GetWindowSize(string filename)
         {
-            if(_configurationAlternatives.Count>0)
+            if(_configurationAlternatives.Count > 0)
             {
                 filename = StripRoot(filename);
 
-                foreach (ConfigurationAlternative alternative in _configurationAlternatives)
+                foreach(ConfigurationAlternative alternative in _configurationAlternatives)
                 {
-                    if (alternative.Match(filename))
+                    if(alternative.Match(filename))
                     {
                         return alternative.WindowSize;
                     }
@@ -250,100 +225,100 @@ namespace CodePlex.JPMikkers.TFTP
             bool found;
             ushort opCode = ReadUInt16(ms);
 
-            lock (_sessions)
+            lock(_sessions)
             {
                 found = _sessions.TryGetValue(endPoint, out session);
             }
 
-                // is there a session in progress for that endpoint?
-            if (found)
+            // is there a session in progress for that endpoint?
+            if(found)
+            {
+                // yes.
+                switch((Opcode)opCode)
                 {
-                    // yes.
-                    switch ((Opcode)opCode)
-                    {
-                        case Opcode.ReadRequest:
-                            // session already exists, and we're getting a new readrequest?
-                            SendError(sender, endPoint, ErrorCode.IllegalOperation, "Read session already in progress");
-                            break;
+                    case Opcode.ReadRequest:
+                        // session already exists, and we're getting a new readrequest?
+                        SendError(sender, endPoint, ErrorCode.IllegalOperation, "Read session already in progress");
+                        break;
 
-                        case Opcode.WriteRequest:
-                            // session already exists, and we're getting a new writerequest?
-                            SendError(sender, endPoint, ErrorCode.IllegalOperation, "Write session already in progress");
-                            break;
+                    case Opcode.WriteRequest:
+                        // session already exists, and we're getting a new writerequest?
+                        SendError(sender, endPoint, ErrorCode.IllegalOperation, "Write session already in progress");
+                        break;
 
-                        case Opcode.Data:
-                            session.ProcessData(ReadUInt16(ms), new ArraySegment<byte>(data.Array,(int)(data.Offset+ms.Position),(int)(data.Count-ms.Position)));
-                            break;
+                    case Opcode.Data:
+                        session.ProcessData(ReadUInt16(ms), new ArraySegment<byte>(data.Array, (int)(data.Offset + ms.Position), (int)(data.Count - ms.Position)));
+                        break;
 
-                        case Opcode.Ack:
-                            session.ProcessAck(ReadUInt16(ms));
-                            break;
+                    case Opcode.Ack:
+                        session.ProcessAck(ReadUInt16(ms));
+                        break;
 
-                        case Opcode.Error:
-                            ushort code = ReadUInt16(ms);
-                            string msg = ReadZString(ms);
-                            session.ProcessError(code, msg);
-                            break;
+                    case Opcode.Error:
+                        ushort code = ReadUInt16(ms);
+                        string msg = ReadZString(ms);
+                        session.ProcessError(code, msg);
+                        break;
 
-                        case Opcode.OptionsAck:
-                            break;
+                    case Opcode.OptionsAck:
+                        break;
 
-                        default:
-                            SendError(sender, endPoint, ErrorCode.IllegalOperation, "Unknown opcode");
-                            break;
-                    }
+                    default:
+                        SendError(sender, endPoint, ErrorCode.IllegalOperation, "Unknown opcode");
+                        break;
                 }
-                else // session==null
+            }
+            else // session==null
+            {
+                // no session in progress for the endpoint that sent the packet
+                switch((Opcode)opCode)
                 {
-                    // no session in progress for the endpoint that sent the packet
-                    switch ((Opcode)opCode)
-                    {
-                        case Opcode.ReadRequest:
-                            {
-                                string filename = ReadZString(ms);
-                                if(_convertPathSeparator) filename = filename.Replace('/','\\');
-                                Mode mode = ReadMode(ms);
-                                var requestedOptions = ReadOptions(ms);
-                                ushort windowSize = GetWindowSize(filename);
-                                ITFTPSession newSession = new DownloadSession(this, _useSinglePort ? _socket : null, endPoint, requestedOptions, filename, windowSize, OnUDPReceive);
+                    case Opcode.ReadRequest:
+                        {
+                            string filename = ReadZString(ms);
+                            if(_convertPathSeparator) filename = filename.Replace('/', '\\');
+                            Mode mode = ReadMode(ms);
+                            var requestedOptions = ReadOptions(ms);
+                            ushort windowSize = GetWindowSize(filename);
+                            ITFTPSession newSession = new DownloadSession(this, _useSinglePort ? _socket : null, endPoint, requestedOptions, filename, windowSize, OnUDPReceive);
 
                             lock(_sessions)
                             {
                                 _sessions.Add(newSession.RemoteEndPoint, newSession);
                             }
 
-                                notify = true;
-                                Trace($"Starting transfer of file '{newSession.Filename}' from local '{newSession.LocalEndPoint}' to remote '{newSession.RemoteEndPoint}', send window size {windowSize}");
-                                newSession.Start();
-                            }
-                            break;
+                            notify = true;
+                            Trace($"Starting transfer of file '{newSession.Filename}' from local '{newSession.LocalEndPoint}' to remote '{newSession.RemoteEndPoint}', send window size {windowSize}");
+                            newSession.Start();
+                        }
+                        break;
 
-                        case Opcode.WriteRequest:
-                            {
-                                string filename = ReadZString(ms);
-                                if (_convertPathSeparator) filename = filename.Replace('/', '\\');
-                                Mode mode = ReadMode(ms);
-                                var requestedOptions = ReadOptions(ms);
-                                ITFTPSession newSession=new UploadSession(this, _useSinglePort ? _socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
+                    case Opcode.WriteRequest:
+                        {
+                            string filename = ReadZString(ms);
+                            if(_convertPathSeparator) filename = filename.Replace('/', '\\');
+                            Mode mode = ReadMode(ms);
+                            var requestedOptions = ReadOptions(ms);
+                            ITFTPSession newSession = new UploadSession(this, _useSinglePort ? _socket : null, endPoint, requestedOptions, filename, OnUDPReceive);
 
                             lock(_sessions)
                             {
                                 _sessions.Add(newSession.RemoteEndPoint, newSession);
                             }
 
-                                notify = true;
-                                Trace($"Starting transfer of file '{newSession.Filename}' from remote '{newSession.RemoteEndPoint}' to local '{newSession.LocalEndPoint}'");
-                                newSession.Start();
-                            }
-                            break;
+                            notify = true;
+                            Trace($"Starting transfer of file '{newSession.Filename}' from remote '{newSession.RemoteEndPoint}' to local '{newSession.LocalEndPoint}'");
+                            newSession.Start();
+                        }
+                        break;
 
-                        default:
-                            SendError(_socket, endPoint, (ushort)ErrorCode.UnknownTransferID, "Unknown transfer ID");
-                            break;
-                    }
+                    default:
+                        SendError(_socket, endPoint, (ushort)ErrorCode.UnknownTransferID, "Unknown transfer ID");
+                        break;
                 }
+            }
 
-            if (notify)
+            if(notify)
             {
                 OnStatusChange(this, null);
             }
@@ -356,11 +331,11 @@ namespace CodePlex.JPMikkers.TFTP
 
         internal void TransferComplete(ITFTPSession session, Exception reason)
         {
-            lock (_sessions)
+            lock(_sessions)
             {
-                if (_sessions.ContainsKey(session.RemoteEndPoint))
+                if(_sessions.ContainsKey(session.RemoteEndPoint))
                 {
-                    if (reason == null)
+                    if(reason == null)
                     {
                         Trace($"Completed transfer {(session is UploadSession ? "from" : "to")} '{session.RemoteEndPoint}'");
                     }
@@ -378,7 +353,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         internal void Trace(string msg)
         {
-            var data=new TFTPTraceEventArgs();
+            var data = new TFTPTraceEventArgs();
             data.Message = msg;
             OnTrace(this, data);
         }
@@ -399,7 +374,7 @@ namespace CodePlex.JPMikkers.TFTP
 
         protected void Dispose(bool disposing)
         {
-            if (disposing)
+            if(disposing)
             {
                 Stop();
             }
@@ -575,7 +550,7 @@ namespace CodePlex.JPMikkers.TFTP
             }
             set
             {
-                _windowSize=Clip<ushort>(value,1,32);
+                _windowSize = Clip<ushort>(value, 1, 32);
             }
         }
 
@@ -591,7 +566,7 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                lock (_sync)
+                lock(_sync)
                 {
                     return _active;
                 }
@@ -602,7 +577,7 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                lock (_sessions)
+                lock(_sessions)
                 {
                     return _sessions.Count;
                 }
@@ -611,9 +586,9 @@ namespace CodePlex.JPMikkers.TFTP
 
         public void Start()
         {
-            lock (_sync)
+            lock(_sync)
             {
-                if (!_active)
+                if(!_active)
                 {
                     try
                     {
@@ -649,9 +624,9 @@ namespace CodePlex.JPMikkers.TFTP
         internal static T Clip<T>(T value, T minValue, T maxValue) where T : IComparable<T>
         {
             T result;
-            if (value.CompareTo(minValue) < 0)
+            if(value.CompareTo(minValue) < 0)
                 result = minValue;
-            else if (value.CompareTo(maxValue) > 0)
+            else if(value.CompareTo(maxValue) > 0)
                 result = maxValue;
             else
                 result = value;
@@ -661,7 +636,7 @@ namespace CodePlex.JPMikkers.TFTP
         internal static Dictionary<string, string> ReadOptions(Stream s)
         {
             Dictionary<string, string> options = new Dictionary<string, string>();
-            while (s.Position < s.Length)
+            while(s.Position < s.Length)
             {
                 string key = ReadZString(s).ToLower();
                 string val = ReadZString(s).ToLower();
@@ -706,7 +681,7 @@ namespace CodePlex.JPMikkers.TFTP
         {
             MemoryStream ms = new MemoryStream();
             WriteUInt16(ms, (ushort)Opcode.OptionsAck);
-            foreach (var s in options)
+            foreach(var s in options)
             {
                 WriteZString(ms, s.Key);
                 WriteZString(ms, s.Value);
@@ -727,7 +702,7 @@ namespace CodePlex.JPMikkers.TFTP
         {
             StringBuilder sb = new StringBuilder();
             int c = s.ReadByte();
-            while (c != 0)
+            while(c != 0)
             {
                 sb.Append((char)c);
                 c = s.ReadByte();
@@ -746,7 +721,7 @@ namespace CodePlex.JPMikkers.TFTP
         private static Mode ReadMode(Stream s)
         {
             Mode result;
-            switch (ReadZString(s).ToLower())
+            switch(ReadZString(s).ToLower())
             {
                 case "netascii":
                     result = Mode.NetAscii;

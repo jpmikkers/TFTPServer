@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceProcess;
-using System.Text;
-using System.Reflection;
-using System.Windows.Forms;
 using System.Diagnostics;
-using System.Security;
-using System.Security.Principal;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Security.Principal;
+using System.ServiceProcess;
+using System.Windows.Forms;
 
 namespace TFTPServerApp
 {
@@ -32,7 +29,7 @@ namespace TFTPServerApp
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
-        private static bool RunElevated(string fileName,string args)
+        private static bool RunElevated(string fileName, string args)
         {
             ProcessStartInfo processInfo = new ProcessStartInfo();
             processInfo.Verb = "runas";
@@ -43,7 +40,7 @@ namespace TFTPServerApp
                 Process.Start(processInfo);
                 return true;
             }
-            catch (Exception)
+            catch(Exception)
             {
                 //Do nothing. Probably the user canceled the UAC window
             }
@@ -57,7 +54,7 @@ namespace TFTPServerApp
 
         private static void Install()
         {
-            if (!HasAdministrativeRight())
+            if(!HasAdministrativeRight())
             {
                 RunElevated(Switch_Install);
                 return;
@@ -73,7 +70,7 @@ namespace TFTPServerApp
                     Installer.Install(null);
                     Installer.Commit(null);
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     System.Diagnostics.Trace.WriteLine($"Exception: {ex}");
                 }
@@ -82,7 +79,7 @@ namespace TFTPServerApp
 
         private static void Uninstall()
         {
-            if (!HasAdministrativeRight())
+            if(!HasAdministrativeRight())
             {
                 RunElevated(Switch_Uninstall);
                 return;
@@ -97,7 +94,7 @@ namespace TFTPServerApp
                     Installer.UseNewContext = true;
                     Installer.Uninstall(null);
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     System.Diagnostics.Trace.WriteLine($"Exception: {ex}");
                 }
@@ -110,7 +107,7 @@ namespace TFTPServerApp
         [STAThread]
         static void Main(string[] args)
         {
-            if (args.Length > 0 && args[0].ToLower() == Switch_Service)
+            if(args.Length > 0 && args[0].ToLower() == Switch_Service)
             {
                 ServiceBase.Run(new ServiceBase[] { new TFTPService() });
             }
@@ -119,13 +116,13 @@ namespace TFTPServerApp
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
-                if (args.Length == 0)
+                if(args.Length == 0)
                 {
                     ServiceController serviceController = ServiceController.GetServices().FirstOrDefault(x => x.ServiceName == "TFTPServer");
 
-                    if (serviceController == null)
+                    if(serviceController == null)
                     {
-                        if (MessageBox.Show("Service has not been installed yet, install?", "TFTP Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        if(MessageBox.Show("Service has not been installed yet, install?", "TFTP Server", MessageBoxButtons.YesNo) == DialogResult.Yes)
                         {
                             Install();
                         }
@@ -137,7 +134,7 @@ namespace TFTPServerApp
                 }
                 else
                 {
-                    switch (args[0].ToLower())
+                    switch(args[0].ToLower())
                     {
                         case Switch_Install:
                             Install();

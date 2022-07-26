@@ -1,27 +1,4 @@
-﻿/*
-
-Copyright (c) 2010 Jean-Paul Mikkers
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -44,20 +21,20 @@ namespace CodePlex.JPMikkers.TFTP
         private bool _disposed;                            // true => object is disposed
         private readonly object _sync = new object();      // Synchronizing object
 
-        private OnReceiveDelegate _onReceive;
-        private OnStopDelegate _onStop;
+        private readonly OnReceiveDelegate _onReceive;
+        private readonly OnStopDelegate _onStop;
 
-        private bool _IPv6;                                // true => it's an IPv6 connection
-        private Socket _socket;                            // The active socket
+        private readonly bool _IPv6;                                // true => it's an IPv6 connection
+        private readonly Socket _socket;                            // The active socket
 
-        private Queue<PacketBuffer> _sendFifo;             // queue of the outgoing packets
+        private readonly Queue<PacketBuffer> _sendFifo;             // queue of the outgoing packets
         private bool _sendPending;                         // true => an asynchronous send is in progress
         private int _receivePending;
 
-        private AutoPumpQueue<PacketBuffer> _receiveFifo;  // queue of the incoming packets
-        private int _packetSize;                           // size of packets we'll try to receive
+        private readonly AutoPumpQueue<PacketBuffer> _receiveFifo;  // queue of the incoming packets
+        private readonly int _packetSize;                           // size of packets we'll try to receive
 
-        private EndPoint _localEndPoint;
+        private readonly EndPoint _localEndPoint;
 
         private class PacketBuffer
         {
@@ -77,7 +54,7 @@ namespace CodePlex.JPMikkers.TFTP
         {
             get
             {
-                lock (_sync)
+                lock(_sync)
                 {
                     return _sendPending || _sendFifo.Count > 0;
                 }
@@ -107,12 +84,12 @@ namespace CodePlex.JPMikkers.TFTP
                 {
                     bool isDisposed = false;
 
-                    lock (_sync)
+                    lock(_sync)
                     {
                         isDisposed = _disposed;
                     }
 
-                    if (!isDisposed)
+                    if(!isDisposed)
                     {
                         _onReceive(this, (IPEndPoint)data.EndPoint, data.Data);
                     }
@@ -126,8 +103,8 @@ namespace CodePlex.JPMikkers.TFTP
             _socket = new Socket(localEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
             _socket.SendBufferSize = 65536;
             _socket.ReceiveBufferSize = 65536;
-            if (!_IPv6) _socket.DontFragment = dontFragment;
-            if (ttl >= 0)
+            if(!_IPv6) _socket.DontFragment = dontFragment;
+            if(ttl >= 0)
             {
                 _socket.Ttl = ttl;
             }
@@ -170,16 +147,16 @@ namespace CodePlex.JPMikkers.TFTP
         {
             try
             {
-                lock (_sync)
+                lock(_sync)
                 {
-                    if (!_disposed)
+                    if(!_disposed)
                     {
                         _sendFifo.Enqueue(new PacketBuffer(endPoint, msg));
                         BeginSend();
                     }
                 }
             }
-            catch (Exception e)
+            catch(Exception e)
             {
                 Stop(e);
             }
@@ -206,9 +183,9 @@ namespace CodePlex.JPMikkers.TFTP
         {
             bool notifyStop = false;
 
-            lock (_sync)
+            lock(_sync)
             {
-                if (!_disposed)
+                if(!_disposed)
                 {
                     notifyStop = true;
                     _disposed = true;
@@ -218,14 +195,14 @@ namespace CodePlex.JPMikkers.TFTP
                         _socket.Shutdown(SocketShutdown.Both);
                         _socket.Close();
                     }
-                    catch (Exception)
+                    catch(Exception)
                     {
                         // socket tends to complain a lot during close. just eat those exceptions.
                     }
                 }
             }
 
-            if (notifyStop)
+            if(notifyStop)
             {
                 _onStop(this, reason);
             }
@@ -236,11 +213,11 @@ namespace CodePlex.JPMikkers.TFTP
         /// </summary>
         private void BeginSend()
         {
-            lock (_sync)
+            lock(_sync)
             {
-                if (!_disposed && !_sendPending)
+                if(!_disposed && !_sendPending)
                 {
-                    if (_sendFifo.Count > 0)
+                    if(_sendFifo.Count > 0)
                     {
                         _sendPending = true;   // !! MUST BE DONE BEFORE CALLING BEGINSEND. Sometimes beginsend will call the SendDone routine synchronously!!
                         PacketBuffer sendPacket = _sendFifo.Dequeue();
@@ -249,7 +226,7 @@ namespace CodePlex.JPMikkers.TFTP
                         {
                             _socket.BeginSendTo(sendPacket.Data.Array, sendPacket.Data.Offset, sendPacket.Data.Count, SocketFlags.None, sendPacket.EndPoint, new AsyncCallback(SendDone), sendPacket);
                         }
-                        catch (Exception)
+                        catch(Exception)
                         {
                             // don't care about any exceptions here because the TFTP protocol will take care of retrying to send the packet
                         }
@@ -268,15 +245,15 @@ namespace CodePlex.JPMikkers.TFTP
         /// <param name="ar">Represents the status of an asynchronous operation</param>
         private void SendDone(IAsyncResult ar)
         {
-            lock (_sync)
+            lock(_sync)
             {
-                if (!_disposed)
+                if(!_disposed)
                 {
                     try
                     {
                         _socket.EndSendTo(ar);
                     }
-                    catch (Exception)
+                    catch(Exception)
                     {
                         // don't care about any exceptions here because the TFTP protocol will take care of retrying to send the packet
                     }
@@ -292,7 +269,7 @@ namespace CodePlex.JPMikkers.TFTP
         private void BeginReceive()
         {
             // just one pending receive for now. Anything more causes packet reordering at ReceiveDone (even on loopback connections) which doesn't feel right.
-            while (_receivePending < 1)
+            while(_receivePending < 1)
             {
                 _receivePending++;
                 PacketBuffer receivePacket = new PacketBuffer(new IPEndPoint(_IPv6 ? IPAddress.IPv6Any : IPAddress.Any, 0), new ArraySegment<byte>(new byte[_packetSize], 0, _packetSize));
@@ -308,9 +285,9 @@ namespace CodePlex.JPMikkers.TFTP
         {
             try
             {
-                lock (_sync)
+                lock(_sync)
                 {
-                    if (!_disposed)
+                    if(!_disposed)
                     {
                         try
                         {
@@ -329,9 +306,9 @@ namespace CodePlex.JPMikkers.TFTP
                             // BeginReceive should check state again because Stop() could have been called synchronously at NotifyReceive()
                             BeginReceive();
                         }
-                        catch (SocketException e)
+                        catch(SocketException e)
                         {
-                            switch (e.SocketErrorCode)
+                            switch(e.SocketErrorCode)
                             {
                                 case SocketError.ConnectionReset:
                                     // ConnectionReset is reported when the remote port wasn't listening.
@@ -353,17 +330,17 @@ namespace CodePlex.JPMikkers.TFTP
                     }
                 }
             }
-            catch (Exception e)
+            catch(Exception e)
             {
                 // it's only safe to Stop() the socket if this method wasn't called recursively (because in that case the lock will be taken!)
                 // rethrow the exception until the stack unwinds to the top-level ReceiveDone.
-                if (ar.CompletedSynchronously) throw; else Stop(e);
+                if(ar.CompletedSynchronously) throw; else Stop(e);
             }
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if(disposing)
             {
                 Stop(null);
             }

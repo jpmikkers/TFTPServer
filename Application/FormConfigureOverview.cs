@@ -1,21 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using CodePlex.JPMikkers.TFTP;
 using System.Reflection;
-using System.IO;
+using System.Windows.Forms;
 
 namespace TFTPServerApp
 {
     public partial class FormConfigureOverview : Form
     {
-        private string _configurationPath;
-        private TFTPServerConfigurationList _configurationList;
+        private readonly string _configurationPath;
+        private readonly TFTPServerConfigurationList _configurationList;
 
         public FormConfigureOverview(string configurationPath)
         {
@@ -29,7 +25,7 @@ namespace TFTPServerApp
 
         private void dataGridView1_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if ((dataGridView1.Rows[e.RowIndex].DataBoundItem != null) &&
+            if((dataGridView1.Rows[e.RowIndex].DataBoundItem != null) &&
                 (dataGridView1.Columns[e.ColumnIndex].DataPropertyName.Contains(".")))
             {
                 e.Value = BindProperty(dataGridView1.Rows[e.RowIndex].DataBoundItem,
@@ -44,7 +40,7 @@ namespace TFTPServerApp
         {
             string retValue = "";
 
-            if (propertyName.Contains("."))
+            if(propertyName.Contains("."))
             {
                 PropertyInfo[] arrayProperties;
                 string leftPropertyName;
@@ -52,9 +48,9 @@ namespace TFTPServerApp
                 leftPropertyName = propertyName.Substring(0, propertyName.IndexOf("."));
                 arrayProperties = property.GetType().GetProperties();
 
-                foreach (PropertyInfo propertyInfo in arrayProperties)
+                foreach(PropertyInfo propertyInfo in arrayProperties)
                 {
-                    if (propertyInfo.Name == leftPropertyName)
+                    if(propertyInfo.Name == leftPropertyName)
                     {
                         retValue = BindProperty(
                           propertyInfo.GetValue(property, null),
@@ -79,7 +75,7 @@ namespace TFTPServerApp
         private void buttonAdd_Click(object sender, EventArgs e)
         {
             TFTPServerConfiguration result = EditConfiguration(new TFTPServerConfiguration());
-            if (result != null)
+            if(result != null)
             {
                 _configurationList.Add(result);
                 SelectRow(_configurationList.Count - 1);
@@ -89,17 +85,17 @@ namespace TFTPServerApp
 
         private void buttonRemove_Click(object sender, EventArgs e)
         {
-            var rowsToRemove = new List<int>( dataGridView1.SelectedRows.Cast<DataGridViewRow>().OrderByDescending(x => x.Index).Select(x => x.Index) );
+            var rowsToRemove = new List<int>(dataGridView1.SelectedRows.Cast<DataGridViewRow>().OrderByDescending(x => x.Index).Select(x => x.Index));
             int currentIndex = dataGridView1.CurrentRow.Index;
 
-            foreach (int x in rowsToRemove)
+            foreach(int x in rowsToRemove)
             {
-                if (currentIndex == x && currentIndex>0)
+                if(currentIndex == x && currentIndex > 0)
                 {
                     currentIndex--;
                     SelectRow(currentIndex);
                 }
-                
+
                 _configurationList.RemoveAt(x);
             }
 
@@ -134,7 +130,7 @@ namespace TFTPServerApp
 
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (dataGridView1.Columns[e.ColumnIndex] == ColumnRootPath)
+            if(dataGridView1.Columns[e.ColumnIndex] == ColumnRootPath)
             {
                 System.Diagnostics.Process.Start(_configurationList[e.RowIndex].RootPath);
             }
@@ -142,7 +138,7 @@ namespace TFTPServerApp
 
         private void SelectRow(int index)
         {
-            if (index >= 0 && index < dataGridView1.Rows.Count)
+            if(index >= 0 && index < dataGridView1.Rows.Count)
             {
                 dataGridView1.ClearSelection();
                 DataGridViewRow rowToSelect = dataGridView1.Rows[index];
@@ -154,12 +150,12 @@ namespace TFTPServerApp
 
         private void EditConfiguration(int index)
         {
-            if (index >= 0 && index < _configurationList.Count)
+            if(index >= 0 && index < _configurationList.Count)
             {
                 TFTPServerConfiguration result = EditConfiguration(_configurationList[index]);
-                if (result != null)
+                if(result != null)
                 {
-                    _configurationList.Insert(index,result);
+                    _configurationList.Insert(index, result);
                     _configurationList.RemoveAt(index + 1);
                 }
             }
@@ -171,8 +167,8 @@ namespace TFTPServerApp
             f.Configuration = input;
 
             DialogResult dialogResult = f.ShowDialog(this);
-            while(dialogResult == DialogResult.OK && 
-                _configurationList.Any(x => (x!=input && x.EndPoint.Address == f.Configuration.EndPoint.Address && x.EndPoint.Port == f.Configuration.EndPoint.Port)))
+            while(dialogResult == DialogResult.OK &&
+                _configurationList.Any(x => (x != input && x.EndPoint.Address == f.Configuration.EndPoint.Address && x.EndPoint.Port == f.Configuration.EndPoint.Port)))
             {
                 MessageBox.Show($"There already is a configuration for address {f.Configuration.EndPoint.Address}, port {f.Configuration.EndPoint.Port}.\r\nPlease select another endpoint.", "Validation error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 dialogResult = f.ShowDialog(this);

@@ -1,30 +1,7 @@
-﻿/*
-
-Copyright (c) 2010 Jean-Paul Mikkers
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-*/
+﻿using CodePlex.JPMikkers.TFTP;
 using System;
 using System.Diagnostics;
 using System.Threading;
-using CodePlex.JPMikkers.TFTP;
 
 namespace TFTPServerApp
 {
@@ -33,11 +10,11 @@ namespace TFTPServerApp
         private const int RetryTime = 30000;
         private readonly object _lock;
         private bool _disposed;
-        private TFTPServerConfiguration _config;
-        private EventLog _eventLog;
+        private readonly TFTPServerConfiguration _config;
+        private readonly EventLog _eventLog;
 
         private TFTPServer _server;
-        private Timer _retryTimer;
+        private readonly Timer _retryTimer;
 
         public TFTPServerResurrector(TFTPServerConfiguration config, EventLog eventLog)
         {
@@ -58,7 +35,7 @@ namespace TFTPServerApp
         {
             get
             {
-                lock (_lock)
+                lock(_lock)
                 {
                     return _server;
                 }
@@ -67,9 +44,9 @@ namespace TFTPServerApp
 
         private void Resurrect()
         {
-            lock (_lock)
+            lock(_lock)
             {
-                if (!_disposed)
+                if(!_disposed)
                 {
                     try
                     {
@@ -99,7 +76,7 @@ namespace TFTPServerApp
                         _server.OnTrace += server_OnTrace;
                         _server.Start();
                     }
-                    catch (Exception)
+                    catch(Exception)
                     {
                         CleanupAndRetry();
                     }
@@ -109,25 +86,25 @@ namespace TFTPServerApp
 
         private void Log(EventLogEntryType entryType, string msg)
         {
-            _eventLog.WriteEntry($"{_config.Name} : {msg}",entryType);
+            _eventLog.WriteEntry($"{_config.Name} : {msg}", entryType);
         }
 
         private void server_OnTrace(object sender, TFTPTraceEventArgs e)
         {
-            Log(EventLogEntryType.Information,e.Message);
+            Log(EventLogEntryType.Information, e.Message);
         }
 
         private void server_OnStatusChange(object sender, TFTPStopEventArgs e)
         {
             TFTPServer server = (TFTPServer)sender;
 
-            if (server.Active)
+            if(server.Active)
             {
                 Log(EventLogEntryType.Information, $"{server.ActiveTransfers} transfers in progress");
             }
             else
             {
-                if (e.Reason != null)
+                if(e.Reason != null)
                 {
                     Log(EventLogEntryType.Error, $"Stopped, reason: {e.Reason}");
                 }
@@ -137,12 +114,12 @@ namespace TFTPServerApp
 
         private void CleanupAndRetry()
         {
-            lock (_lock)
+            lock(_lock)
             {
-                if (!_disposed)
+                if(!_disposed)
                 {
                     // stop server
-                    if (_server != null)
+                    if(_server != null)
                     {
                         _server.OnStatusChange -= server_OnStatusChange;
                         _server.OnTrace -= server_OnTrace;
@@ -157,16 +134,16 @@ namespace TFTPServerApp
 
         protected void Dispose(bool disposing)
         {
-            lock (_lock)
+            lock(_lock)
             {
-                if (!_disposed)
+                if(!_disposed)
                 {
                     _disposed = true;
 
                     _retryTimer.Change(Timeout.Infinite, Timeout.Infinite);
                     _retryTimer.Dispose();
 
-                    if (_server != null)
+                    if(_server != null)
                     {
                         _server.OnStatusChange -= server_OnStatusChange;
                         _server.Dispose();

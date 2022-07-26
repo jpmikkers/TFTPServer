@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ServiceModel;
-using System.ServiceModel.Description;
-using System.Runtime.Serialization;
 using System.Net;
-using CodePlex.JPMikkers.TFTP;
+using System.Runtime.Serialization;
+using System.ServiceModel;
 
 namespace TFTPServerApp
 {
@@ -53,7 +49,7 @@ namespace TFTPServerApp
 
         [DataMember]
         public TFTPLogState State;
-        
+
         [DataMember]
         public long Transferred;
 
@@ -77,7 +73,7 @@ namespace TFTPServerApp
         {
             TFTPLogState result;
 
-            switch (state)
+            switch(state)
             {
                 case CodePlex.JPMikkers.TFTP.SessionLogEntry.TState.Busy:
                     result = TFTPLogState.Busy;
@@ -99,17 +95,17 @@ namespace TFTPServerApp
         {
             List<TFTPLogEntry> result = new List<TFTPLogEntry>();
 
-            foreach (var server in TFTPService.Instance.GetServers())
+            foreach(var server in TFTPService.Instance.GetServers())
             {
-                if (server!=null)
+                if(server != null)
                 {
-                    foreach (var item in server.SessionLog.GetHistory())
+                    foreach(var item in server.SessionLog.GetHistory())
                     {
                         result.Add(
                             new TFTPLogEntry()
                             {
                                 Id = item.Id,
-                                ErrorMessage = item.Exception!=null ? item.Exception.Message : "",
+                                ErrorMessage = item.Exception != null ? item.Exception.Message : "",
                                 FileLength = item.Configuration.FileLength,
                                 Filename = item.Configuration.Filename,
                                 IsUpload = item.Configuration.IsUpload,
@@ -125,7 +121,7 @@ namespace TFTPServerApp
                     }
                 }
             }
-            
+
             return result;
         }
     }
