@@ -24,6 +24,8 @@ See [Screenshots](docs/Screenshots.md).
 ## Tested clients
 
 The server has been successfully tested with the following clients:
+* my multiplatform graphical desktop TFTP client: [Avalonia-TFTPClient](https://github.com/jpmikkers/Avalonia-TFTPClient)
+* my TFTP client library [TFTPClient](https://github.com/jpmikkers/TFTPClient)
 * windows 7 TFTP
 * Win32: [TFTPD32](http://tftpd32.jounin.net/) by Philippe Jounin
 * ubuntu/linux Advanced TFTP client, [ATFTP](http://www.ubuntugeek.com/howto-setup-advanced-tftp-server-in-ubuntu.html)
@@ -33,6 +35,7 @@ The server has been successfully tested with the following clients:
 
 ## Tested platforms (so far)
 
+* 64 bit Windows 11
 * 64 bit Windows 10
 * 64 bit Windows 7
 * 32 bit Windows XP
