@@ -1,78 +1,76 @@
-﻿using System.Collections.Generic;
+﻿namespace Baksteen.Net.TFTP.Server;
+using System.Collections.Generic;
 using System.Threading;
 
-namespace CodePlex.JPMikkers.TFTP
+public class AutoPumpQueue<T>
 {
-    public class AutoPumpQueue<T>
+    public delegate void DataDelegate(AutoPumpQueue<T> sender, T data);
+
+    private readonly object _queueSync = new object();
+    private readonly object _dispatchSync = new object();
+    private readonly Queue<T> _queue;
+    private readonly DataDelegate _dataDelegate;
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    public AutoPumpQueue(DataDelegate dataDelegate)
     {
-        public delegate void DataDelegate(AutoPumpQueue<T> sender, T data);
+        _queue = new Queue<T>();
+        _dataDelegate = dataDelegate;
+    }
 
-        private readonly object _queueSync = new object();
-        private readonly object _dispatchSync = new object();
-        private readonly Queue<T> _queue;
-        private readonly DataDelegate _dataDelegate;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        public AutoPumpQueue(DataDelegate dataDelegate)
+    private void WaitCallback(object state)
+    {
+        lock(_dispatchSync)    // ensures individual invokes are serialized
         {
-            _queue = new Queue<T>();
-            _dataDelegate = dataDelegate;
-        }
+            bool empty = false;
+            T data = default(T);
 
-        private void WaitCallback(object state)
-        {
-            lock(_dispatchSync)    // ensures individual invokes are serialized
+            while(!empty)
             {
-                bool empty = false;
-                T data = default(T);
-
-                while(!empty)
+                lock(_queueSync)
                 {
-                    lock(_queueSync)
+                    if(_queue.Count == 0)
                     {
-                        if(_queue.Count == 0)
-                        {
-                            // no data
-                            empty = true;
-                        }
-                        else
-                        {
-                            // there are commands;
-                            data = _queue.Dequeue();
-                            empty = false;
-                        }
+                        // no data
+                        empty = true;
                     }
-
-                    if(!empty)
+                    else
                     {
-                        try
-                        {
-                            _dataDelegate(this, data);
-                        }
-                        catch
-                        {
-                        }
+                        // there are commands;
+                        data = _queue.Dequeue();
+                        empty = false;
+                    }
+                }
+
+                if(!empty)
+                {
+                    try
+                    {
+                        _dataDelegate(this, data);
+                    }
+                    catch
+                    {
                     }
                 }
             }
         }
+    }
 
-        public void Enqueue(T data)
+    public void Enqueue(T data)
+    {
+        bool queueWasEmpty;
+
+        lock(_queueSync)
         {
-            bool queueWasEmpty;
+            queueWasEmpty = (_queue.Count == 0);
+            _queue.Enqueue(data);
+        }
 
-            lock(_queueSync)
-            {
-                queueWasEmpty = (_queue.Count == 0);
-                _queue.Enqueue(data);
-            }
-
-            if(queueWasEmpty)
-            {
-                ThreadPool.QueueUserWorkItem(WaitCallback);
-            }
+        if(queueWasEmpty)
+        {
+            ThreadPool.QueueUserWorkItem(WaitCallback);
         }
     }
 }

@@ -1,260 +1,258 @@
-﻿using System;
+﻿namespace Baksteen.Net.TFTP.Server;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
 
-namespace CodePlex.JPMikkers.TFTP
+internal abstract class TFTPSession : ITFTPSession
 {
-    internal abstract class TFTPSession : ITFTPSession
+    protected volatile bool _disposed = false;
+    private readonly Timer _timer;
+    private readonly int _responseTimeout;
+    protected object _lock = new object();
+    protected SessionLog.ISession _sessionLog;
+    protected TFTPServer _parent;
+    protected Stream _stream;
+    protected UDPSocket _socket;
+    protected bool _ownSocket;
+    protected IPEndPoint _localEndPoint;
+    protected IPEndPoint _remoteEndPoint;
+    protected int _socketDisposeDelay;
+    protected long _length;
+    protected int _currentBlockSize;
+    protected bool _lastBlock;
+    protected ushort _blockNumber;
+    protected ushort _blockRetry;
+    protected Dictionary<string, string> _requestedOptions;
+    protected string _filename;
+    protected Dictionary<string, string> _acceptedOptions = new Dictionary<string, string>();
+
+    public IPEndPoint LocalEndPoint
     {
-        protected volatile bool _disposed = false;
-        private readonly Timer _timer;
-        private readonly int _responseTimeout;
-        protected object _lock = new object();
-        protected SessionLog.ISession _sessionLog;
-        protected TFTPServer _parent;
-        protected Stream _stream;
-        protected UDPSocket _socket;
-        protected bool _ownSocket;
-        protected IPEndPoint _localEndPoint;
-        protected IPEndPoint _remoteEndPoint;
-        protected int _socketDisposeDelay;
-        protected long _length;
-        protected int _currentBlockSize;
-        protected bool _lastBlock;
-        protected ushort _blockNumber;
-        protected ushort _blockRetry;
-        protected Dictionary<string, string> _requestedOptions;
-        protected string _filename;
-        protected Dictionary<string, string> _acceptedOptions = new Dictionary<string, string>();
-
-        public IPEndPoint LocalEndPoint
+        get
         {
-            get
-            {
-                return _localEndPoint;
-            }
+            return _localEndPoint;
         }
+    }
 
-        public IPEndPoint RemoteEndPoint
+    public IPEndPoint RemoteEndPoint
+    {
+        get
         {
-            get
-            {
-                return _remoteEndPoint;
-            }
+            return _remoteEndPoint;
         }
+    }
 
-        public string Filename
+    public string Filename
+    {
+        get
         {
-            get
-            {
-                return _filename;
-            }
+            return _filename;
         }
+    }
 
-        private void OnTimer(object state)
+    private void OnTimer(object state)
+    {
+        bool notify = false;
+
+        lock(_lock)
         {
-            bool notify = false;
-
-            lock(_lock)
+            if(!_disposed)
             {
-                if(!_disposed)
+                if(_blockRetry < _parent._maxRetries)
                 {
-                    if(_blockRetry < _parent._maxRetries)
-                    {
-                        _blockRetry++;
-                        SendResponse();
-                    }
-                    else
-                    {
-                        TFTPServer.SendError(_socket, _remoteEndPoint, TFTPServer.ErrorCode.Undefined, "Timeout");
-                        notify = true;
-                    }
+                    _blockRetry++;
+                    SendResponse();
                 }
-            }
-
-            if(notify)
-            {
-                Stop(true, new TimeoutException("Remote side didn't respond in time"));
-            }
-        }
-
-        protected void StartTimer()
-        {
-            _timer.Change(_responseTimeout, Timeout.Infinite);
-        }
-
-        protected void StopTimer()
-        {
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
-        }
-
-        public TFTPSession(TFTPServer parent, UDPSocket socket, IPEndPoint remoteEndPoint, Dictionary<string, string> requestedOptions, string filename, UDPSocket.OnReceiveDelegate onReceive, int socketDisposeDelay)
-        {
-            _parent = parent;
-            _currentBlockSize = TFTPServer.DefaultBlockSize;
-            _responseTimeout = _parent._responseTimeout;
-            _remoteEndPoint = remoteEndPoint;
-            _timer = new Timer(new System.Threading.TimerCallback(OnTimer), this, Timeout.Infinite, Timeout.Infinite);
-            _requestedOptions = requestedOptions;
-            _filename = filename;
-            _socketDisposeDelay = socketDisposeDelay;
-
-            _length = 0;
-            _lastBlock = false;
-            _blockNumber = 0;
-            _blockRetry = 0;
-
-            foreach(var kvp in _requestedOptions)
-            {
-                switch(kvp.Key)
+                else
                 {
-                    case TFTPServer.Option_Multicast:
-                        // not supported
-                        break;
-
-                    case TFTPServer.Option_Timeout:
-                        //Console.WriteLine("Timeout of {0}", kvp.Value);
-                        int requestedTimeout = int.Parse(kvp.Value);
-                        // rfc2349 : valid values range between "1" and "255" seconds
-                        if(requestedTimeout >= 1 && requestedTimeout <= 255)
-                        {
-                            _responseTimeout = requestedTimeout * 1000;
-                            _acceptedOptions.Add(TFTPServer.Option_Timeout, kvp.Value);
-                        }
-                        break;
-
-                    case TFTPServer.Option_TransferSize:
-                        // handled in inherited classes
-                        break;
-
-                    case TFTPServer.Option_BlockSize:
-                        //Console.WriteLine("Blocksize of {0}", kvp.Value);
-                        int requestedBlockSize = int.Parse(kvp.Value);
-                        // rfc2348 : valid values range between "8" and "65464" octets, inclusive
-                        if(requestedBlockSize >= 8 && requestedBlockSize <= 65464)
-                        {
-                            _currentBlockSize = Math.Min(TFTPServer.MaxBlockSize, requestedBlockSize);
-                            _acceptedOptions.Add(TFTPServer.Option_BlockSize, _currentBlockSize.ToString());
-                        }
-                        break;
-                }
-            }
-
-            if(socket != null)
-            {
-                _ownSocket = false;
-                _socket = socket;
-            }
-            else
-            {
-                _ownSocket = true;
-                _socket = new UDPSocket(
-                    new IPEndPoint(_parent._serverEndPoint.Address, 0),
-                    _currentBlockSize + 4,
-                    _parent._dontFragment,
-                    _parent._Ttl,
-                    onReceive,
-                    (sender, reason) => { Stop(true, reason); });
-            }
-            _localEndPoint = (IPEndPoint)_socket.LocalEndPoint;
-        }
-
-        protected void Stop(bool dally, Exception reason)
-        {
-            bool notify = false;
-
-            lock(_lock)
-            {
-                if(!_disposed)
-                {
-                    if(_sessionLog != null)
-                    {
-                        _sessionLog.Stop(reason);
-                    }
-
-                    _disposed = true;
-                    _timer.Change(Timeout.Infinite, Timeout.Infinite);
-                    _timer.Dispose();
-
-                    if(_ownSocket)
-                    {
-                        if(_socket != null)
-                        {
-                            if(dally && _socket.SendPending)
-                            {
-                                DelayedDisposer.QueueDelayedDispose(_socket, _socketDisposeDelay);
-                            }
-                            else
-                            {
-                                _socket.Dispose();
-                            }
-                        }
-                    }
-
-                    if(_stream != null)
-                    {
-                        if(_stream.CanWrite) _stream.Flush();
-                        _stream.Close();
-                        _stream = null;
-                    }
-
+                    TFTPServer.SendError(_socket, _remoteEndPoint, TFTPServer.ErrorCode.Undefined, "Timeout");
                     notify = true;
                 }
             }
+        }
 
-            if(notify)
+        if(notify)
+        {
+            Stop(true, new TimeoutException("Remote side didn't respond in time"));
+        }
+    }
+
+    protected void StartTimer()
+    {
+        _timer.Change(_responseTimeout, Timeout.Infinite);
+    }
+
+    protected void StopTimer()
+    {
+        _timer.Change(Timeout.Infinite, Timeout.Infinite);
+    }
+
+    public TFTPSession(TFTPServer parent, UDPSocket socket, IPEndPoint remoteEndPoint, Dictionary<string, string> requestedOptions, string filename, UDPSocket.OnReceiveDelegate onReceive, int socketDisposeDelay)
+    {
+        _parent = parent;
+        _currentBlockSize = TFTPServer.DefaultBlockSize;
+        _responseTimeout = _parent._responseTimeout;
+        _remoteEndPoint = remoteEndPoint;
+        _timer = new Timer(new System.Threading.TimerCallback(OnTimer), this, Timeout.Infinite, Timeout.Infinite);
+        _requestedOptions = requestedOptions;
+        _filename = filename;
+        _socketDisposeDelay = socketDisposeDelay;
+
+        _length = 0;
+        _lastBlock = false;
+        _blockNumber = 0;
+        _blockRetry = 0;
+
+        foreach(var kvp in _requestedOptions)
+        {
+            switch(kvp.Key)
             {
-                _parent.TransferComplete(this, reason);
+                case TFTPServer.Option_Multicast:
+                    // not supported
+                    break;
+
+                case TFTPServer.Option_Timeout:
+                    //Console.WriteLine("Timeout of {0}", kvp.Value);
+                    int requestedTimeout = int.Parse(kvp.Value);
+                    // rfc2349 : valid values range between "1" and "255" seconds
+                    if(requestedTimeout >= 1 && requestedTimeout <= 255)
+                    {
+                        _responseTimeout = requestedTimeout * 1000;
+                        _acceptedOptions.Add(TFTPServer.Option_Timeout, kvp.Value);
+                    }
+                    break;
+
+                case TFTPServer.Option_TransferSize:
+                    // handled in inherited classes
+                    break;
+
+                case TFTPServer.Option_BlockSize:
+                    //Console.WriteLine("Blocksize of {0}", kvp.Value);
+                    int requestedBlockSize = int.Parse(kvp.Value);
+                    // rfc2348 : valid values range between "8" and "65464" octets, inclusive
+                    if(requestedBlockSize >= 8 && requestedBlockSize <= 65464)
+                    {
+                        _currentBlockSize = Math.Min(TFTPServer.MaxBlockSize, requestedBlockSize);
+                        _acceptedOptions.Add(TFTPServer.Option_BlockSize, _currentBlockSize.ToString());
+                    }
+                    break;
             }
         }
 
-        protected abstract void SendResponse();
-
-        #region ITransferSession Members
-
-        public abstract void Start();
-
-        public void Stop()
+        if(socket != null)
         {
-            Stop(false, new Exception("Parent stopped"));
+            _ownSocket = false;
+            _socket = socket;
         }
-
-        public virtual void ProcessAck(ushort blockNr) { }
-        public virtual void ProcessData(ushort blockNr, ArraySegment<byte> data) { }
-
-        public void ProcessError(ushort code, string msg)
+        else
         {
-            Stop(false, new IOException($"Remote side responded with error code {code}, message '{msg}'"));
+            _ownSocket = true;
+            _socket = new UDPSocket(
+                new IPEndPoint(_parent._serverEndPoint.Address, 0),
+                _currentBlockSize + 4,
+                _parent._dontFragment,
+                _parent._Ttl,
+                onReceive,
+                (sender, reason) => { Stop(true, reason); });
         }
+        _localEndPoint = (IPEndPoint)_socket.LocalEndPoint;
+    }
 
-        #endregion
+    protected void Stop(bool dally, Exception reason)
+    {
+        bool notify = false;
 
-        ~TFTPSession()
+        lock(_lock)
         {
-            try
+            if(!_disposed)
             {
-                Dispose(false);
-            }
-            catch
-            {
-                // never let any exception escape the finalizer, or else your process will be killed.
+                if(_sessionLog != null)
+                {
+                    _sessionLog.Stop(reason);
+                }
+
+                _disposed = true;
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
+                _timer.Dispose();
+
+                if(_ownSocket)
+                {
+                    if(_socket != null)
+                    {
+                        if(dally && _socket.SendPending)
+                        {
+                            DelayedDisposer.QueueDelayedDispose(_socket, _socketDisposeDelay);
+                        }
+                        else
+                        {
+                            _socket.Dispose();
+                        }
+                    }
+                }
+
+                if(_stream != null)
+                {
+                    if(_stream.CanWrite) _stream.Flush();
+                    _stream.Close();
+                    _stream = null;
+                }
+
+                notify = true;
             }
         }
 
-        protected virtual void Dispose(bool disposing)
+        if(notify)
         {
-            if(disposing)
-            {
-                Stop(disposing, null);
-            }
+            _parent.TransferComplete(this, reason);
         }
+    }
 
-        public void Dispose()
+    protected abstract void SendResponse();
+
+    #region ITransferSession Members
+
+    public abstract void Start();
+
+    public void Stop()
+    {
+        Stop(false, new Exception("Parent stopped"));
+    }
+
+    public virtual void ProcessAck(ushort blockNr) { }
+    public virtual void ProcessData(ushort blockNr, ArraySegment<byte> data) { }
+
+    public void ProcessError(ushort code, string msg)
+    {
+        Stop(false, new IOException($"Remote side responded with error code {code}, message '{msg}'"));
+    }
+
+    #endregion
+
+    ~TFTPSession()
+    {
+        try
         {
-            GC.SuppressFinalize(this);
-            Dispose(true);
+            Dispose(false);
         }
+        catch
+        {
+            // never let any exception escape the finalizer, or else your process will be killed.
+        }
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if(disposing)
+        {
+            Stop(disposing, null);
+        }
+    }
+
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+        Dispose(true);
     }
 }
