@@ -1,44 +1,43 @@
 ﻿using System;
 using System.Net;
 
-namespace CodePlex.JPMikkers.TFTP
+namespace CodePlex.JPMikkers.TFTP;
+
+public class TFTPTraceEventArgs : EventArgs
 {
-    public class TFTPTraceEventArgs : EventArgs
-    {
-        public string Message { get; set; }
-    }
+    public string Message { get; set; }
+}
 
-    public class TFTPStopEventArgs : EventArgs
-    {
-        public Exception Reason { get; set; }
-    }
+public class TFTPStopEventArgs : EventArgs
+{
+    public Exception Reason { get; set; }
+}
 
-    public interface ITFTPServer : IDisposable
-    {
-        event EventHandler<TFTPTraceEventArgs> OnTrace;
-        event EventHandler<TFTPStopEventArgs> OnStatusChange;
+public interface ITFTPServer : IDisposable
+{
+    event EventHandler<TFTPTraceEventArgs> OnTrace;
+    event EventHandler<TFTPStopEventArgs> OnStatusChange;
 
-        string Name { get; set; }
-        IPEndPoint EndPoint { get; set; }
-        bool SinglePort { get; set; }
-        short Ttl { get; set; }
-        bool DontFragment { get; set; }
+    string Name { get; set; }
+    IPEndPoint EndPoint { get; set; }
+    bool SinglePort { get; set; }
+    short Ttl { get; set; }
+    bool DontFragment { get; set; }
 
-        int ResponseTimeout { get; set; }
-        int Retries { get; set; }
+    TimeSpan ResponseTimeout { get; set; }
+    int Retries { get; set; }
 
-        string RootPath { get; set; }
-        bool AutoCreateDirectories { get; set; }
-        bool ConvertPathSeparator { get; set; }
-        bool AllowRead { get; set; }
-        bool AllowWrite { get; set; }
+    string RootPath { get; set; }
+    bool AutoCreateDirectories { get; set; }
+    bool ConvertPathSeparator { get; set; }
+    bool AllowRead { get; set; }
+    bool AllowWrite { get; set; }
 
-        ushort WindowSize { get; set; }
+    ushort WindowSize { get; set; }
 
-        bool Active { get; }
-        int ActiveTransfers { get; }
+    bool Active { get; }
+    int ActiveTransfers { get; }
 
-        void Start();
-        void Stop();
-    }
+    void Start();
+    void Stop();
 }

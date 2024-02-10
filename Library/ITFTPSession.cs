@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace CodePlex.JPMikkers.TFTP
+namespace CodePlex.JPMikkers.TFTP;
+
+internal interface ITFTPSession
 {
-    internal interface ITFTPSession : IDisposable
-    {
-        void Start();
-        void Stop();
-        void ProcessAck(ushort blockNr);
-        void ProcessData(ushort blockNr, ArraySegment<byte> data);
-        void ProcessError(ushort code, string msg);
-        IPEndPoint LocalEndPoint { get; }
-        IPEndPoint RemoteEndPoint { get; }
-        string Filename { get; }
-    }
+    IPEndPoint LocalEndPoint { get; }
+    IPEndPoint RemoteEndPoint { get; }
+    string Filename { get; }
+
+    Task Run(CancellationToken cancellationToken);
 }

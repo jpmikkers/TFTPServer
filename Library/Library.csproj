@@ -4,7 +4,7 @@
     <ProjectGuid>{75CBACB4-34BA-4994-BF36-90A86B8F9372}</ProjectGuid>
     <RootNamespace>CodePlex.JPMikkers.TFTP</RootNamespace>
     <AssemblyName>TFTPLibrary</AssemblyName>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <FileUpgradeFlags />
     <UpgradeBackupLocation />
     <PublishUrl>publish\</PublishUrl>
@@ -52,7 +52,4 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</Description>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System.Data.DataSetExtensions" />
-  </ItemGroup>
 </Project>

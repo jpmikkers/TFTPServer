@@ -1,28 +1,27 @@
 ﻿using System.Collections.Generic;
 
-namespace CodePlex.JPMikkers.TFTP
+namespace CodePlex.JPMikkers.TFTP;
+
+public class SimpleMovingAverage
 {
-    public class SimpleMovingAverage
+    private readonly Queue<double> _history;
+    private readonly int _windowSize;
+    private double _sum;
+
+    public SimpleMovingAverage(int windowSize)
     {
-        private readonly Queue<double> _history;
-        private readonly int _windowSize;
-        private double _sum;
+        _history = new Queue<double>();
+        _windowSize = windowSize;
+    }
 
-        public SimpleMovingAverage(int windowSize)
+    public double Add(double v)
+    {
+        if(_history.Count == _windowSize)
         {
-            _history = new Queue<double>();
-            _windowSize = windowSize;
+            _sum -= _history.Dequeue();
         }
-
-        public double Add(double v)
-        {
-            if(_history.Count == _windowSize)
-            {
-                _sum -= _history.Dequeue();
-            }
-            _sum += v;
-            _history.Enqueue(v);
-            return _sum / _history.Count;
-        }
+        _sum += v;
+        _history.Enqueue(v);
+        return _sum / _history.Count;
     }
 }
