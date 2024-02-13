@@ -16,7 +16,7 @@ public partial class TFTPServer
 
         public (bool ownSocket, IUDPSocket socket) CreateSocket(IPEndPoint remoteEndPoint, int packetSize)
         {
-            return _parent._useSinglePort ? 
+            return _parent.SinglePort ? 
                 (
                     false, 
                     _parent._socket.Fork(remoteEndPoint)
@@ -27,8 +27,8 @@ public partial class TFTPServer
                         _parent._udpSocketFactory.Create(
                             new IPEndPoint(_parent._serverEndPoint.Address, 0),
                             packetSize,
-                            _parent._dontFragment,
-                            _parent._Ttl
+                            _parent.DontFragment,
+                            _parent.Ttl
                     ),
                     remoteEndPoint)
                 );

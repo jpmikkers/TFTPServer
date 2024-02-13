@@ -9,7 +9,12 @@ using System.Threading.Tasks;
 
 namespace Baksteen.Net.TFTP.Server;
 
-public partial class TFTPServer : ITFTPServer
+public class TFTPStopEventArgs : EventArgs
+{
+    public Exception? Reason { get; set; }
+}
+
+public partial class TFTPServer : IDisposable
 {
     internal enum ErrorCode : ushort
     {
@@ -44,8 +49,6 @@ public partial class TFTPServer : ITFTPServer
     internal const string Option_Timeout = "timeout";
     internal const string Option_TransferSize = "tsize";
     internal const string Option_BlockSize = "blksize";
-
-    private string _name;
     private readonly ILogger _logger;
     internal readonly IUDPSocketFactory _udpSocketFactory;
     private readonly ITFTPLiveSessionInfoFactory _liveSessionInfoFactory;
@@ -56,15 +59,7 @@ public partial class TFTPServer : ITFTPServer
     internal const int MaxBlockSize = 65464 + 4;
     internal const int DefaultBlockSize = 512;
     internal IPEndPoint _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 69);
-    internal short _Ttl = -1;
-    internal bool _dontFragment = false;
-    internal int _maxRetries = 5;
-    private bool _useSinglePort = false;
     private string _rootPath = ".";
-    private bool _allowRead = true;
-    private bool _allowWrite = true;
-    private bool _autoCreateDirectories = true;
-    private bool _convertPathSeparator = true;
     private ushort _windowSize = 1;
     private readonly List<ConfigurationAlternative> _configurationAlternatives = new List<ConfigurationAlternative>();
     private CancellationTokenSource _cancellationTokenSource = new();
@@ -73,6 +68,94 @@ public partial class TFTPServer : ITFTPServer
     private bool _active = false;
     private Task? _mainTask;
     private readonly Dictionary<IPEndPoint, TFTPSessionRunner> _sessions;
+
+    public event EventHandler<TFTPStopEventArgs?> OnStatusChange = (sender, data) => { };
+
+    public string Name { get; set; }
+
+    public IPEndPoint EndPoint
+    {
+        get
+        {
+            return _serverEndPoint;
+        }
+        set
+        {
+            _serverEndPoint = value;
+        }
+    }
+
+    public bool SinglePort { get; set; } = false;
+
+    public short Ttl { get; set; } = -1;
+
+    public bool DontFragment { get; set; }
+
+    public TimeSpan ResponseTimeout { get; set; } = TimeSpan.FromSeconds(2);
+
+    public int Retries { get; set; } = 5;
+
+    public string RootPath
+    {
+        get
+        {
+            return _rootPath;
+        }
+        set
+        {
+            _rootPath = Path.GetFullPath(value);
+        }
+    }
+
+    public bool AutoCreateDirectories { get; set; } = true;
+
+    public bool ConvertPathSeparator { get; set; } = true;
+
+    public bool AllowRead { get; set; } = true;
+
+    public bool AllowWrite { get; set; } = true;
+
+    public ushort WindowSize
+    {
+        get
+        {
+            return _windowSize;
+        }
+        set
+        {
+            _windowSize = Math.Clamp(value,(ushort)1,(ushort)32);
+        }
+    }
+
+    public IList<ConfigurationAlternative> ConfigurationAlternatives
+    {
+        get
+        {
+            return _configurationAlternatives;
+        }
+    }
+
+    public bool Active
+    {
+        get
+        {
+            lock(_sync)
+            {
+                return _active;
+            }
+        }
+    }
+
+    public int ActiveTransfers
+    {
+        get
+        {
+            lock(_sessions)
+            {
+                return _sessions.Count;
+            }
+        }
+    }
 
     public void Start()
     {
@@ -86,7 +169,7 @@ public partial class TFTPServer : ITFTPServer
 
                     Trace($"Starting TFTP server '{_serverEndPoint}'");
                     _active = true;
-                    _socket = new ForkableUDPSocket(_udpSocketFactory.Create(_serverEndPoint, MaxBlockSize, _dontFragment, _Ttl)); //, OnUDPReceive, OnUDPStop);
+                    _socket = new ForkableUDPSocket(_udpSocketFactory.Create(_serverEndPoint, MaxBlockSize, DontFragment, Ttl)); //, OnUDPReceive, OnUDPStop);
                     Trace($"TFTP Server start succeeded, serving at '{_socket.LocalEndPoint}'");
                     System.Threading.ThreadPool.GetMaxThreads(out maxWorkerThreads, out maxCompletionPortThreads);
                     Trace($"Threadpool maxWorkerThreads={maxWorkerThreads} maxCompletionPortThreads={maxCompletionPortThreads}");
@@ -167,7 +250,7 @@ public partial class TFTPServer : ITFTPServer
                     if(!hasSession)
                     {
                         string filename = ReadZString(ms);
-                        if(_convertPathSeparator) filename = filename.Replace('/', '\\');
+                        if(ConvertPathSeparator) filename = filename.Replace('/', '\\');
                         _ = ReadMode(ms);
                         var requestedOptions = ReadOptions(ms);
                         ushort windowSize = GetWindowSize(filename);
@@ -180,7 +263,7 @@ public partial class TFTPServer : ITFTPServer
                             requestedOptions,
                             filename,
                             ResponseTimeout,
-                            _maxRetries,
+                            Retries,
                             windowSize
                         );
 
@@ -193,7 +276,7 @@ public partial class TFTPServer : ITFTPServer
                     if(!hasSession)
                     {
                         string filename = ReadZString(ms);
-                        if(_convertPathSeparator) filename = filename.Replace('/', '\\');
+                        if(ConvertPathSeparator) filename = filename.Replace('/', '\\');
                         _ = ReadMode(ms);
                         var requestedOptions = ReadOptions(ms);
 
@@ -204,7 +287,7 @@ public partial class TFTPServer : ITFTPServer
                             endPoint,
                             requestedOptions,
                             ResponseTimeout,
-                            _maxRetries,
+                            Retries,
                             filename
                         );
 
@@ -291,7 +374,7 @@ public partial class TFTPServer : ITFTPServer
         IUDPSocketFactory? udpSocketFactory,
         ITFTPLiveSessionInfoFactory? liveSessionInfoFactory)
     {
-        _name = "TFTPServer";
+        Name = "TFTPServer";
         _sessions = [];
         _logger = logger;
         _udpSocketFactory = udpSocketFactory ?? new DefaultUDPSocketFactory();
@@ -357,197 +440,7 @@ public partial class TFTPServer : ITFTPServer
 
     #endregion
 
-    public event EventHandler<TFTPStopEventArgs?> OnStatusChange = (sender, data) => { };
-
-    public string Name
-    {
-        get
-        {
-            return _name;
-        }
-        set
-        {
-            _name = value;
-        }
-    }
-
-    public IPEndPoint EndPoint
-    {
-        get
-        {
-            return _serverEndPoint;
-        }
-        set
-        {
-            _serverEndPoint = value;
-        }
-    }
-
-    public bool SinglePort
-    {
-        get
-        {
-            return _useSinglePort;
-        }
-        set
-        {
-            _useSinglePort = value;
-        }
-    }
-
-    public short Ttl
-    {
-        get
-        {
-            return _Ttl;
-        }
-        set
-        {
-            _Ttl = value;
-        }
-    }
-
-    public bool DontFragment
-    {
-        get
-        {
-            return _dontFragment;
-        }
-        set
-        {
-            _dontFragment = value;
-        }
-    }
-
-    public TimeSpan ResponseTimeout { get; set; } = TimeSpan.FromSeconds(2);
-
-    public int Retries
-    {
-        get
-        {
-            return _maxRetries;
-        }
-        set
-        {
-            _maxRetries = value;
-        }
-    }
-
-    public string RootPath
-    {
-        get
-        {
-            return _rootPath;
-        }
-        set
-        {
-            _rootPath = Path.GetFullPath(value);
-        }
-    }
-
-    public bool AutoCreateDirectories
-    {
-        get
-        {
-            return _autoCreateDirectories;
-        }
-        set
-        {
-            _autoCreateDirectories = value;
-        }
-    }
-
-    public bool ConvertPathSeparator
-    {
-        get
-        {
-            return _convertPathSeparator;
-        }
-        set
-        {
-            _convertPathSeparator = value;
-        }
-    }
-
-    public bool AllowRead
-    {
-        get
-        {
-            return _allowRead;
-        }
-        set
-        {
-            _allowRead = value;
-        }
-    }
-
-    public bool AllowWrite
-    {
-        get
-        {
-            return _allowWrite;
-        }
-        set
-        {
-            _allowWrite = value;
-        }
-    }
-
-    public ushort WindowSize
-    {
-        get
-        {
-            return _windowSize;
-        }
-        set
-        {
-            _windowSize = Clip<ushort>(value, 1, 32);
-        }
-    }
-
-    public IList<ConfigurationAlternative> ConfigurationAlternatives
-    {
-        get
-        {
-            return _configurationAlternatives;
-        }
-    }
-
-    public bool Active
-    {
-        get
-        {
-            lock(_sync)
-            {
-                return _active;
-            }
-        }
-    }
-
-    public int ActiveTransfers
-    {
-        get
-        {
-            lock(_sessions)
-            {
-                return _sessions.Count;
-            }
-        }
-    }
-
     #region Static helpers
-
-    internal static T Clip<T>(T value, T minValue, T maxValue) where T : IComparable<T>
-    {
-        T result;
-        if(value.CompareTo(minValue) < 0)
-            result = minValue;
-        else if(value.CompareTo(maxValue) > 0)
-            result = maxValue;
-        else
-            result = value;
-        return result;
-    }
 
     internal static Dictionary<string, string> ReadOptions(Stream s)
     {
