@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace CodePlex.JPMikkers.TFTP;
+namespace Baksteen.Net.TFTP.Server;
 
 public interface IChildSocketFactory
 {

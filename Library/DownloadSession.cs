@@ -6,9 +6,9 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using static CodePlex.JPMikkers.TFTP.TFTPServer;
+using static Baksteen.Net.TFTP.Server.TFTPServer;
 
-namespace CodePlex.JPMikkers.TFTP;
+namespace Baksteen.Net.TFTP.Server;
 
 internal class DownloadSession : TFTPSession
 {

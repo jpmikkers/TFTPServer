@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CodePlex.JPMikkers.TFTP;
+namespace Baksteen.Net.TFTP.Server;
 
 public partial class TFTPServer : ITFTPServer
 {

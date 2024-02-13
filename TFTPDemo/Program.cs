@@ -1,6 +1,6 @@
 ﻿
 using Baksteen.Net.TFTP.Client;
-using CodePlex.JPMikkers.TFTP;
+using Baksteen.Net.TFTP.Server;
 using Microsoft.Extensions.Logging;
 using System.Net;
 

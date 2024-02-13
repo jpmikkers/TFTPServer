@@ -5,25 +5,24 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CodePlex.JPMikkers.TFTP
+namespace Baksteen.Net.TFTP.Server;
+
+static class IUDPSocketExtensions
 {
-    static class IUDPSocketExtensions
+    public static async Task<UDPMessage> ReceiveWithTimeout(this IUDPSocket socket, CancellationToken userCT, TimeSpan timeout)
     {
-        public static async Task<UDPMessage> ReceiveWithTimeout(this IUDPSocket socket, CancellationToken userCT, TimeSpan timeout)
+        if(timeout <= TimeSpan.Zero) throw new TimeoutException();
+
+        using var timeoutCTS = CancellationTokenSource.CreateLinkedTokenSource(userCT);
+
+        try
         {
-            if(timeout <= TimeSpan.Zero) throw new TimeoutException();
-
-            using var timeoutCTS = CancellationTokenSource.CreateLinkedTokenSource(userCT);
-
-            try
-            {
-                timeoutCTS.CancelAfter(timeout);
-                return await socket.Receive(timeoutCTS.Token);
-            }
-            catch(OperationCanceledException) when(timeoutCTS.IsCancellationRequested && !userCT.IsCancellationRequested)
-            {
-                throw new TimeoutException();
-            }
+            timeoutCTS.CancelAfter(timeout);
+            return await socket.Receive(timeoutCTS.Token);
+        }
+        catch(OperationCanceledException) when(timeoutCTS.IsCancellationRequested && !userCT.IsCancellationRequested)
+        {
+            throw new TimeoutException();
         }
     }
 }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using static CodePlex.JPMikkers.TFTP.UDPSocket;
+using static Baksteen.Net.TFTP.Server.UDPSocket;
 
-namespace CodePlex.JPMikkers.TFTP;
+namespace Baksteen.Net.TFTP.Server;
 
 public interface IUDPSocketFactory
 {

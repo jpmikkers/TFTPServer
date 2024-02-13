@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ProductVersion>9.0.30729</ProductVersion>
     <ProjectGuid>{75CBACB4-34BA-4994-BF36-90A86B8F9372}</ProjectGuid>
-    <RootNamespace>CodePlex.JPMikkers.TFTP</RootNamespace>
+    <RootNamespace>Baksteen.Net.TFTP.Server</RootNamespace>
     <AssemblyName>TFTPLibrary</AssemblyName>
     <TargetFramework>net8.0</TargetFramework>
 	 <Nullable>enable</Nullable>
@@ -19,7 +19,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <ApplicationVersion>1.0.0.*</ApplicationVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>	  

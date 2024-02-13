@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 
-namespace CodePlex.JPMikkers.TFTP;
+namespace Baksteen.Net.TFTP.Server;
 
 #if NEVER
 public class SessionLogEntry

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CodePlex.JPMikkers.TFTP;
+namespace Baksteen.Net.TFTP.Server;
 
 public class SimpleMovingAverage
 {
