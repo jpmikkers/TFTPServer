@@ -1,15 +1,14 @@
 ﻿
 using Baksteen.Net.TFTP.Client;
 using CodePlex.JPMikkers.TFTP;
+using Microsoft.Extensions.Logging;
 using System.Net;
 
-var server = new TFTPServer(null,null);
-server.OnTrace += Server_OnTrace;
+using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
+    .SetMinimumLevel(LogLevel.Trace)
+    .AddConsole());
 
-void Server_OnTrace(object? sender, TFTPTraceEventArgs e)
-{
-    Console.WriteLine($"SERVER: {e.Message}");
-}
+var server = new TFTPServer(loggerFactory.CreateLogger<TFTPServer>(),null,null);
 
 server.EndPoint = new System.Net.IPEndPoint(IPAddress.Parse("192.168.1.120"), 69);
 server.Name = "myserver";

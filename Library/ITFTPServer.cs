@@ -3,11 +3,6 @@ using System.Net;
 
 namespace CodePlex.JPMikkers.TFTP;
 
-public class TFTPTraceEventArgs : EventArgs
-{
-    public string Message { get; set; }
-}
-
 public class TFTPStopEventArgs : EventArgs
 {
     public Exception Reason { get; set; }
@@ -15,7 +10,6 @@ public class TFTPStopEventArgs : EventArgs
 
 public interface ITFTPServer : IDisposable
 {
-    event EventHandler<TFTPTraceEventArgs> OnTrace;
     event EventHandler<TFTPStopEventArgs> OnStatusChange;
 
     string Name { get; set; }

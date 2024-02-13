@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -47,7 +48,7 @@ public partial class TFTPServer : ITFTPServer
     internal const string Option_BlockSize = "blksize";
 
     private string _name;
-
+    private readonly ILogger _logger;
     internal readonly IUDPSocketFactory _udpSocketFactory;
     private readonly ITFTPLiveSessionInfoFactory _liveSessionInfoFactory;
     private readonly ITFTPStreamFactory _tftpStreamFactory;
@@ -282,10 +283,11 @@ public partial class TFTPServer : ITFTPServer
         return result;
     }
 
-    public TFTPServer(IUDPSocketFactory udpSocketFactory, ITFTPLiveSessionInfoFactory liveSessionInfoFactory)
+    public TFTPServer(ILogger logger, IUDPSocketFactory udpSocketFactory, ITFTPLiveSessionInfoFactory liveSessionInfoFactory)
     {
         _name = "TFTPServer";
         _sessions = new Dictionary<IPEndPoint, TFTPSessionRunner>();
+        _logger = logger;
         _udpSocketFactory = udpSocketFactory ?? new DefaultUDPSocketFactory();
         _liveSessionInfoFactory = liveSessionInfoFactory;
         _tftpStreamFactory = new TFTPStreamFactory(this);
@@ -316,9 +318,7 @@ public partial class TFTPServer : ITFTPServer
 
     internal void Trace(string msg)
     {
-        var data = new TFTPTraceEventArgs();
-        data.Message = msg;
-        OnTrace(this, data);
+        _logger?.LogInformation(msg);
     }
 
     #region Dispose pattern
@@ -351,7 +351,6 @@ public partial class TFTPServer : ITFTPServer
 
     #endregion
 
-    public event EventHandler<TFTPTraceEventArgs> OnTrace = (sender, data) => { };
     public event EventHandler<TFTPStopEventArgs> OnStatusChange = (sender, data) => { };
 
     public string Name
