@@ -45,8 +45,6 @@ internal class UploadSession : TFTPSession
 
     protected override async Task MainTask(CancellationToken cancellationToken)
     {
-        Console.WriteLine($"starting Uploadsession loop");
-
         try
         {
             _length = _requestedOptions.ContainsKey(TFTPServer.Option_TransferSize) ? Int64.Parse(_requestedOptions[TFTPServer.Option_TransferSize]) : -1;

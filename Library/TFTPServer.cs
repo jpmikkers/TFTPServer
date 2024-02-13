@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +11,6 @@ namespace CodePlex.JPMikkers.TFTP;
 
 public partial class TFTPServer : ITFTPServer
 {
-
     internal enum ErrorCode : ushort
     {
         Undefined = 0,
@@ -286,7 +284,7 @@ public partial class TFTPServer : ITFTPServer
     public TFTPServer(ILogger logger, IUDPSocketFactory udpSocketFactory, ITFTPLiveSessionInfoFactory liveSessionInfoFactory)
     {
         _name = "TFTPServer";
-        _sessions = new Dictionary<IPEndPoint, TFTPSessionRunner>();
+        _sessions = [];
         _logger = logger;
         _udpSocketFactory = udpSocketFactory ?? new DefaultUDPSocketFactory();
         _liveSessionInfoFactory = liveSessionInfoFactory;

@@ -29,7 +29,7 @@ server.Start();
 
 var client = new TFTPClient(server.EndPoint,
     new TFTPClient.Settings() {
-        BlockSize = 512, 
+        BlockSize = 1024, 
         DontFragment = true, 
         ResponseTimeout = TimeSpan.FromMicroseconds(2000), 
         Ttl = 1 ,
@@ -39,13 +39,8 @@ var client = new TFTPClient(server.EndPoint,
 
 for(int t = 0; t < 10; t++)
 {
-    Console.WriteLine("before upload");
     client.Upload("moogabooga.txt", new MemoryStream(new byte[1024 * 1024]));
-    Console.WriteLine("after upload");
-
-    Console.WriteLine("before download");
     client.Download("moogabooga.txt", new MemoryStream());
-    Console.WriteLine("after download");
 }
 
 Console.ReadLine();
