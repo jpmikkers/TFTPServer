@@ -7,6 +7,7 @@ using System.Threading;
 
 namespace CodePlex.JPMikkers.TFTP;
 
+#if NEVER
 public class SessionLogEntry
 {
     public class TConfiguration
@@ -271,3 +272,4 @@ public class SessionLog
         }
     }
 }
+#endif

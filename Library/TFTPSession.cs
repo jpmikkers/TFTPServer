@@ -16,7 +16,7 @@ internal abstract class TFTPSession : ITFTPSession
     protected volatile bool _disposed = false;
     protected readonly TimeSpan _responseTimeout;
     private readonly int _maxRetries;
-    protected Stream _stream;
+    protected Stream _stream = Stream.Null;
     protected IUDPSocket _socket;
     protected bool _ownSocket;
     protected IPEndPoint _localEndPoint;
@@ -141,12 +141,9 @@ internal abstract class TFTPSession : ITFTPSession
                 _socket.Dispose();
             }
 
-            if(_stream != null)
-            {
-                if(_stream.CanWrite) _stream.Flush();
-                _stream.Close();
-                _stream = null;
-            }
+            if(_stream.CanWrite) _stream.Flush();
+            _stream.Close();
+            _stream = Stream.Null;
         }
     }
 

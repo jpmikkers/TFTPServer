@@ -5,11 +5,11 @@ namespace CodePlex.JPMikkers.TFTP;
 
 public partial class TFTPServer
 {
-    private class TFTPStreamFactory : ITFTPStreamFactory
+    private class DefaultTFTPStreamFactory : ITFTPStreamFactory
     {
         private readonly TFTPServer _parent;
 
-        public TFTPStreamFactory(TFTPServer parent)
+        public DefaultTFTPStreamFactory(TFTPServer parent)
         {
             _parent = parent;
         }
@@ -37,8 +37,8 @@ public partial class TFTPServer
 
             if(_parent._autoCreateDirectories)
             {
-                string dir = Path.GetDirectoryName(targetPath);
-                if(!Directory.Exists(dir))
+                var dir = Path.GetDirectoryName(targetPath);
+                if(!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
                 {
                     Directory.CreateDirectory(dir);
                 }

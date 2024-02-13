@@ -9,9 +9,9 @@ public partial class TFTPServer
     private class TFTPSessionRunner
     {
         public required ITFTPSession Session { get; init; }
-        private Task _task;
+        private Task? _task;
 
-        public void Start(Action<ITFTPSession, Exception> cleanupAction,CancellationToken cancellationToken)
+        public void Start(Action<ITFTPSession, Exception?> cleanupAction,CancellationToken cancellationToken)
         {
             _task = Task.Run(async () =>
             {

@@ -8,7 +8,7 @@ using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
     .SetMinimumLevel(LogLevel.Trace)
     .AddConsole());
 
-var server = new TFTPServer(loggerFactory.CreateLogger<TFTPServer>(),null,null);
+var server = new TFTPServer(loggerFactory.CreateLogger<TFTPServer>(),null,null,null);
 
 server.EndPoint = new System.Net.IPEndPoint(IPAddress.Parse("192.168.1.120"), 69);
 server.Name = "myserver";

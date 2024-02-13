@@ -39,7 +39,8 @@ public class UDPSocket : IUDPSocket
             _socket.Ttl = ttl;
         }
         _socket.Bind(localEndPoint);
-        _localEndPoint = (IPEndPoint)_socket.LocalEndPoint;
+
+        _localEndPoint = (IPEndPoint)_socket.LocalEndPoint!;
 
         try
         {

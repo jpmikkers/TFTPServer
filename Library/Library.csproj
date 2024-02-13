@@ -5,6 +5,7 @@
     <RootNamespace>CodePlex.JPMikkers.TFTP</RootNamespace>
     <AssemblyName>TFTPLibrary</AssemblyName>
     <TargetFramework>net8.0</TargetFramework>
+	 <Nullable>enable</Nullable>
     <FileUpgradeFlags />
     <UpgradeBackupLocation />
     <PublishUrl>publish\</PublishUrl>
@@ -21,7 +22,7 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <BootstrapperEnabled>true</BootstrapperEnabled>	  
     <AssemblyTitle>TFTPLibrary</AssemblyTitle>
     <Company>JPMikkers</Company>
     <Product>TFTPLibrary</Product>

@@ -51,7 +51,7 @@ public partial class TFTPServer : ITFTPServer
     private readonly ITFTPLiveSessionInfoFactory _liveSessionInfoFactory;
     private readonly ITFTPStreamFactory _tftpStreamFactory;
     private readonly IChildSocketFactory _childSocketFactory;
-    private ForkableUDPSocket _socket;
+    private ForkableUDPSocket _socket = default!;
 
     internal const int MaxBlockSize = 65464 + 4;
     internal const int DefaultBlockSize = 512;
@@ -71,7 +71,7 @@ public partial class TFTPServer : ITFTPServer
 
     private readonly object _sync = new object();
     private bool _active = false;
-    private Task _mainTask;
+    private Task? _mainTask;
     private readonly Dictionary<IPEndPoint, TFTPSessionRunner> _sessions;
 
     public void Start()
@@ -108,7 +108,7 @@ public partial class TFTPServer : ITFTPServer
         Stop(null);
     }
 
-    private void Stop(Exception reason)
+    private void Stop(Exception? reason)
     {
         bool notify = false;
 
@@ -120,7 +120,11 @@ public partial class TFTPServer : ITFTPServer
                 _active = false;
 
                 _cancellationTokenSource.Cancel();
-                try { _mainTask.GetAwaiter().GetResult(); } catch { };
+
+                if(_mainTask is not null)
+                {
+                    try { _mainTask.GetAwaiter().GetResult(); } catch { };
+                }
 
                 notify = true;
                 _socket.Dispose();
@@ -169,7 +173,7 @@ public partial class TFTPServer : ITFTPServer
                         ushort windowSize = GetWindowSize(filename);
 
                         var session = new DownloadSession(
-                            _liveSessionInfoFactory?.Create() ?? new DummyLiveSessionInfo(),
+                            _liveSessionInfoFactory.Create(),
                             _tftpStreamFactory,
                             _childSocketFactory,
                             endPoint,
@@ -194,7 +198,7 @@ public partial class TFTPServer : ITFTPServer
                         var requestedOptions = ReadOptions(ms);
 
                         var session = new UploadSession(
-                            _liveSessionInfoFactory?.Create() ?? new DummyLiveSessionInfo(),
+                            _liveSessionInfoFactory.Create(),
                             _tftpStreamFactory,
                             _childSocketFactory,
                             endPoint,
@@ -266,7 +270,7 @@ public partial class TFTPServer : ITFTPServer
         // strip root from filename before calling Path.Combine(). Some clients like to prepend a leading backslash, resulting in an 'Illegal filename' error.
         if(Path.IsPathRooted(filename))
         {
-            filename = filename.Substring(Path.GetPathRoot(filename).Length);
+            filename = filename.Substring(Path.GetPathRoot(filename)?.Length ?? 0);
         }
         return filename;
     }
@@ -281,14 +285,18 @@ public partial class TFTPServer : ITFTPServer
         return result;
     }
 
-    public TFTPServer(ILogger logger, IUDPSocketFactory udpSocketFactory, ITFTPLiveSessionInfoFactory liveSessionInfoFactory)
+    public TFTPServer(
+        ILogger logger,
+        ITFTPStreamFactory? streamFactory,
+        IUDPSocketFactory? udpSocketFactory,
+        ITFTPLiveSessionInfoFactory? liveSessionInfoFactory)
     {
         _name = "TFTPServer";
         _sessions = [];
         _logger = logger;
         _udpSocketFactory = udpSocketFactory ?? new DefaultUDPSocketFactory();
-        _liveSessionInfoFactory = liveSessionInfoFactory;
-        _tftpStreamFactory = new TFTPStreamFactory(this);
+        _liveSessionInfoFactory = liveSessionInfoFactory ?? new DefaultTFTPLiveSessionInfoFactory();
+        _tftpStreamFactory = streamFactory ?? new DefaultTFTPStreamFactory(this);
         _childSocketFactory = new ChildSocketFactory(this);
     }
 
@@ -349,7 +357,7 @@ public partial class TFTPServer : ITFTPServer
 
     #endregion
 
-    public event EventHandler<TFTPStopEventArgs> OnStatusChange = (sender, data) => { };
+    public event EventHandler<TFTPStopEventArgs?> OnStatusChange = (sender, data) => { };
 
     public string Name
     {

@@ -5,12 +5,12 @@ namespace CodePlex.JPMikkers.TFTP;
 
 public class TFTPStopEventArgs : EventArgs
 {
-    public Exception Reason { get; set; }
+    public Exception? Reason { get; set; }
 }
 
 public interface ITFTPServer : IDisposable
 {
-    event EventHandler<TFTPStopEventArgs> OnStatusChange;
+    event EventHandler<TFTPStopEventArgs?> OnStatusChange;
 
     string Name { get; set; }
     IPEndPoint EndPoint { get; set; }

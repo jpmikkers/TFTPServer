@@ -5,6 +5,7 @@ using System.Threading;
 
 namespace CodePlex.JPMikkers.TFTP;
 
+#if NEVER
 /// <summary>
 /// Drop-in replacement for <see cref="System.Threading.Timer"/> that, unlike the original, doesn't prevent garbage collection of the callback target.
 /// </summary>
@@ -59,3 +60,4 @@ public class WeakTimer
         _timer.Change(dueTime, period);
     }
 }
+#endif

@@ -8,6 +8,14 @@ public interface ITFTPLiveSessionInfoFactory
     ITFTPLiveSessionInfo Create();
 }
 
+public class DefaultTFTPLiveSessionInfoFactory : ITFTPLiveSessionInfoFactory
+{
+    public ITFTPLiveSessionInfo Create()
+    {
+        return new DummyLiveSessionInfo();
+    }
+}
+
 public enum TFTPLiveSessionState
 {
     Busy,
@@ -30,7 +38,7 @@ public interface ITFTPLiveSessionInfo
     int WindowSize { get; set; }
     public long Transferred { get; set; }
     public double Speed { get; set; }
-    public Exception Exception { get; set; }
+    public Exception? Exception { get; set; }
 
     void Progress(long transferred);
     void Stop(Exception e);
@@ -39,20 +47,22 @@ public interface ITFTPLiveSessionInfo
 
 public class DummyLiveSessionInfo : ITFTPLiveSessionInfo
 {
+    private static IPEndPoint s_endPoint = new IPEndPoint(IPAddress.Any, 0);
+
     public long Id => 0;
 
     public TFTPLiveSessionState State => TFTPLiveSessionState.Zombie;
 
     public DateTime StartTime { get; set ; }
     public bool IsUpload { get; set; }
-    public string Filename { get; set; }
+    public string Filename { get; set; } = string.Empty;
     public long FileLength { get; set; }
-    public IPEndPoint LocalEndPoint { get; set; }
-    public IPEndPoint RemoteEndPoint { get; set; }
+    public IPEndPoint LocalEndPoint { get; set; } = s_endPoint;
+    public IPEndPoint RemoteEndPoint { get; set; } = s_endPoint;
     public int WindowSize { get; set; }
     public long Transferred { get; set; }
     public double Speed { get; set; }
-    public Exception Exception { get; set; }
+    public Exception? Exception { get; set; }
 
     public void Complete()
     {
