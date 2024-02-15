@@ -11,7 +11,7 @@ namespace Baksteen.Net.TFTP.Server;
 
 internal abstract class TFTPSession : ITFTPSession
 {
-    protected readonly ITFTPLiveSessionInfo _info;
+    protected readonly ITFTPSessionInfo _info;
     protected readonly ITFTPStreamFactory _streamFactory;
     protected volatile bool _disposed = false;
     protected readonly TimeSpan _responseTimeout;
@@ -57,7 +57,7 @@ internal abstract class TFTPSession : ITFTPSession
     }
 
     public TFTPSession(
-        ITFTPLiveSessionInfo info,
+        ITFTPSessionInfo info,
         ITFTPStreamFactory streamFactory,
         IChildSocketFactory childSocketFactory,
         IPEndPoint remoteEndPoint,

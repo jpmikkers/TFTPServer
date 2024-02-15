@@ -16,7 +16,7 @@ public partial class TFTPServer
 
         public Stream GetReadStream(string filename)
         {
-            if(!_parent.AllowRead)
+            if(!_parent._configuration.AllowRead)
             {
                 throw new UnauthorizedAccessException("Reading not allowed");
             }
@@ -27,7 +27,7 @@ public partial class TFTPServer
 
         public Stream GetWriteStream(string filename, long length)
         {
-            if(!_parent.AllowWrite)
+            if(!_parent._configuration.AllowWrite)
             {
                 throw new UnauthorizedAccessException("Writing not allowed");
             }
@@ -35,7 +35,7 @@ public partial class TFTPServer
             string targetPath = _parent.GetLocalFilename(filename);
             //Console.WriteLine("Getting write stream for file '{0}', size {1}", targetPath, length);
 
-            if(_parent.AutoCreateDirectories)
+            if(_parent._configuration.AutoCreateDirectories)
             {
                 var dir = Path.GetDirectoryName(targetPath);
                 if(!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))

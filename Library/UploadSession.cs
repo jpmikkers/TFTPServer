@@ -16,7 +16,7 @@ internal class UploadSession : TFTPSession
     private ReadOnlyMemory<byte> _window;
 
     public UploadSession(
-        ITFTPLiveSessionInfo info,
+        ITFTPSessionInfo info,
         ITFTPStreamFactory streamFactory,
         IChildSocketFactory childSocketFactory,
         IPEndPoint remoteEndPoint,
@@ -34,13 +34,16 @@ internal class UploadSession : TFTPSession
             responseTimeout,
             maxRetries)
     {
-        _info.FileLength = -1;
-        _info.Filename = _filename;
-        _info.IsUpload = true;
-        _info.LocalEndPoint = _localEndPoint;
-        _info.RemoteEndPoint = _remoteEndPoint;
-        _info.StartTime = DateTime.Now;
-        _info.WindowSize = 1;
+        _info.Start(new TFTPSessionStartInfo
+        {
+            FileLength = -1,
+            Filename = _filename,
+            IsUpload = true,
+            LocalEndPoint = _localEndPoint,
+            RemoteEndPoint = _remoteEndPoint,
+            StartTime = DateTime.Now,
+            WindowSize = 1,
+        });
     }
 
     protected override async Task MainTask(CancellationToken cancellationToken)
@@ -48,7 +51,7 @@ internal class UploadSession : TFTPSession
         try
         {
             _length = _requestedOptions.ContainsKey(TFTPServer.Option_TransferSize) ? Int64.Parse(_requestedOptions[TFTPServer.Option_TransferSize]) : -1;
-            _info.FileLength = _length;
+            _info.UpdateStart(new TFTPSessionUpdateInfo { FileLength = _length });
             _stream = _streamFactory.GetWriteStream(_filename, _length);
             _position = 0;
         }

@@ -25,7 +25,7 @@ internal class DownloadSession : TFTPSession
     private readonly List<WindowEntry> _window = [];
 
     public DownloadSession(
-        ITFTPLiveSessionInfo info,
+        ITFTPSessionInfo info,
         ITFTPStreamFactory streamFactory,
         IChildSocketFactory childSocketFactory,
         IPEndPoint remoteEndPoint,
@@ -46,13 +46,16 @@ internal class DownloadSession : TFTPSession
     {
         _windowSize = windowSize;
 
-        _info.FileLength = -1;
-        _info.Filename = _filename;
-        _info.IsUpload = false;
-        _info.LocalEndPoint = _localEndPoint;
-        _info.RemoteEndPoint = _remoteEndPoint;
-        _info.StartTime = DateTime.Now;
-        _info.WindowSize = _windowSize;
+        _info.Start(new TFTPSessionStartInfo
+        {
+            FileLength = -1,
+            Filename = _filename,
+            IsUpload = false,
+            LocalEndPoint = _localEndPoint,
+            RemoteEndPoint = _remoteEndPoint,
+            StartTime = DateTime.Now,
+            WindowSize = _windowSize,
+        });
     }
 
     protected override async Task MainTask(CancellationToken cancellationToken)
@@ -61,7 +64,7 @@ internal class DownloadSession : TFTPSession
         {
             _stream = _streamFactory.GetReadStream(_filename);
             _length = _stream.Length;
-            _info.FileLength = _length;
+            _info.UpdateStart(new TFTPSessionUpdateInfo { FileLength = _length });
             _position = 0;
         }
         catch(Exception e)

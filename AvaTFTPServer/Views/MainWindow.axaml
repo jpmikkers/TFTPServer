@@ -1,0 +1,185 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaTFTPServer.ViewModels"
+		xmlns:ex="using:AK.Toolkit.Avalonia.GridIndexer"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="AvaTFTPServer.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="AvaTFTPServer">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+	<Window.Resources>
+		<!--paths from https://petershaggynoble.github.io/MDI-Sandbox/ -->
+		<StreamGeometry x:Key="path_upload">M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z</StreamGeometry>
+		<StreamGeometry x:Key="path_download">M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z</StreamGeometry>
+		<StreamGeometry x:Key="path_information">M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z</StreamGeometry>
+	</Window.Resources>
+
+	<DockPanel Margin="0,0">
+		<Menu DockPanel.Dock="Top">
+			<MenuItem Header="_File">
+				<MenuItem Command="{CompiledBinding DoExitCommand}" Header="E_xit"/>
+			</MenuItem>
+			<MenuItem Header="_Server">
+				<MenuItem Header="_Start" Command="{CompiledBinding StartServerCommand}"/>
+				<MenuItem Header="S_top" Command="{CompiledBinding StopServerCommand}"/>
+				<MenuItem Command="{CompiledBinding DoConfigureCommand}" Header="_Configure"/>
+			</MenuItem>
+		</Menu>
+
+		<Border DockPanel.Dock="Bottom" BorderThickness="2" BorderBrush="Gray" Margin="4,4,4,4" CornerRadius="4">
+			<StackPanel Orientation="Horizontal">
+				<Label>Status:</Label>
+				<Label Content="{CompiledBinding ServerState}"/>
+			</StackPanel>
+		</Border>
+						
+		<Border BorderBrush="Gray" BorderThickness="2" CornerRadius="4" Margin="4,4,4,0" Padding="4">
+			<TabControl TabStripPlacement="Top" Margin="0,0">
+				<TabItem Header="Transfers">
+					<ListBox
+						Name="ListBoxTransfers"
+						ItemsSource="{CompiledBinding TransferSessions}"
+						FontFamily="Courier New"
+						Grid.IsSharedSizeScope="True"
+						ScrollViewer.HorizontalScrollBarVisibility="Auto"
+						ScrollViewer.VerticalScrollBarVisibility="Auto">
+
+						<!-- get rid of the huge gaps in the standard listboxitem styling -->
+						<ListBox.Styles>
+							<Style Selector="ListBoxItem">
+								<Setter Property="Padding" Value="0,2"/>
+							</Style>
+						</ListBox.Styles>
+
+						<ListBox.ItemTemplate>
+							<DataTemplate>
+								<Grid Margin="2">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition SharedSizeGroup="TimeCol" Width="auto"/>
+										<ColumnDefinition SharedSizeGroup="UpDnCol" Width="auto" />
+										<ColumnDefinition Width="auto" />
+										<ColumnDefinition SharedSizeGroup="StateCol"  Width="auto" />
+										<ColumnDefinition SharedSizeGroup="TransferredCol" Width="auto" />
+										<ColumnDefinition SharedSizeGroup="SpeedCol" Width="auto" />
+										<ColumnDefinition Width="80" />
+										<ColumnDefinition Width="500" />
+									</Grid.ColumnDefinitions>
+
+									<!-- see https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings -->
+									<!-- The {} part at the beginning is the format string is an escape sequence (otherwise the XAML parser would consider { to be the beginning of a markup extension) -->
+									<Label
+										Grid.Column="0"
+										Margin="0,0,5,0"
+										VerticalAlignment="Center"
+										Content="{CompiledBinding StartTime, StringFormat='{}{0:u}'}" />
+
+									<PathIcon
+										Grid.Column="1"
+										Margin="0,0,5,0"
+										VerticalAlignment="Center"
+										IsVisible="{CompiledBinding IsUpload}"
+										Width="15"
+										Height="15"
+										Data="{StaticResource path_upload}"
+										ToolTip.Tip="Upload">
+									</PathIcon>
+
+									<PathIcon
+										Grid.Column="1"
+										Margin="0,0,5,0"
+										VerticalAlignment="Center"
+										IsVisible="{CompiledBinding !IsUpload}"
+										Width="15"
+										Height="15"
+										Data="{StaticResource path_download}"
+										ToolTip.Tip="Download">
+									</PathIcon>
+
+									<PathIcon
+										Grid.Column="2"
+										Margin="0,0,5,0"
+										VerticalAlignment="Center"
+										Width="17"
+										Height="17"
+										Data="{StaticResource path_information}">
+										<ToolTip.Tip>
+											<StackPanel>
+												<Label Content="{CompiledBinding LocalEndPoint}" />
+												<Label Content="{CompiledBinding RemoteEndPoint}" />
+												<Label Content="{CompiledBinding WindowSize}" />
+											</StackPanel>
+										</ToolTip.Tip>
+									</PathIcon>
+
+									<Label
+										Grid.Column="3"
+										Margin="0,0,5,0"
+										VerticalAlignment="Center"
+										Content="{CompiledBinding SessionState}" />
+
+									<Label
+										Grid.Column="4"
+										Margin="0,0,5,0"
+										VerticalAlignment="Center">
+										<TextBlock>
+											<TextBlock.Text>
+												<MultiBinding StringFormat="{}{0} of {1}">
+													<MultiBinding.Bindings>
+														<Binding Path="Transferred"></Binding>
+														<Binding Path="FileLength"></Binding>
+													</MultiBinding.Bindings>
+												</MultiBinding>
+											</TextBlock.Text>
+										</TextBlock>
+									</Label>
+
+									<Label
+										Grid.Column="5"
+										Margin="0,0,5,0"
+										VerticalAlignment="Center"
+										Content="{CompiledBinding SpeedAsString}" />
+
+									<ProgressBar
+										Grid.Column="6" 
+										Margin="0,0,5,0"
+										Orientation="Horizontal" 
+										Value="{CompiledBinding ProgressPercentage, Mode=OneWay}" 
+										IsIndeterminate="{CompiledBinding !FileLengthKnown, Mode=OneWay}"
+										MaxWidth="80"
+										MinWidth="80"
+										Width="80"
+										Height="12" 
+										Minimum="0"
+										Maximum="100">
+									</ProgressBar>
+									
+									<TextBox
+										Grid.Column="7"
+										VerticalAlignment="Center"
+										FontFamily="{StaticResource FixedWidthHexFont}"
+										IsReadOnly="True"
+										Text="{CompiledBinding Filename}" />
+								</Grid>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+
+					</ListBox>
+				</TabItem>
+				<TabItem Header="Log">
+					<ListBox Name="ListBoxLog" ItemsSource="{CompiledBinding Log}" FontFamily="Courier New"/>
+				</TabItem>
+			</TabControl>
+		</Border>
+	</DockPanel>
+    <!--<TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>-->
+
+</Window>

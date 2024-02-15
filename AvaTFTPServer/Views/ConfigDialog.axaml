@@ -1,0 +1,241 @@
+<Window
+    x:Class="AvaTFTPServer.ConfigDialog"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:ex="using:Baksteen.Avalonia.Tools.GridIndexer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:AvaTFTPServer.ViewModels"
+    Title="ConfigWindow"
+    Width="440"
+    Height="440"
+    d:DesignHeight="440"
+    d:DesignWidth="440"
+    x:DataType="vm:ConfigDialogViewModel"
+	SizeToContent="WidthAndHeight"
+    mc:Ignorable="d">
+
+    <Window.Resources>
+        <vm:IPEndPointConverter x:Key="ipEndPointConverter" />
+    </Window.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" Padding="8,8,8,8">
+            <StackPanel
+                HorizontalAlignment="Right"
+                Orientation="Horizontal"
+                Spacing="8">
+                <Button Command="{CompiledBinding ApplyCommand}" IsDefault="True">_Apply</Button>
+                <Button
+                    Command="{CompiledBinding CancelCommand}"
+                    IsCancel="True">
+                    _Cancel
+                </Button>
+            </StackPanel>
+        </Border>
+		<ScrollViewer>
+			<Grid Margin="8,8,8,8">
+				<Grid.Resources>
+					<Thickness x:Key="gridspacing">0,4,4,4</Thickness>
+				</Grid.Resources>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
+				</Grid.RowDefinitions>
+
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="auto" />
+					<ColumnDefinition Width="*" MaxWidth="400" />
+					<ColumnDefinition Width="auto" />
+				</Grid.ColumnDefinitions>
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Server directory
+				</Label>
+
+				<TextBox
+					ex:GI.Column="+1"
+					Margin="{StaticResource gridspacing}"
+					HorizontalAlignment="Left"
+					Text="{CompiledBinding RootPath}" />
+
+				<Button
+					ex:GI.Column="+1"
+					Margin="{StaticResource gridspacing}"
+					Command="{CompiledBinding SelectFolderCommand}">
+					...
+				</Button>
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Permissions
+				</Label>
+
+				<WrapPanel
+					ex:GI.Column="+1"
+					Margin="{StaticResource gridspacing}"
+					Orientation="Horizontal">
+					<CheckBox Margin="0,0,8,0" IsChecked="{CompiledBinding AllowDownloads}">Allow downloads</CheckBox>
+					<CheckBox Margin="0,0,8,0" IsChecked="{CompiledBinding AllowUploads}">Allow uploads</CheckBox>
+				</WrapPanel>
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Auto create directories
+				</Label>
+				<CheckBox
+					ex:GI.Column="+1"
+					Margin="{StaticResource gridspacing}"
+					IsChecked="{CompiledBinding AutoCreateDirectories}" />
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Convert path separator
+				</Label>
+				<CheckBox
+					ex:GI.Column="+1"
+					Margin="{StaticResource gridspacing}"
+					IsChecked="{CompiledBinding ConvertPathSeparator}" />
+
+				<Separator
+					Margin="{StaticResource gridspacing}"
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Grid.ColumnSpan="3"
+				/>
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Server IP endpoint
+				</Label>
+
+				<TextBox
+					ex:GI.Column="+1"
+					Margin="{StaticResource gridspacing}"
+					HorizontalAlignment="Left"
+					Text="{CompiledBinding EndPoint}" />
+
+				<Button
+					ex:GI.Column="+1"
+					Margin="{StaticResource gridspacing}">
+					...
+				</Button>
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Use single port mode
+				</Label>
+				<CheckBox
+					ex:GI.Column="+1"
+					Margin="{StaticResource gridspacing}"
+					IsChecked="{CompiledBinding SinglePort}" />
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Do not fragment packets
+				</Label>
+				<CheckBox
+					ex:GI.Column="+1"
+					Margin="{StaticResource gridspacing}"
+					IsChecked="{CompiledBinding DontFragment}" />
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Windowing size
+				</Label>
+				<NumericUpDown
+					ex:GI.Column="+1"
+					MinWidth="150"
+					Margin="{StaticResource gridspacing}"
+					HorizontalAlignment="Left"
+					FormatString="0"
+					Increment="1"
+					Maximum="10"
+					Minimum="1"
+					Value="{CompiledBinding WindowSize}" />
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Time-to-live [hops]
+				</Label>
+				<NumericUpDown
+					ex:GI.Column="+1"
+					MinWidth="150"
+					Margin="{StaticResource gridspacing}"
+					HorizontalAlignment="Left"
+					FormatString="0"
+					Increment="1"
+					Maximum="30"
+					Minimum="-1"
+					Value="{CompiledBinding TimeToLive}" />
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Response timeout [s]
+				</Label>
+				<NumericUpDown
+					ex:GI.Column="+1"
+					MinWidth="150"
+					Margin="{StaticResource gridspacing}"
+					HorizontalAlignment="Left"
+					FormatString="0"
+					Increment="1"
+					Maximum="30"
+					Minimum="1"
+					Value="{CompiledBinding ResponseTimeout}" />
+
+				<Label
+					ex:GI.Row="+1"
+					ex:GI.Column="0"
+					Margin="{StaticResource gridspacing}">
+					Maximum retries
+				</Label>
+				<NumericUpDown
+					ex:GI.Column="+1"
+					MinWidth="150"
+					Margin="{StaticResource gridspacing}"
+					HorizontalAlignment="Left"
+					FormatString="0"
+					Increment="1"
+					Maximum="10"
+					Minimum="0"
+					Value="{CompiledBinding Retries}" />
+
+				<!--<Label Margin="{StaticResource gridspacing}" Grid.Column="0" Grid.Row="8">Max packet size</Label>
+			<NumericUpDown Margin="{StaticResource gridspacing}" Grid.Column="1" Grid.Row="8" Minimum="256" Increment="16" Maximum="8192" FormatString="0" HorizontalAlignment="Left" MinWidth="200"></NumericUpDown>-->
+
+			</Grid>
+
+		</ScrollViewer>
+	</DockPanel>
+</Window>

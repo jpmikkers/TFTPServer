@@ -9,11 +9,6 @@ using System.Threading.Tasks;
 
 namespace Baksteen.Net.TFTP.Server;
 
-public class TFTPStopEventArgs : EventArgs
-{
-    public Exception? Reason { get; set; }
-}
-
 public partial class TFTPServer : IDisposable
 {
     internal enum ErrorCode : ushort
@@ -51,98 +46,26 @@ public partial class TFTPServer : IDisposable
     internal const string Option_BlockSize = "blksize";
     private readonly ILogger _logger;
     internal readonly IUDPSocketFactory _udpSocketFactory;
-    private readonly ITFTPLiveSessionInfoFactory _liveSessionInfoFactory;
+    private readonly ITFTPSessionInfoFactory _liveSessionInfoFactory;
+    private readonly ITFTPServerInfo? _serverCallback;
     private readonly ITFTPStreamFactory _tftpStreamFactory;
     private readonly IChildSocketFactory _childSocketFactory;
+    private readonly Configuration _configuration;
     private ForkableUDPSocket _socket = default!;
 
     internal const int MaxBlockSize = 65464 + 4;
     internal const int DefaultBlockSize = 512;
-    internal IPEndPoint _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 69);
-    private string _rootPath = ".";
-    private ushort _windowSize = 1;
-    private readonly List<ConfigurationAlternative> _configurationAlternatives = new List<ConfigurationAlternative>();
     private CancellationTokenSource _cancellationTokenSource = new();
 
-    private readonly object _sync = new object();
     private bool _active = false;
     private Task? _mainTask;
-    private readonly Dictionary<IPEndPoint, TFTPSessionRunner> _sessions;
-
-    public event EventHandler<TFTPStopEventArgs?> OnStatusChange = (sender, data) => { };
-
-    public string Name { get; set; }
-
-    public IPEndPoint EndPoint
-    {
-        get
-        {
-            return _serverEndPoint;
-        }
-        set
-        {
-            _serverEndPoint = value;
-        }
-    }
-
-    public bool SinglePort { get; set; } = false;
-
-    public short Ttl { get; set; } = -1;
-
-    public bool DontFragment { get; set; }
-
-    public TimeSpan ResponseTimeout { get; set; } = TimeSpan.FromSeconds(2);
-
-    public int Retries { get; set; } = 5;
-
-    public string RootPath
-    {
-        get
-        {
-            return _rootPath;
-        }
-        set
-        {
-            _rootPath = Path.GetFullPath(value);
-        }
-    }
-
-    public bool AutoCreateDirectories { get; set; } = true;
-
-    public bool ConvertPathSeparator { get; set; } = true;
-
-    public bool AllowRead { get; set; } = true;
-
-    public bool AllowWrite { get; set; } = true;
-
-    public ushort WindowSize
-    {
-        get
-        {
-            return _windowSize;
-        }
-        set
-        {
-            _windowSize = Math.Clamp(value,(ushort)1,(ushort)32);
-        }
-    }
-
-    public IList<ConfigurationAlternative> ConfigurationAlternatives
-    {
-        get
-        {
-            return _configurationAlternatives;
-        }
-    }
+    private readonly Dictionary<IPEndPoint, TFTPSessionRunner> _sessions = [];
 
     public bool Active
     {
         get
         {
-            lock(_sync)
-            {
-                return _active;
-            }
+            return _active;
         }
     }
 
@@ -157,155 +80,177 @@ public partial class TFTPServer : IDisposable
         }
     }
 
-    public void Start()
+    private TFTPServer(
+        ILogger logger,
+        ITFTPStreamFactory? streamFactory,
+        IUDPSocketFactory? udpSocketFactory,
+        ITFTPSessionInfoFactory? liveSessionInfoFactory,
+        ITFTPServerInfo? serverCallback, 
+        Configuration configuration)
     {
-        lock(_sync)
-        {
-            if(!_active)
-            {
-                try
-                {
-                    int maxWorkerThreads, maxCompletionPortThreads;
+        _logger = logger;
+        _udpSocketFactory = udpSocketFactory ?? new DefaultUDPSocketFactory();
+        _liveSessionInfoFactory = liveSessionInfoFactory ?? new DefaultTFTPSessionInfoFactory();
+        _serverCallback = serverCallback;
+        _tftpStreamFactory = streamFactory ?? new DefaultTFTPStreamFactory(this);
+        _childSocketFactory = new ChildSocketFactory(this);
+        _configuration = configuration;
+    }
 
-                    Trace($"Starting TFTP server '{_serverEndPoint}'");
-                    _active = true;
-                    _socket = new ForkableUDPSocket(_udpSocketFactory.Create(_serverEndPoint, MaxBlockSize, DontFragment, Ttl)); //, OnUDPReceive, OnUDPStop);
-                    Trace($"TFTP Server start succeeded, serving at '{_socket.LocalEndPoint}'");
-                    System.Threading.ThreadPool.GetMaxThreads(out maxWorkerThreads, out maxCompletionPortThreads);
-                    Trace($"Threadpool maxWorkerThreads={maxWorkerThreads} maxCompletionPortThreads={maxCompletionPortThreads}");
-                    Trace($"GCSettings.IsServerGC={System.Runtime.GCSettings.IsServerGC}");
-                    _mainTask = Task.Run(async () => { await MainTask(_cancellationTokenSource.Token); });
-                }
-                catch(Exception e)
-                {
-                    Trace($"TFTP Server start failed, reason '{e}'");
-                    _active = false;
-                    throw;
-                }
+    public static async Task<TFTPServer> CreateAndStart(
+        ILogger logger,
+        ITFTPStreamFactory? streamFactory,
+        IUDPSocketFactory? udpSocketFactory,
+        ITFTPSessionInfoFactory? liveSessionInfoFactory,
+        ITFTPServerInfo? serverCallback,
+        Configuration configuration)
+    {
+        var result = new TFTPServer(logger, streamFactory, udpSocketFactory, liveSessionInfoFactory, serverCallback, configuration);
+        await result.Start();
+        return result;
+    }
+
+    private async Task Start()
+    {
+        if(!_active)
+        {
+            try
+            {
+                int maxWorkerThreads, maxCompletionPortThreads;
+
+                Trace($"Starting TFTP server '{_configuration.EndPoint}'");
+                _active = true;
+                _socket = new ForkableUDPSocket(_udpSocketFactory.Create(_configuration.EndPoint, MaxBlockSize, _configuration.DontFragment, _configuration.Ttl)); //, OnUDPReceive, OnUDPStop);
+                Trace($"TFTP Server start succeeded, serving at '{_socket.LocalEndPoint}'");
+                ThreadPool.GetMaxThreads(out maxWorkerThreads, out maxCompletionPortThreads);
+                Trace($"Threadpool maxWorkerThreads={maxWorkerThreads} maxCompletionPortThreads={maxCompletionPortThreads}");
+                Trace($"GCSettings.IsServerGC={System.Runtime.GCSettings.IsServerGC}");
+                _mainTask = Task.Run(async () => { await MainTask(_cancellationTokenSource.Token); });
             }
-        }
-    }
-
-    public void Stop()
-    {
-        Stop(null);
-    }
-
-    private void Stop(Exception? reason)
-    {
-        bool notify = false;
-
-        lock(_sync)
-        {
-            if(_active)
+            catch(Exception e)
             {
-                Trace($"Stopping TFTP server '{_serverEndPoint}'");
+                Trace($"TFTP Server start failed, reason '{e}'");
                 _active = false;
-
-                _cancellationTokenSource.Cancel();
-
-                if(_mainTask is not null)
-                {
-                    try { _mainTask.GetAwaiter().GetResult(); } catch { };
-                }
-
-                notify = true;
-                _socket.Dispose();
-                Trace("Stopped");
+                throw;
             }
         }
+        await Task.CompletedTask;
+    }
 
-        if(notify)
+    public async Task Stop()
+    {
+        if(_active)
         {
-            var data = new TFTPStopEventArgs();
-            data.Reason = reason;
-            OnStatusChange(this, data);
+            Trace($"Stopping TFTP server '{_configuration.EndPoint}'");
+            _active = false;
+
+            _cancellationTokenSource.Cancel();
+
+            if(_mainTask is not null)
+            {
+                try 
+                { 
+                    await _mainTask; 
+                } 
+                catch 
+                { 
+                }
+            }
+
+            _socket.Dispose();
+            Trace("Stopped");
         }
     }
 
     private async Task MainTask(CancellationToken cancellationToken)
     {
+        _serverCallback?.Started();
         Trace("MainTask started");
-        while(!cancellationToken.IsCancellationRequested)
+
+        try
         {
-            var msg = await _socket.Receive(cancellationToken).ConfigureAwait(false);
-            (var endPoint,var data) = (msg.EndPoint, msg.Data);
-
-            bool notify = false;
-            int packetSize = data.Length;
-            MemoryStream ms = new MemoryStream(data.ToArray());
-
-            ushort opCode = ReadUInt16(ms);
-
-            bool hasSession = false;
-            lock(_sessions)
+            while(!cancellationToken.IsCancellationRequested)
             {
-                hasSession = _sessions.ContainsKey(endPoint);
+                var msg = await _socket.Receive(cancellationToken).ConfigureAwait(false);
+                (var endPoint, var data) = (msg.EndPoint, msg.Data);
+
+                int packetSize = data.Length;
+                MemoryStream ms = new(data.ToArray());
+
+                ushort opCode = ReadUInt16(ms);
+
+                bool hasSession = false;
+                lock(_sessions)
+                {
+                    hasSession = _sessions.ContainsKey(endPoint);
+                }
+
+                // no session in progress for the endpoint that sent the packet
+                switch((Opcode)opCode)
+                {
+                    case Opcode.ReadRequest:
+                        if(!hasSession)
+                        {
+                            string filename = ReadZString(ms);
+                            if(_configuration.ConvertPathSeparator) filename = filename.Replace('/', '\\');
+                            _ = ReadMode(ms);
+                            var requestedOptions = ReadOptions(ms);
+
+                            var session = new DownloadSession(
+                                _liveSessionInfoFactory.Create(),
+                                _tftpStreamFactory,
+                                _childSocketFactory,
+                                endPoint,
+                                requestedOptions,
+                                filename,
+                                _configuration.ResponseTimeout,
+                                _configuration.Retries,
+                                _configuration.WindowSize
+                            );
+
+                            AddAndStartSession(session);
+                        }
+                        break;
+
+                    case Opcode.WriteRequest:
+                        if(!hasSession)
+                        {
+                            string filename = ReadZString(ms);
+                            if(_configuration.ConvertPathSeparator) filename = filename.Replace('/', '\\');
+                            _ = ReadMode(ms);
+                            var requestedOptions = ReadOptions(ms);
+
+                            var session = new UploadSession(
+                                _liveSessionInfoFactory.Create(),
+                                _tftpStreamFactory,
+                                _childSocketFactory,
+                                endPoint,
+                                requestedOptions,
+                                _configuration.ResponseTimeout,
+                                _configuration.Retries,
+                                filename
+                            );
+
+                            AddAndStartSession(session);
+                        }
+                        break;
+
+                    default:
+                        await SendError(_socket, endPoint, (ushort)ErrorCode.UnknownTransferID, "Unknown transfer ID", _cancellationTokenSource.Token);
+                        break;
+                }
             }
-
-            // no session in progress for the endpoint that sent the packet
-            switch((Opcode)opCode)
-            {
-                case Opcode.ReadRequest:
-                    if(!hasSession)
-                    {
-                        string filename = ReadZString(ms);
-                        if(ConvertPathSeparator) filename = filename.Replace('/', '\\');
-                        _ = ReadMode(ms);
-                        var requestedOptions = ReadOptions(ms);
-                        ushort windowSize = GetWindowSize(filename);
-
-                        var session = new DownloadSession(
-                            _liveSessionInfoFactory.Create(),
-                            _tftpStreamFactory,
-                            _childSocketFactory,
-                            endPoint,
-                            requestedOptions,
-                            filename,
-                            ResponseTimeout,
-                            Retries,
-                            windowSize
-                        );
-
-                        AddAndStartSession(session);
-                        notify = true;
-                    }
-                    break;
-
-                case Opcode.WriteRequest:
-                    if(!hasSession)
-                    {
-                        string filename = ReadZString(ms);
-                        if(ConvertPathSeparator) filename = filename.Replace('/', '\\');
-                        _ = ReadMode(ms);
-                        var requestedOptions = ReadOptions(ms);
-
-                        var session = new UploadSession(
-                            _liveSessionInfoFactory.Create(),
-                            _tftpStreamFactory,
-                            _childSocketFactory,
-                            endPoint,
-                            requestedOptions,
-                            ResponseTimeout,
-                            Retries,
-                            filename
-                        );
-
-                        AddAndStartSession(session);
-                        notify = true;
-                    }
-                    break;
-
-                default:
-                    await SendError(_socket, endPoint, (ushort)ErrorCode.UnknownTransferID, "Unknown transfer ID", _cancellationTokenSource.Token);
-                    break;
-            }
-
-            if(notify)
-            {
-                OnStatusChange(this, null);
-            }
+            _serverCallback?.Stopped(null);
         }
+        catch(TaskCanceledException)
+        {
+            _serverCallback?.Stopped(null);
+        }
+        catch(Exception e)
+        {
+            _serverCallback?.Stopped(e);
+        }
+
         Trace("MainTask stopped");
     }
 
@@ -335,7 +280,6 @@ public partial class TFTPServer : IDisposable
                 }
                 _sessions.Remove(x.RemoteEndPoint);
             }
-            OnStatusChange(this, null);
         }, _cancellationTokenSource.Token);
 
         if(session is UploadSession)
@@ -360,49 +304,13 @@ public partial class TFTPServer : IDisposable
 
     private string GetLocalFilename(string filename)
     {
-        string result = Path.GetFullPath(Path.Combine(_rootPath, StripRoot(filename)));
-        if(!result.StartsWith(_rootPath))
+        var realRootPath = Path.GetFullPath(_configuration.RootPath);
+        string result = Path.GetFullPath(Path.Combine(realRootPath, StripRoot(filename)));
+        if(!result.StartsWith(realRootPath))
         {
             throw new ArgumentException("Illegal filename");
         }
         return result;
-    }
-
-    public TFTPServer(
-        ILogger logger,
-        ITFTPStreamFactory? streamFactory,
-        IUDPSocketFactory? udpSocketFactory,
-        ITFTPLiveSessionInfoFactory? liveSessionInfoFactory)
-    {
-        Name = "TFTPServer";
-        _sessions = [];
-        _logger = logger;
-        _udpSocketFactory = udpSocketFactory ?? new DefaultUDPSocketFactory();
-        _liveSessionInfoFactory = liveSessionInfoFactory ?? new DefaultTFTPLiveSessionInfoFactory();
-        _tftpStreamFactory = streamFactory ?? new DefaultTFTPStreamFactory(this);
-        _childSocketFactory = new ChildSocketFactory(this);
-    }
-
-    private ushort GetWindowSize(string filename)
-    {
-        if(_configurationAlternatives.Count > 0)
-        {
-            filename = StripRoot(filename);
-
-            foreach(ConfigurationAlternative alternative in _configurationAlternatives)
-            {
-                if(alternative.Match(filename))
-                {
-                    return alternative.WindowSize;
-                }
-            }
-        }
-        return _windowSize;
-    }
-
-    private void OnUDPStop(UDPSocket sender, Exception reason)
-    {
-        Stop(reason);
     }
 
     internal void Trace(string msg)
@@ -428,7 +336,7 @@ public partial class TFTPServer : IDisposable
     {
         if(disposing)
         {
-            Stop();
+            _ = Stop(); // TODO Fix this
         }
     }
 
@@ -440,116 +348,4 @@ public partial class TFTPServer : IDisposable
 
     #endregion
 
-    #region Static helpers
-
-    internal static Dictionary<string, string> ReadOptions(Stream s)
-    {
-        Dictionary<string, string> options = [];
-        while(s.Position < s.Length)
-        {
-            string key = ReadZString(s).ToLower();
-            string val = ReadZString(s).ToLower();
-            options.Add(key, val);
-        }
-        return options;
-    }
-
-    internal static async Task SendError(IUDPSocket socket, IPEndPoint endPoint, ushort code, string message, CancellationToken cancellationToken)
-    {
-        MemoryStream ms = new();
-        WriteUInt16(ms, (ushort)Opcode.Error);
-        WriteUInt16(ms, code);
-        WriteZString(ms, message.Substring(0, Math.Min(message.Length, 256)));
-        await socket.Send(endPoint, ms.ToArray(), cancellationToken);
-    }
-
-    internal static async Task SendError(IUDPSocket socket, IPEndPoint endPoint, ErrorCode code, string message, CancellationToken cancellationToken)
-    {
-        await SendError(socket, endPoint, (ushort)code, message, cancellationToken);
-    }
-
-    internal static ReadOnlyMemory<byte> GetDataAckPacket(ushort blockno)
-    {
-        MemoryStream ms = new();
-        WriteUInt16(ms, (ushort)Opcode.Ack);
-        WriteUInt16(ms, blockno);
-        return ms.ToArray();
-    }
-
-    internal static ReadOnlyMemory<byte> GetOptionsAckPacket(Dictionary<string, string> options)
-    {
-        MemoryStream ms = new();
-        WriteUInt16(ms, (ushort)Opcode.OptionsAck);
-        foreach(var s in options)
-        {
-            WriteZString(ms, s.Key);
-            WriteZString(ms, s.Value);
-        }
-        return ms.ToArray();
-    }
-
-    internal static ReadOnlyMemory<byte> GetDataPacket(ushort blockno, byte[] data, int dataSize)
-    {
-        MemoryStream ms = new();
-        WriteUInt16(ms, (ushort)Opcode.Data);
-        WriteUInt16(ms, blockno);
-        ms.Write(data, 0, dataSize);
-        return ms.ToArray();
-    }
-
-    internal static string ReadZString(Stream s)
-    {
-        StringBuilder sb = new();
-        int c = s.ReadByte();
-        while(c != 0)
-        {
-            sb.Append((char)c);
-            c = s.ReadByte();
-        }
-        return sb.ToString();
-    }
-
-    internal static void WriteZString(Stream s, string msg)
-    {
-        TextWriter tw = new StreamWriter(s, Encoding.ASCII);
-        tw.Write(msg);
-        tw.Flush();
-        s.WriteByte(0);
-    }
-
-    private static Mode ReadMode(Stream s)
-    {
-        Mode result;
-        switch(ReadZString(s).ToLower())
-        {
-            case "netascii":
-                result = Mode.NetAscii;
-                break;
-
-            case "octet":
-                result = Mode.Octet;
-                break;
-
-            case "mail":
-                result = Mode.Mail;
-                break;
-
-            default:
-                throw new InvalidDataException("Invalid mode");
-        }
-        return result;
-    }
-
-    internal static ushort ReadUInt16(Stream s)
-    {
-        BinaryReader br = new(s);
-        return (ushort)IPAddress.NetworkToHostOrder((short)br.ReadUInt16());
-    }
-
-    internal static void WriteUInt16(Stream s, ushort v)
-    {
-        BinaryWriter bw = new(s);
-        bw.Write((ushort)IPAddress.HostToNetworkOrder((short)v));
-    }
-    #endregion
 }

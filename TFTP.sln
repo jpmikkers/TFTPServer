@@ -10,7 +10,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TFTPDemo", "TFTPDemo\TFTPDemo.csproj", "{58B55806-C947-4F1F-B674-BF7DB4B6A948}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TFTPDemo", "TFTPDemo\TFTPDemo.csproj", "{58B55806-C947-4F1F-B674-BF7DB4B6A948}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaTFTPServer", "AvaTFTPServer\AvaTFTPServer.csproj", "{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigTest", "ConfigTest\ConfigTest.csproj", "{034511FD-C8B1-41AA-A40B-6CA740EE1DD9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +30,14 @@ Global
 		{58B55806-C947-4F1F-B674-BF7DB4B6A948}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58B55806-C947-4F1F-B674-BF7DB4B6A948}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58B55806-C947-4F1F-B674-BF7DB4B6A948}.Release|Any CPU.Build.0 = Release|Any CPU
+		{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{034511FD-C8B1-41AA-A40B-6CA740EE1DD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{034511FD-C8B1-41AA-A40B-6CA740EE1DD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{034511FD-C8B1-41AA-A40B-6CA740EE1DD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{034511FD-C8B1-41AA-A40B-6CA740EE1DD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
