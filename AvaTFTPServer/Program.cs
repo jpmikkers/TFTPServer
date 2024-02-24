@@ -2,23 +2,22 @@
 using Avalonia.Dialogs;
 using System;
 
-namespace AvaTFTPServer
-{
-    internal sealed class Program
-    {
-        // Initialization code. Don't use any Avalonia, third-party APIs or any
-        // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-        // yet and stuff might break.
-        [STAThread]
-        public static void Main(string[] args) => BuildAvaloniaApp()
-            .UseManagedSystemDialogs()
-            .StartWithClassicDesktopLifetime(args);
+namespace AvaTFTPServer;
 
-        // Avalonia configuration, don't remove; also used by visual designer.
-        public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
-                .UsePlatformDetect()
-                .WithInterFont()
-                .LogToTrace();
+internal sealed class Program
+{
+    // Init code moved to App.axaml.cs so it can set up Microsoft hosting and dependency injection
+    [STAThread]
+    public static void Main(string[] args)
+    {
+        App.RunAvaloniaAppWithHosting(args, BuildAvaloniaApp);
     }
+
+    // Avalonia configuration, don't remove; also used by visual designer.
+    public static AppBuilder BuildAvaloniaApp()
+        => AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .WithInterFont()
+            .LogToTrace()
+            .UseManagedSystemDialogs();
 }

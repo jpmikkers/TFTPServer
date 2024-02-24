@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using Baksteen.Net.TFTP.Server;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -71,6 +72,8 @@ namespace AvaTFTPServer.ViewModels
 
         public MainWindowViewModel() : base() 
         {
+            //App.Current.
+
             _appSettings = TFTPAppSettings.Load();
 
             _chunkedDispatcher = new ChunkedDispatcher<string>(Dispatcher.UIThread, lines => { 
