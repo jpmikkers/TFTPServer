@@ -12,10 +12,10 @@ public partial class TransferSession : ObservableObject
 {
     public enum State
     {
+        Created,
         Busy,
         Stopped,
         Completed,
-        Zombie
     }
 
     private readonly SessionAdapter _link;
@@ -40,7 +40,7 @@ public partial class TransferSession : ObservableObject
     }
 
     [ObservableProperty]
-    private State _sessionState;
+    private State _sessionState = State.Created;
 
     [ObservableProperty]
     private DateTime _startTime = DateTime.Now;
@@ -76,6 +76,11 @@ public partial class TransferSession : ObservableObject
 
     [ObservableProperty]
     private Exception? _exception;
+
+    public bool IsFinalState
+    {
+        get => SessionState is State.Busy or State.Completed or State.Stopped;
+    }
 
     public double ProgressPercentage
     {

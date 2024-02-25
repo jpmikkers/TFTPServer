@@ -7,6 +7,40 @@ using AvaTFTPServer;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
+
+										<!--<TextBlock>
+											<TextBlock.Text>
+												<MultiBinding StringFormat="{}{0:000} {1,-20}">
+													<MultiBinding.Bindings>
+														<Binding Path="Id.Id" />
+														<Binding Path="Level" />
+													</MultiBinding.Bindings>
+												</MultiBinding>
+											</TextBlock.Text>
+										</TextBlock>-->
+
+				<!--<TabItem Header="Blah">
+					<Border BorderBrush="Black" BorderThickness="2">
+						<ScrollViewer>
+							<StackPanel Margin="20">
+								<ItemsRepeater ItemsSource="{Binding LogList}" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" >
+									<ItemsRepeater.ItemTemplate>
+										<DataTemplate>
+											<Border Margin="0,10,0,0"
+												CornerRadius="5"
+												BorderBrush="Blue" BorderThickness="1"
+												Padding="5">
+												<SelectableTextBlock Text="{Binding Text}"/>
+											</Border>
+										</DataTemplate>
+									</ItemsRepeater.ItemTemplate>
+								</ItemsRepeater>
+							</StackPanel>
+						</ScrollViewer>
+					</Border>
+				</TabItem>-->
+
+
 // see https://stackoverflow.com/questions/675545/is-it-possible-to-use-a-c-sharp-object-initializer-with-a-factory-method
 public struct ObjectIniter<TObject>
     {

@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Avalonia.Media;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 
 namespace AvaTFTPServer.ViewModels
 {
-    public sealed class CustomLogger(string name, Action<string> addLine) : ILogger
+    public sealed class CustomLogger(string name, Action<LogItem> addLine) : ILogger
     {
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default!;
 
@@ -19,11 +20,19 @@ namespace AvaTFTPServer.ViewModels
         {
             if(!IsEnabled(logLevel)) return;
 
+            var timestamp = DateTime.UtcNow;
+
             var sw = new StringWriter();
-            sw.Write($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} [{eventId.Id,2}: {logLevel,-12}]");
-            sw.Write($" {name} - ");
+            //sw.Write($"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} [{eventId.Id,2}: {logLevel,-12}]");
+            //sw.Write($" {name} - ");
             sw.Write($"{formatter(state, exception)}");
-            addLine(sw.ToString());
+
+            using var sr = new StringReader(sw.ToString());
+
+            while(sr.ReadLine() is string line) 
+            {
+                addLine(new LogItem() { TimestampUtc = timestamp, Id = eventId, Level = logLevel, Text = line });
+            }
 
             //ColorConsoleLoggerConfiguration config = getCurrentConfig();
             //if(config.EventId == 0 || config.EventId == eventId.Id)

@@ -35,17 +35,11 @@ namespace AvaTFTPServer.Views
         {
             InitializeComponent();
             ListBoxLog.Loaded += ListBoxLog_Loaded;
-            ListBoxTransfers.Loaded += ListBoxTransfers_Loaded;
-        }
-
-        private void ListBoxTransfers_Loaded(object? sender, RoutedEventArgs e)
-        {
-            AutoScrollTransfers();
         }
 
         private void ListBoxLog_Loaded(object? sender, RoutedEventArgs e)
         {
-            AutoScrollLog();
+            if(DataContext is MainWindowViewModel viewModel) { viewModel.ScrollLogWhenEnabled(); }
         }
 
         private void AutoScrollLog()

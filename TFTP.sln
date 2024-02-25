@@ -14,8 +14,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TFTPDemo", "TFTPDemo\TFTPDe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaTFTPServer", "AvaTFTPServer\AvaTFTPServer.csproj", "{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigTest", "ConfigTest\ConfigTest.csproj", "{034511FD-C8B1-41AA-A40B-6CA740EE1DD9}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,10 +32,6 @@ Global
 		{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{034511FD-C8B1-41AA-A40B-6CA740EE1DD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{034511FD-C8B1-41AA-A40B-6CA740EE1DD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{034511FD-C8B1-41AA-A40B-6CA740EE1DD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{034511FD-C8B1-41AA-A40B-6CA740EE1DD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

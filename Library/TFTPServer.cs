@@ -118,18 +118,18 @@ public partial class TFTPServer : IDisposable
             {
                 int maxWorkerThreads, maxCompletionPortThreads;
 
-                Trace($"Starting TFTP server '{_configuration.EndPoint}'");
+                _logger.LogInformation("Starting TFTP server '{endpoint}'", _configuration.EndPoint);
                 _active = true;
                 _socket = new ForkableUDPSocket(_udpSocketFactory.Create(_configuration.EndPoint, MaxBlockSize, _configuration.DontFragment, _configuration.Ttl)); //, OnUDPReceive, OnUDPStop);
-                Trace($"TFTP Server start succeeded, serving at '{_socket.LocalEndPoint}'");
+                _logger.LogInformation("TFTP Server start succeeded, serving at '{localendpoint}'", _socket.LocalEndPoint);
                 ThreadPool.GetMaxThreads(out maxWorkerThreads, out maxCompletionPortThreads);
-                Trace($"Threadpool maxWorkerThreads={maxWorkerThreads} maxCompletionPortThreads={maxCompletionPortThreads}");
-                Trace($"GCSettings.IsServerGC={System.Runtime.GCSettings.IsServerGC}");
+                _logger.LogTrace("Threadpool maxWorkerThreads={maxWorkerThreads} maxCompletionPortThreads={maxCompletionPortThreads}", maxWorkerThreads, maxCompletionPortThreads);
+                _logger.LogTrace("GCSettings.IsServerGC={isservergc}", System.Runtime.GCSettings.IsServerGC);
                 _mainTask = Task.Run(async () => { await MainTask(_cancellationTokenSource.Token); });
             }
             catch(Exception e)
             {
-                Trace($"TFTP Server start failed, reason '{e}'");
+                _logger.LogError("TFTP Server start failed, reason {error}", e);
                 _active = false;
                 throw;
             }
@@ -141,7 +141,7 @@ public partial class TFTPServer : IDisposable
     {
         if(_active)
         {
-            Trace($"Stopping TFTP server '{_configuration.EndPoint}'");
+            _logger.LogInformation("Stopping TFTP server '{endpoint}'", _configuration.EndPoint);
             _active = false;
 
             _cancellationTokenSource.Cancel();
@@ -158,14 +158,14 @@ public partial class TFTPServer : IDisposable
             }
 
             _socket.Dispose();
-            Trace("Stopped");
+            _logger.LogInformation("Stopped");
         }
     }
 
     private async Task MainTask(CancellationToken cancellationToken)
     {
         _serverCallback?.Started();
-        Trace("MainTask started");
+        _logger.LogTrace("MainTask started");
 
         try
         {
@@ -251,7 +251,7 @@ public partial class TFTPServer : IDisposable
             _serverCallback?.Stopped(e);
         }
 
-        Trace("MainTask stopped");
+        _logger.LogTrace("MainTask stopped");
     }
 
     private void AddAndStartSession(ITFTPSession session)
