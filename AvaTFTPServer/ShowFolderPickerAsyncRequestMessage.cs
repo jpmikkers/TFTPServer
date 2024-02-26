@@ -7,6 +7,22 @@ using AvaTFTPServer;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
+											<!--<TextBlock.Inlines>
+												<InlineCollection>
+													--><!--<InlineUIContainer>
+														<Border
+															BorderBrush="Black"
+															BorderThickness="1"
+															CornerRadius="4"
+															Width="16"
+															Height="16"
+															Background="{CompiledBinding Level, Converter={StaticResource logLevelConverter}}" />
+													</InlineUIContainer>--><!--
+													<Run Text="{CompiledBinding Level, StringFormat='{}{0,-11}'}" />
+													<Run Text="{CompiledBinding Text}"/>
+												</InlineCollection>
+											</TextBlock.Inlines>-->
+
 
 										<!--<TextBlock>
 											<TextBlock.Text>
