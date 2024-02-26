@@ -240,18 +240,18 @@ public partial class TFTPServer : IDisposable
                         break;
                 }
             }
-            _serverCallback?.Stopped(null);
+            cancellationToken.ThrowIfCancellationRequested();
         }
-        catch(TaskCanceledException)
+        catch(OperationCanceledException)
         {
+            _logger.LogTrace("MainTask stopped");
             _serverCallback?.Stopped(null);
         }
         catch(Exception e)
         {
+            _logger.LogError("MainTask failed, reason {error}", e);
             _serverCallback?.Stopped(e);
         }
-
-        _logger.LogTrace("MainTask stopped");
     }
 
     private void AddAndStartSession(ITFTPSession session)

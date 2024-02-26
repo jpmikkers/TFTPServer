@@ -71,7 +71,7 @@ namespace AvaTFTPServer.ViewModels
         {
             public void Started() => parent.ServerState = TFTPServerState.Running;
 
-            public void Stopped(Exception? ex) => parent.ServerState = (ex is null) ? TFTPServerState.Error : TFTPServerState.Stopped;
+            public void Stopped(Exception? ex) => parent.ServerState = (ex is not null) ? TFTPServerState.Error : TFTPServerState.Stopped;
         }
 
         private class SessionInfoFactory(MainWindowViewModel parent) : ITFTPSessionInfoFactory
