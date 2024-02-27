@@ -43,7 +43,17 @@ public partial class TransferSession : ObservableObject
     private State _sessionState = State.Created;
 
     [ObservableProperty]
-    private DateTime _startTime = DateTime.Now;
+    private DateTime _startTimeUtc = DateTime.UtcNow;
+
+    public DateTime StartTimeLocal
+    {
+        get=> StartTimeUtc.ToLocalTime(); 
+    }
+
+    public DateTime CompletionTimeUtc
+    {
+        get => StartTimeUtc + _stopwatch.Elapsed;
+    }
 
     [ObservableProperty]
     private bool _isUpload;
@@ -111,7 +121,7 @@ public partial class TransferSession : ObservableObject
         RemoteEndPoint = args.RemoteEndPoint;
         WindowSize = args.WindowSize;
         SessionState = State.Busy;
-        StartTime = args.StartTime;
+        StartTimeUtc = args.StartTimeUtc;
         Speed = 0;
         Transferred = 0;
         _cachedTransferred = 0;

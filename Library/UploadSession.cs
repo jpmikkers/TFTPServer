@@ -41,7 +41,7 @@ internal class UploadSession : TFTPSession
             IsUpload = true,
             LocalEndPoint = _localEndPoint,
             RemoteEndPoint = _remoteEndPoint,
-            StartTime = DateTime.Now,
+            StartTimeUtc = DateTime.UtcNow,
             WindowSize = 1,
         });
     }

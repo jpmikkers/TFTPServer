@@ -53,7 +53,7 @@ internal class DownloadSession : TFTPSession
             IsUpload = false,
             LocalEndPoint = _localEndPoint,
             RemoteEndPoint = _remoteEndPoint,
-            StartTime = DateTime.Now,
+            StartTimeUtc = DateTime.UtcNow,
             WindowSize = _windowSize,
         });
     }

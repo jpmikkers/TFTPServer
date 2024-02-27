@@ -10,6 +10,6 @@ public record class TFTPSessionStartInfo
     public bool IsUpload { get; set; }
     public IPEndPoint LocalEndPoint { get; set; } = new IPEndPoint(IPAddress.Loopback, 0);
     public IPEndPoint RemoteEndPoint { get; set; } = new IPEndPoint(IPAddress.Loopback, 0);
-    public DateTime StartTime { get; set; }
+    public DateTime StartTimeUtc { get; set; }
     public int WindowSize { get; set; }
 }

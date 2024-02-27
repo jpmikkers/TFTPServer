@@ -129,7 +129,7 @@ namespace AvaTFTPServer.ViewModels
             for(var t = TransferSessions.Count-1; t>=0; t--)
             {
                 var item = TransferSessions[t];
-                if( item.IsFinalState && DateTime.Now - item.StartTime > TimeSpan.FromSeconds(30))
+                if( item.IsFinalState && (DateTime.UtcNow - item.CompletionTimeUtc) > TimeSpan.FromSeconds(30))
                 {
                     TransferSessions.RemoveAt(t);
                 }
