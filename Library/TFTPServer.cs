@@ -191,7 +191,7 @@ public partial class TFTPServer : IDisposable
                     case Opcode.ReadRequest:
                         if(!hasSession)
                         {
-                            string filename = ReadZString(ms);
+                            string filename = ReadZeroTerminatedString(ms, Encoding.ASCII);
                             if(_configuration.ConvertPathSeparator) filename = filename.Replace('/', '\\');
                             _ = ReadMode(ms);
                             var requestedOptions = ReadOptions(ms);
@@ -215,7 +215,7 @@ public partial class TFTPServer : IDisposable
                     case Opcode.WriteRequest:
                         if(!hasSession)
                         {
-                            string filename = ReadZString(ms);
+                            string filename = ReadZeroTerminatedString(ms, Encoding.ASCII);
                             if(_configuration.ConvertPathSeparator) filename = filename.Replace('/', '\\');
                             _ = ReadMode(ms);
                             var requestedOptions = ReadOptions(ms);

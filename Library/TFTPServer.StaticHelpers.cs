@@ -68,23 +68,30 @@ public partial class TFTPServer
         return ms.ToArray();
     }
 
-    internal static string ReadZString(Stream s)
+    internal static string ReadZeroTerminatedString(Stream s, Encoding encoding)
     {
-        StringBuilder sb = new();
+        var mem = new MemoryStream();
         int c = s.ReadByte();
-        while(c != 0)
-        {
-            sb.Append((char)c);
+        while(c > 0) 
+        { 
+            mem.WriteByte((byte)c);
             c = s.ReadByte();
         }
-        return sb.ToString();
+        mem.Position = 0;
+        using var sr = new StreamReader(mem, encoding);
+        return sr.ReadToEnd();
+    }
+
+    internal static string ReadZString(Stream s)
+    {
+        return ReadZeroTerminatedString(s, Encoding.ASCII);
     }
 
     internal static void WriteZString(Stream s, string msg)
     {
-        TextWriter tw = new StreamWriter(s, Encoding.ASCII);
-        tw.Write(msg);
-        tw.Flush();
+        using var sw = new StreamWriter(s, Encoding.ASCII, -1, true);
+        sw.Write(msg);
+        sw.Flush();
         s.WriteByte(0);
     }
 
