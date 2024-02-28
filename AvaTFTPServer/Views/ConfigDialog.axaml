@@ -25,7 +25,7 @@
                 HorizontalAlignment="Right"
                 Orientation="Horizontal"
                 Spacing="8">
-                <Button Command="{CompiledBinding ApplyCommand}" IsDefault="True">_Apply</Button>
+                <Button IsEnabled="{CompiledBinding !HasErrors}" Command="{CompiledBinding ApplyCommand}" IsDefault="True">_Apply</Button>
                 <Button
                     Command="{CompiledBinding CancelCommand}"
                     IsCancel="True">

@@ -32,6 +32,10 @@ namespace AvaTFTPServer
                 avaloniaAppBuilder()
                     .StartWithClassicDesktopLifetime(args);
             }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
             finally
             {
                 Task.Run(async () => await myApp.StopAsync()).GetAwaiter().GetResult();

@@ -81,12 +81,12 @@ public partial class ConfigDialog : Window
                     AutoCreateDirectories = vm.AutoCreateDirectories,
                     ConvertPathSeparator = vm.ConvertPathSeparator,
                     DontFragment = vm.DontFragment,
-                    ResponseTimeout = vm.ResponseTimeout,
-                    Retries = vm.Retries,
+                    ResponseTimeout = vm.ResponseTimeout ?? 2,
+                    Retries = vm.Retries ?? 5,
                     RootPath = vm.RootPath,
                     SinglePort = vm.SinglePort,
-                    TimeToLive = vm.TimeToLive,
-                    WindowSize = vm.WindowSize,
+                    TimeToLive = vm.TimeToLive ?? -1,
+                    WindowSize = vm.WindowSize ?? 1,
                     EndPoint = IPEndPoint.TryParse(vm.EndPoint, out var parsedEndPoint) ? parsedEndPoint : settings.EndPoint,
                 }
             };

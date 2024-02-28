@@ -1,14 +1,19 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Documents;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 namespace AvaTFTPServer.ViewModels;
 
-public partial class ConfigDialogViewModel : ViewModelBase
+// use NotifyDataErrorInfo for mvvmct validation, see https://github.com/AvaloniaUI/Avalonia/issues/8397
+// then on Apply/OK buttons you can bind IsEnabled to !HasErrors
+public partial class ConfigDialogViewModel : ObservableValidator
 {
     public interface IViewMethods
     {
@@ -18,15 +23,20 @@ public partial class ConfigDialogViewModel : ViewModelBase
 
     private IViewMethods _viewMethods;
 
-    public ConfigDialogViewModel(IViewMethods viewMethods)
+    public ConfigDialogViewModel(IViewMethods viewMethods) : base()
     {
         _viewMethods = viewMethods;
     }
 
     [ObservableProperty]
+    [Required]
+    [NotifyDataErrorInfo]
     private string _endPoint = "0.0.0.0:69";
 
     [ObservableProperty]
+    [Required]
+    [NotifyDataErrorInfo]
+    [PathMustBeValid]
     private string _rootPath = ".";
 
     [ObservableProperty]
@@ -45,19 +55,27 @@ public partial class ConfigDialogViewModel : ViewModelBase
     private bool _singlePort = false;
 
     [ObservableProperty]
-    private short _timeToLive = -1;
+    [Required]
+    [NotifyDataErrorInfo]  
+    private short? _timeToLive = -1;
 
     [ObservableProperty]
     private bool _dontFragment = true;
 
     [ObservableProperty]
-    private int _responseTimeout = 2;
+    [Required]
+    [NotifyDataErrorInfo]
+    private int? _responseTimeout = 2;
 
     [ObservableProperty]
-    private int _retries = 5;
+    [Required]
+    [NotifyDataErrorInfo]
+    private int? _retries = 5;
 
     [ObservableProperty]
-    private int _windowSize = 1;
+    [Required]
+    [NotifyDataErrorInfo]
+    private int? _windowSize = 1;
 
     public enum DialogResult
     {
@@ -70,7 +88,7 @@ public partial class ConfigDialogViewModel : ViewModelBase
     {
         _viewMethods.Close(DialogResult.Ok);
     }
-
+    
     [RelayCommand]
     private void Cancel()
     {
