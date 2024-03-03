@@ -18,7 +18,8 @@ namespace AvaTFTPServer.ViewModels
         public interface IViewMethods
         {
             void Close();
-            Task<ChangeConfigResult> ShowConfigDialog(ServerSettings serverSettings);
+            Task<ConfigDialog.ChangeConfigResult> ShowConfigDialog(ServerSettings serverSettings);
+            Task<UIConfigDialog.ChangeConfigResult> ShowUIConfigDialog(UISettings settings, string configPath);
             Task ShowErrorDialog(string title, string header, string details);
             void AutoScrollLog();
             void AutoScrollTransfers();
@@ -52,19 +53,14 @@ namespace AvaTFTPServer.ViewModels
         [ObservableProperty]
         TFTPServerState _serverState;
 
-        public bool AutoScrollLog
+        [ObservableProperty]
+        private bool _autoScrollLog;
+
+        partial void OnAutoScrollLogChanged(bool oldValue, bool newValue)
         {
-            get => _appSettings.AutoScrollLog;
-            set
-            {
-                var tmp = AutoScrollLog;
-                if(SetProperty(ref tmp, value))
-                {
-                    _appSettings.AutoScrollLog = tmp;
-                    _appSettings.Save();
-                    ScrollLogWhenEnabled();
-                }
-            }
+            _appSettings.UISettings.AutoScrollLog = newValue;
+            _appSettings.Save();
+            ScrollLogWhenEnabled();
         }
 
         private class TFTPServerInfoImpl(MainWindowViewModel parent) : ITFTPServerInfo
@@ -93,6 +89,8 @@ namespace AvaTFTPServer.ViewModels
             //App.Current.
 
             _appSettings = TFTPAppSettings.Load();
+
+            AutoScrollLog = _appSettings.UISettings.AutoScrollLog;
 
             _chunkedDispatcher = new ChunkedDispatcher<LogItem>(Dispatcher.UIThread, items =>
             {
@@ -168,6 +166,26 @@ namespace AvaTFTPServer.ViewModels
                         await StopServer();
                         await StartServer();
                     }
+                }
+            }
+        }
+
+        [RelayCommand]
+        private async Task DoConfigureUI()
+        {
+            if(ViewMethods == null) return;
+
+            var originalSettings = _appSettings.UISettings;
+            var response = await ViewMethods.ShowUIConfigDialog(originalSettings, _appSettings.ConfigPath);
+
+            if(response.DialogResult == UIConfigDialogViewModel.DialogResult.Ok)
+            {
+                if(!originalSettings.Equals(response.Settings))
+                {
+                    _appSettings.UISettings = response.Settings;
+                    _appSettings.Save();
+
+                    AutoScrollLog = _appSettings.UISettings.AutoScrollLog;
                 }
             }
         }

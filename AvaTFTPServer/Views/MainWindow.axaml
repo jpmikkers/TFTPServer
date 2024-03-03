@@ -32,15 +32,16 @@
 
     <DockPanel Margin="0,0">
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_File">
-                <MenuItem Command="{CompiledBinding DoExitCommand}" Header="E_xit" />
+            <MenuItem Header="_App">
+				<MenuItem Command="{CompiledBinding DoConfigureUICommand}" Header="_Settings" />
+				<MenuItem Command="{CompiledBinding DoExitCommand}" Header="E_xit" />
             </MenuItem>
             <MenuItem Header="_Server">
                 <MenuItem Command="{CompiledBinding StartServerCommand}" Header="_Start" />
                 <MenuItem Command="{CompiledBinding StopServerCommand}" Header="S_top" />
                 <MenuItem Command="{CompiledBinding DoConfigureCommand}" Header="_Configure" />
             </MenuItem>
-        </Menu>
+		</Menu>
 
         <Border
             Margin="4,4,4,4"

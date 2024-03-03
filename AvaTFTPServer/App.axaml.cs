@@ -7,6 +7,7 @@ using AvaTFTPServer.Views;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AvaTFTPServer
@@ -53,7 +54,7 @@ namespace AvaTFTPServer
             {
                 // Line below is needed to remove Avalonia data validation.
                 // Without this line you will get duplicate validations from both Avalonia and CT
-                BindingPlugins.DataValidators.RemoveAt(0);
+                BindingPlugins.DataValidators.RemoveAll(x => x is DataAnnotationsValidationPlugin);
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = new MainWindowViewModel(),

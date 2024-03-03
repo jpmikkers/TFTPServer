@@ -16,15 +16,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AvaTFTPServer;
 
-public record class ChangeConfigResult
-{
-    public ConfigDialogViewModel.DialogResult DialogResult { get; set; }
-    public ServerSettings ServerSettings { get; set; } = new ServerSettings();
-}
-
-
 public partial class ConfigDialog : Window
 {
+    public record class ChangeConfigResult
+    {
+        public ConfigDialogViewModel.DialogResult DialogResult { get; set; }
+        public ServerSettings ServerSettings { get; set; } = new ServerSettings();
+    }
+
     private class ViewMethodsImpl(ConfigDialog parent) : ConfigDialogViewModel.IViewMethods
     {
         public void Close(ConfigDialogViewModel.DialogResult result) => parent.Close(result);

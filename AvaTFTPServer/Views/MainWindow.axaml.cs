@@ -20,7 +20,7 @@ namespace AvaTFTPServer.Views
                 parent.Close();
             }
 
-            public Task<ChangeConfigResult> ShowConfigDialog(ServerSettings serverSettings)
+            public Task<ConfigDialog.ChangeConfigResult> ShowConfigDialog(ServerSettings serverSettings)
             {
                 return ConfigDialog.ShowDialog(parent, serverSettings);
             }
@@ -28,6 +28,11 @@ namespace AvaTFTPServer.Views
             public Task ShowErrorDialog(string title, string header, string details)
             {
                 return ErrorDialog.ShowErrorDialog(parent, title, header, details);
+            }
+
+            public Task<UIConfigDialog.ChangeConfigResult> ShowUIConfigDialog(UISettings settings, string configPath)
+            {
+                return UIConfigDialog.ShowDialog(parent, settings, configPath);
             }
         }
 

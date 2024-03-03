@@ -14,6 +14,11 @@ public class TFTPAppSettings
     private static string _configFolderPath;
     private static string _configPath;
 
+    public string ConfigPath
+    {
+        get => _configPath;
+    }
+
     private static JsonSerializerOptions s_serializerOptions = new()
     {
         WriteIndented = true,
@@ -21,7 +26,8 @@ public class TFTPAppSettings
         Converters = { new IPEndPointJsonConverter() }
     };
 
-    public bool AutoScrollLog { get; set; } = true;
+    //public bool AutoScrollLog { get; set; } = true;
+    public UISettings UISettings { get; set; } = new UISettings();
 
     public ServerSettings ServerSettings { get; set; } = new ServerSettings();
 
