@@ -81,7 +81,7 @@ public partial class TFTPServer : IDisposable
     }
 
     private TFTPServer(
-        ILogger logger,
+        ILogger<TFTPServer> logger,
         ITFTPStreamFactory? streamFactory,
         IUDPSocketFactory? udpSocketFactory,
         ITFTPSessionInfoFactory? liveSessionInfoFactory,
@@ -98,7 +98,7 @@ public partial class TFTPServer : IDisposable
     }
 
     public static async Task<TFTPServer> CreateAndStart(
-        ILogger logger,
+        ILogger<TFTPServer> logger,
         ITFTPStreamFactory? streamFactory,
         IUDPSocketFactory? udpSocketFactory,
         ITFTPSessionInfoFactory? liveSessionInfoFactory,

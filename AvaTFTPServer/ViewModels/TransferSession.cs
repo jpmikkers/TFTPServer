@@ -170,13 +170,18 @@ public partial class TransferSession : ObservableObject
         _prevTransferred = newTransferred;
     }
 
-    private static string ConvertSpeed(double bytesPerSecond)
+    static string ConvertSpeed(double bytesPerSecond)
     {
         const double kilobyte = 1024.0;
-        int[] precisions = [0, 1, 2];
-        string[] prefixes = ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi", "Yi"];
-        int t = (Math.Abs(bytesPerSecond) < kilobyte) ? 0 : Math.Min(prefixes.Length - 1, (int)Math.Log(Math.Abs(bytesPerSecond), kilobyte));
-        int precision = precisions[Math.Min(precisions.Length - 1, t)];
-        return string.Format(string.Format("{{0:F{0}}} {{1}}B/s", precision), bytesPerSecond / Math.Pow(kilobyte, t), prefixes[t]);
+
+        string[] formats = 
+        [
+            "{0:F0} B/s", "{0:F1} KiB/s", "{0:F2} MiB/s",
+            "{0:F2} GiB/s", "{0:F2} TiB/s", "{0:F2} PiB/s",
+            "{0:F2} EiB/s", "{0:F2} ZiB/s", "{0:F2} YiB/s"
+        ];
+
+        int t = (Math.Abs(bytesPerSecond) < kilobyte) ? 0 : Math.Min(formats.Length - 1, (int)Math.Log(Math.Abs(bytesPerSecond), kilobyte));
+        return string.Format(formats[t], bytesPerSecond / Math.Pow(kilobyte, t));
     }
 }

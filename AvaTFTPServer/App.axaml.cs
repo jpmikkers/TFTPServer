@@ -4,6 +4,7 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using AvaTFTPServer.ViewModels;
 using AvaTFTPServer.Views;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -20,6 +21,11 @@ namespace AvaTFTPServer
         {
             var appBuilder = Host.CreateApplicationBuilder(args);
             appBuilder.Logging.AddDebug();
+
+            appBuilder.Services.AddSingleton<MainWindowViewModel>();
+            appBuilder.Services.AddSingleton<MainWindow>();
+            appBuilder.Services.AddTransient<ITFTPAppDialogs,TFTPAppDialogsImpl>();
+
             //appBuilder.Services.AddWindowsFormsBlazorWebView();
             //appBuilder.Services.AddBlazorWebViewDeveloperTools();
             //appBuilder.Services.AddSingleton<WeatherForecastService>();
@@ -55,10 +61,7 @@ namespace AvaTFTPServer
                 // Line below is needed to remove Avalonia data validation.
                 // Without this line you will get duplicate validations from both Avalonia and CT
                 BindingPlugins.DataValidators.RemoveAll(x => x is DataAnnotationsValidationPlugin);
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(),
-                };
+                desktop.MainWindow = AppHost!.Services.GetRequiredService<MainWindow>();
             }
 
             base.OnFrameworkInitializationCompleted();

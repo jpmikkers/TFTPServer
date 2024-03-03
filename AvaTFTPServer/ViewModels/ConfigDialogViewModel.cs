@@ -1,31 +1,28 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Documents;
+using Avalonia.Platform.Storage;
+using Baksteen.Avalonia.Tools.CloseableViewModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AvaTFTPServer.ViewModels;
 
 // use NotifyDataErrorInfo for mvvmct validation, see https://github.com/AvaloniaUI/Avalonia/issues/8397
 // then on Apply/OK buttons you can bind IsEnabled to !HasErrors
-public partial class ConfigDialogViewModel : ObservableValidator
+public partial class ConfigDialogViewModel : ObservableValidator, ICloseableViewModel<ConfigDialogViewModel.DialogResult>
 {
-    public interface IViewMethods
-    {
-        void Close(DialogResult result);
-        Task<string?> ShowFolderPicker(string title);
-    };
+    private readonly IStorageProvider _storageProvider;
 
-    private IViewMethods _viewMethods;
-
-    public ConfigDialogViewModel(IViewMethods viewMethods) : base()
+    public ConfigDialogViewModel(IStorageProvider storageProvider) : base()
     {
-        _viewMethods = viewMethods;
+        _storageProvider = storageProvider;
     }
 
     [ObservableProperty]
@@ -86,18 +83,29 @@ public partial class ConfigDialogViewModel : ObservableValidator
     [RelayCommand]
     private void Apply()
     {
-        _viewMethods.Close(DialogResult.Ok);
+        this.Close(DialogResult.Ok);
     }
     
     [RelayCommand]
     private void Cancel()
     {
-        _viewMethods.Close(DialogResult.Canceled);
+        this.Close(DialogResult.Canceled);
     }
 
     [RelayCommand]
     private async Task SelectFolder()
     {
-        RootPath = await _viewMethods.ShowFolderPicker("Select root folder") ?? RootPath;
+        try
+        {
+            var results = await _storageProvider.OpenFolderPickerAsync(
+            new FolderPickerOpenOptions
+            {
+                AllowMultiple = false,
+                Title = "Select root path"
+            });
+            var tmp = results.Any() ? results.Select(x => x.TryGetLocalPath()).FirstOrDefault() : null;
+            RootPath =  tmp ?? RootPath;
+        }
+        catch { }
     }
 }

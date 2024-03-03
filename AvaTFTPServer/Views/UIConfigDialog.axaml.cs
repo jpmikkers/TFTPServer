@@ -9,13 +9,9 @@ using System.Threading.Tasks;
 
 namespace AvaTFTPServer;
 
+
 public partial class UIConfigDialog : Window
 {
-    private class ViewMethodsImpl(UIConfigDialog parent) : UIConfigDialogViewModel.IViewMethods
-    {
-        public void Close(UIConfigDialogViewModel.DialogResult result) => parent.Close(result);
-    }
-
     public record class ChangeConfigResult
     {
         public UIConfigDialogViewModel.DialogResult DialogResult { get; set; }
@@ -35,7 +31,6 @@ public partial class UIConfigDialog : Window
 
         var vm = new UIConfigDialogViewModel()
         {
-            ViewMethods = new ViewMethodsImpl(dialog),
             AutoScrollLog = settings.AutoScrollLog,
             ConfigPath = configPath
         };

@@ -14,6 +14,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TFTPDemo", "TFTPDemo\TFTPDe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AvaTFTPServer", "AvaTFTPServer\AvaTFTPServer.csproj", "{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Baksteen.Avalonia.Tools.CloseableViewModel", "Baksteen.Avalonia.Tools.ViewModelCloseBehavior\Baksteen.Avalonia.Tools.CloseableViewModel.csproj", "{992EF0D7-7BA9-4AEE-BE6C-56485F3F2044}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{761F80A7-EC65-4242-B36F-EE15CFBA3DF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{992EF0D7-7BA9-4AEE-BE6C-56485F3F2044}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{992EF0D7-7BA9-4AEE-BE6C-56485F3F2044}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{992EF0D7-7BA9-4AEE-BE6C-56485F3F2044}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{992EF0D7-7BA9-4AEE-BE6C-56485F3F2044}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

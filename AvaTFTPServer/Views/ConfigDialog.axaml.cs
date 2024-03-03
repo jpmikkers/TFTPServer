@@ -24,34 +24,17 @@ public partial class ConfigDialog : Window
         public ServerSettings ServerSettings { get; set; } = new ServerSettings();
     }
 
-    private class ViewMethodsImpl(ConfigDialog parent) : ConfigDialogViewModel.IViewMethods
-    {
-        public void Close(ConfigDialogViewModel.DialogResult result) => parent.Close(result);
-        public Task<string?> ShowFolderPicker(string title) => parent.ShowFolderPicker(title);
-    }
-
     public ConfigDialog()
     {
         InitializeComponent();
         GridIndexer.RunGridIndexer(this);
     }
 
-    private async Task<string?> ShowFolderPicker(string title)
-    {
-        var results = await StorageProvider.OpenFolderPickerAsync(
-        new FolderPickerOpenOptions
-        {
-            AllowMultiple = false,
-            Title = title
-        });
-        return results.Any() ? results.Select(x => x.TryGetLocalPath()).FirstOrDefault() : null;
-    }
-
     public static async Task<ChangeConfigResult> ShowDialog(Window owner, ServerSettings settings)
     {
         var dialog = new ConfigDialog();
 
-        var vm = new ConfigDialogViewModel(new ViewMethodsImpl(dialog))
+        var vm = new ConfigDialogViewModel(dialog.StorageProvider)
         {
             EndPoint = settings.EndPoint.ToString(),
             AllowDownloads = settings.AllowDownloads,

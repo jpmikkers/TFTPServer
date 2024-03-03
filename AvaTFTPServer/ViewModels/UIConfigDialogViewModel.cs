@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Baksteen.Avalonia.Tools.CloseableViewModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
@@ -9,15 +10,8 @@ using static AvaTFTPServer.ViewModels.ConfigDialogViewModel;
 
 namespace AvaTFTPServer.ViewModels;
 
-public partial class UIConfigDialogViewModel : ObservableValidator
+public partial class UIConfigDialogViewModel : ObservableValidator, ICloseableViewModel<UIConfigDialogViewModel.DialogResult>
 {
-    public interface IViewMethods
-    {
-        void Close(DialogResult result);
-    };
-
-    public IViewMethods? ViewMethods { get; set; }
-
     public enum DialogResult
     {
         Ok,
@@ -33,12 +27,12 @@ public partial class UIConfigDialogViewModel : ObservableValidator
     [RelayCommand]
     private void Apply()
     {
-        ViewMethods?.Close(DialogResult.Ok);
+        this.Close(DialogResult.Ok);
     }
 
     [RelayCommand]
     private void Cancel()
     {
-        ViewMethods?.Close(DialogResult.Cancel);
+        this.Close(DialogResult.Cancel);
     }
 }

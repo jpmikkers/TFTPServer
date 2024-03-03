@@ -5,28 +5,18 @@ using Avalonia.Threading;
 using Baksteen.Net.TFTP.Server;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Baksteen.Avalonia.Tools.CloseableViewModel;
 
 namespace AvaTFTPServer.ViewModels
 {
-    public partial class MainWindowViewModel : ViewModelBase
+    public partial class MainWindowViewModel : ViewModelBase, ICloseableViewModel
     {
-        public interface IViewMethods
-        {
-            void Close();
-            Task<ConfigDialog.ChangeConfigResult> ShowConfigDialog(ServerSettings serverSettings);
-            Task<UIConfigDialog.ChangeConfigResult> ShowUIConfigDialog(UISettings settings, string configPath);
-            Task ShowErrorDialog(string title, string header, string details);
-            void AutoScrollLog();
-            void AutoScrollTransfers();
-        };
-
-        public IViewMethods? ViewMethods { get; set; }
-
         public enum TFTPServerState
         {
             Stopped,
@@ -44,6 +34,8 @@ namespace AvaTFTPServer.ViewModels
         private ChunkedDispatcher<LogItem> _chunkedDispatcher;
         private readonly DispatcherTimer _cleanupTimer;
         private readonly DispatcherTimer _progressTimer;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly ITFTPAppDialogs _appDialogs;
         private TFTPAppSettings _appSettings;
 
         public ObservableCollection<LogItem> Log { get; } = [];
@@ -55,6 +47,12 @@ namespace AvaTFTPServer.ViewModels
 
         [ObservableProperty]
         private bool _autoScrollLog;
+
+        public Action 
+            ScrollLog { get; set; } = () => { };
+
+        public Action 
+            ScrollTransfers { get; set; } = () => { };
 
         partial void OnAutoScrollLogChanged(bool oldValue, bool newValue)
         {
@@ -78,13 +76,13 @@ namespace AvaTFTPServer.ViewModels
                 Dispatcher.UIThread.Post(() =>
                 {
                     parent.TransferSessions.Add(ts);
-                    parent.ViewMethods?.AutoScrollTransfers();
+                    parent.ScrollTransfers();
                 });
                 return ts.SessionInfo;
             }
         }
 
-        public MainWindowViewModel() : base() 
+        public MainWindowViewModel(ILoggerFactory loggerFactory, ITFTPAppDialogs appDialogs) : base() 
         {
             //App.Current.
 
@@ -105,6 +103,8 @@ namespace AvaTFTPServer.ViewModels
 
             _cleanupTimer = new(TimeSpan.FromSeconds(10.0), DispatcherPriority.Normal, _cleanupTimer_Tick);
             _cleanupTimer.Start();
+            _loggerFactory = loggerFactory;
+            _appDialogs = appDialogs;
 
             //Log.Add(new LogItem { Color = Colors.Red, Text = "een" });
             //Log.Add(new LogItem { Color = Colors.Green, Text = "twee" });
@@ -119,7 +119,7 @@ namespace AvaTFTPServer.ViewModels
 
         public void ScrollLogWhenEnabled()
         {
-            if(AutoScrollLog) ViewMethods?.AutoScrollLog();
+            if(AutoScrollLog) ScrollLog();
         }
 
         private void _cleanupTimer_Tick(object? sender, EventArgs e)
@@ -141,17 +141,15 @@ namespace AvaTFTPServer.ViewModels
 
         [RelayCommand]
         private void DoExit()
-        {
-            ViewMethods?.Close();
+        {     
+            this.Close();
         }
 
         [RelayCommand]
         private async Task DoConfigure()
         {
-            if(ViewMethods == null) return;
-
             var originalSettings = _appSettings.ServerSettings;
-            var response = await ViewMethods.ShowConfigDialog(originalSettings);
+            var response = await _appDialogs.ShowConfigDialog(this, originalSettings);
 
             if(response.DialogResult == ConfigDialogViewModel.DialogResult.Ok)
             {
@@ -173,10 +171,8 @@ namespace AvaTFTPServer.ViewModels
         [RelayCommand]
         private async Task DoConfigureUI()
         {
-            if(ViewMethods == null) return;
-
             var originalSettings = _appSettings.UISettings;
-            var response = await ViewMethods.ShowUIConfigDialog(originalSettings, _appSettings.ConfigPath);
+            var response = await _appDialogs.ShowUIConfigDialog(this, originalSettings, _appSettings.ConfigPath);
 
             if(response.DialogResult == UIConfigDialogViewModel.DialogResult.Ok)
             {
@@ -200,17 +196,25 @@ namespace AvaTFTPServer.ViewModels
                     ServerState = TFTPServerState.Starting;
 
                     _server = await TFTPServer.CreateAndStart(
-                        new CustomLogger("TFTPServer", _chunkedDispatcher.Post),
+                        _loggerFactory.CreateLogger<TFTPServer>(),
                         streamFactory: null,
                         udpSocketFactory: null,
                         liveSessionInfoFactory: _sessionInfoFactory,
                         serverCallback: new TFTPServerInfoImpl(this),
                         _appSettings.ServerSettings.ToServerConfig());
+
+                    //_server = await TFTPServer.CreateAndStart(
+                    //    new CustomLogger("TFTPServer", _chunkedDispatcher.Post),
+                    //    streamFactory: null,
+                    //    udpSocketFactory: null,
+                    //    liveSessionInfoFactory: _sessionInfoFactory,
+                    //    serverCallback: new TFTPServerInfoImpl(this),
+                    //    _appSettings.ServerSettings.ToServerConfig());
                 }
                 catch (Exception ex)
                 {
                     ServerState = TFTPServerState.Error;
-                    await (ViewMethods?.ShowErrorDialog("Error", "Failed to start server", ex.ToString()) ?? Task.CompletedTask);
+                    await _appDialogs.ShowErrorDialog(this, "Error", "Failed to start server", ex.ToString());
                 }
             }
         }
