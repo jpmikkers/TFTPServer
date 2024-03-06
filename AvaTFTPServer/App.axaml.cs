@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using AvaTFTPServer.Logging;
 using AvaTFTPServer.ViewModels;
 using AvaTFTPServer.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,12 @@ namespace AvaTFTPServer
         public static void RunAvaloniaAppWithHosting(string[] args, Func<AppBuilder> avaloniaAppBuilder)
         {
             var appBuilder = Host.CreateApplicationBuilder(args);
+            //appBuilder.Logging.ClearProviders();
             appBuilder.Logging.AddDebug();
+
+            //appBuilder.Logging.AddProvider(new GuiLoggerProvider());
+            appBuilder.Logging.Services.AddSingleton<ILoggerProvider,GuiLoggerProvider>();
+            appBuilder.Logging.Services.AddSingleton<GuiLogger>();
 
             appBuilder.Services.AddSingleton<MainWindowViewModel>();
             appBuilder.Services.AddSingleton<MainWindow>();

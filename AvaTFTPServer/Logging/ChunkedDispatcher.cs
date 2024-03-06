@@ -3,7 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace AvaTFTPServer.ViewModels;
+namespace AvaTFTPServer.Logging;
 
 public class ChunkedDispatcher<T>(IDispatcher dispatcher, Action<IEnumerable<T>> onItems)
 {
@@ -26,14 +26,7 @@ public class ChunkedDispatcher<T>(IDispatcher dispatcher, Action<IEnumerable<T>>
 
         if(wasEmpty)
         {
-            if(!dispatcher.CheckAccess())
-            {
-                dispatcher.Post(PumpItems);
-            }
-            else
-            {
-                PumpItems();
-            }
+            dispatcher.Post(PumpItems, DispatcherPriority.Background);
         }
     }
 }

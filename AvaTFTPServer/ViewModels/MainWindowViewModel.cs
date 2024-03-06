@@ -12,6 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Baksteen.Avalonia.Tools.CloseableViewModel;
+using AvaTFTPServer.Logging;
 
 namespace AvaTFTPServer.ViewModels
 {
@@ -36,6 +37,7 @@ namespace AvaTFTPServer.ViewModels
         private readonly DispatcherTimer _progressTimer;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ITFTPAppDialogs _appDialogs;
+        private readonly GuiLogger _guiLogger;
         private TFTPAppSettings _appSettings;
 
         public ObservableCollection<LogItem> Log { get; } = [];
@@ -82,9 +84,10 @@ namespace AvaTFTPServer.ViewModels
             }
         }
 
-        public MainWindowViewModel(ILoggerFactory loggerFactory, ITFTPAppDialogs appDialogs) : base() 
+        public MainWindowViewModel(ILoggerFactory loggerFactory, ITFTPAppDialogs appDialogs, GuiLogger guiLogger) : base() 
         {
             //App.Current.
+            _guiLogger = guiLogger;
 
             _appSettings = TFTPAppSettings.Load();
 
@@ -92,9 +95,12 @@ namespace AvaTFTPServer.ViewModels
 
             _chunkedDispatcher = new ChunkedDispatcher<LogItem>(Dispatcher.UIThread, items =>
             {
+                System.Diagnostics.Debug.WriteLine($"got {items.Count()} items");
                 foreach(var item in items) Log.Add(item);
                 ScrollLogWhenEnabled();
             });
+
+            _guiLogger.RegisterCallback(_chunkedDispatcher.Post);
 
             _sessionInfoFactory = new SessionInfoFactory(this);
 
@@ -141,7 +147,8 @@ namespace AvaTFTPServer.ViewModels
 
         [RelayCommand]
         private void DoExit()
-        {     
+        {
+            _guiLogger.UnregisterCallback();
             this.Close();
         }
 
