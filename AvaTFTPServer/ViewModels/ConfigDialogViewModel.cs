@@ -18,11 +18,11 @@ namespace AvaTFTPServer.ViewModels;
 // then on Apply/OK buttons you can bind IsEnabled to !HasErrors
 public partial class ConfigDialogViewModel : ObservableValidator, ICloseableViewModel<ConfigDialogViewModel.DialogResult>
 {
-    private readonly IStorageProvider _storageProvider;
+    private readonly ITFTPAppDialogs _tftpAppDialogs;
 
-    public ConfigDialogViewModel(IStorageProvider storageProvider) : base()
+    public ConfigDialogViewModel(ITFTPAppDialogs tftpAppDialogs) : base()
     {
-        _storageProvider = storageProvider;
+        _tftpAppDialogs = tftpAppDialogs;
     }
 
     [ObservableProperty]
@@ -95,17 +95,6 @@ public partial class ConfigDialogViewModel : ObservableValidator, ICloseableView
     [RelayCommand]
     private async Task SelectFolder()
     {
-        try
-        {
-            var results = await _storageProvider.OpenFolderPickerAsync(
-            new FolderPickerOpenOptions
-            {
-                AllowMultiple = false,
-                Title = "Select root path"
-            });
-            var tmp = results.Any() ? results.Select(x => x.TryGetLocalPath()).FirstOrDefault() : null;
-            RootPath =  tmp ?? RootPath;
-        }
-        catch { }
+        RootPath = (await _tftpAppDialogs.PickFolder(this, "Select root path")) ?? RootPath;
     }
 }

@@ -30,11 +30,11 @@ public partial class ConfigDialog : Window
         GridIndexer.RunGridIndexer(this);
     }
 
-    public static async Task<ChangeConfigResult> ShowDialog(Window owner, ServerSettings settings)
+    public static async Task<ChangeConfigResult> ShowDialog(Window owner, ServerSettings settings, ITFTPAppDialogs tftpAppDialogs)
     {
         var dialog = new ConfigDialog();
 
-        var vm = new ConfigDialogViewModel(dialog.StorageProvider)
+        var vm = new ConfigDialogViewModel(tftpAppDialogs)
         {
             EndPoint = settings.EndPoint.ToString(),
             AllowDownloads = settings.AllowDownloads,

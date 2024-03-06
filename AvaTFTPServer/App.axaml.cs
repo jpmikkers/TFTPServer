@@ -31,6 +31,7 @@ namespace AvaTFTPServer
             appBuilder.Services.AddSingleton<MainWindowViewModel>();
             appBuilder.Services.AddSingleton<MainWindow>();
             appBuilder.Services.AddTransient<ITFTPAppDialogs,TFTPAppDialogsImpl>();
+            appBuilder.Services.AddSingleton<IViewResolver, ViewResolver>();
 
             //appBuilder.Services.AddWindowsFormsBlazorWebView();
             //appBuilder.Services.AddBlazorWebViewDeveloperTools();
