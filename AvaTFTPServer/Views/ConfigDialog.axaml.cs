@@ -13,6 +13,8 @@ using Avalonia.Platform.Storage;
 using System;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AvaTFTPServer;
 
@@ -30,25 +32,24 @@ public partial class ConfigDialog : Window
         GridIndexer.RunGridIndexer(this);
     }
 
-    public static async Task<ChangeConfigResult> ShowDialog(Window owner, ServerSettings settings, ITFTPAppDialogs tftpAppDialogs)
+    public static async Task<ChangeConfigResult> ShowDialog(Window owner, ServerSettings settings)
     {
         var dialog = new ConfigDialog();
 
-        var vm = new ConfigDialogViewModel(tftpAppDialogs)
-        {
-            EndPoint = settings.EndPoint.ToString(),
-            AllowDownloads = settings.AllowDownloads,
-            AllowUploads = settings.AllowUploads,
-            AutoCreateDirectories = settings.AutoCreateDirectories,
-            ConvertPathSeparator = settings.ConvertPathSeparator,
-            DontFragment = settings.DontFragment,
-            ResponseTimeout = settings.ResponseTimeout,
-            Retries = settings.Retries,
-            RootPath = settings.RootPath,
-            SinglePort = settings.SinglePort,
-            TimeToLive = settings.TimeToLive,
-            WindowSize = settings.WindowSize,
-        };
+        var vm = App.AppHost!.Services.GetRequiredService<ConfigDialogViewModel>();
+
+        vm.EndPoint = settings.EndPoint.ToString();
+        vm.AllowDownloads = settings.AllowDownloads;
+        vm.AllowUploads = settings.AllowUploads;
+        vm.AutoCreateDirectories = settings.AutoCreateDirectories;
+        vm.ConvertPathSeparator = settings.ConvertPathSeparator;
+        vm.DontFragment = settings.DontFragment;
+        vm.ResponseTimeout = settings.ResponseTimeout;
+        vm.Retries = settings.Retries;
+        vm.RootPath = settings.RootPath;
+        vm.SinglePort = settings.SinglePort;
+        vm.TimeToLive = settings.TimeToLive;
+        vm.WindowSize = settings.WindowSize;
 
         dialog.DataContext = vm;
 

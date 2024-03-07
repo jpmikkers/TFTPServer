@@ -3,13 +3,13 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:ex="using:AK.Toolkit.Avalonia.GridIndexer"
     xmlns:local="using:AvaTFTPServer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:AvaTFTPServer.ViewModels"
+    xmlns:tt="using:Baksteen.Avalonia.Tools.AutoScrollBehavior"
     Title="AvaTFTPServer"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
+    d:DesignHeight="350"
+    d:DesignWidth="600"
     x:DataType="vm:MainWindowViewModel"
     Icon="/Assets/avalonia-logo.ico"
     mc:Ignorable="d">
@@ -33,15 +33,15 @@
     <DockPanel Margin="0,0">
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_App">
-				<MenuItem Command="{CompiledBinding DoConfigureUICommand}" Header="_Settings" />
-				<MenuItem Command="{CompiledBinding DoExitCommand}" Header="E_xit" />
+                <MenuItem Command="{CompiledBinding DoConfigureUICommand}" Header="_Settings" />
+                <MenuItem Command="{CompiledBinding DoExitCommand}" Header="E_xit" />
             </MenuItem>
             <MenuItem Header="_Server">
                 <MenuItem Command="{CompiledBinding StartServerCommand}" Header="_Start" />
                 <MenuItem Command="{CompiledBinding StopServerCommand}" Header="S_top" />
                 <MenuItem Command="{CompiledBinding DoConfigureCommand}" Header="_Configure" />
             </MenuItem>
-		</Menu>
+        </Menu>
 
         <Border
             Margin="4,4,4,4"
@@ -207,7 +207,8 @@
                             ItemsSource="{CompiledBinding Log}"
                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                            SelectionMode="Multiple">
+                            SelectionMode="Multiple"
+							tt:AutoScrollBehavior.IsActive="{CompiledBinding AutoScrollLog}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel
@@ -217,12 +218,12 @@
                                         <TextBlock Text="{CompiledBinding TimestampLocal, StringFormat='yyyy-MM-dd HH:mm:ss.fff'}" />
                                         <!--<TextBlock Text="{CompiledBinding Id.Id, StringFormat='{}{0:000}'}" />-->
                                         <Border
-											BorderBrush="Black"
-											BorderThickness="1"											
-											CornerRadius="4"
                                             Width="16"
                                             Height="16"
-                                            Background="{Binding Level, Converter={StaticResource logLevelConverter}}" />
+                                            Background="{Binding Level, Converter={StaticResource logLevelConverter}}"
+                                            BorderBrush="Black"
+                                            BorderThickness="1"
+                                            CornerRadius="4" />
                                         <TextBlock Text="{CompiledBinding Level, StringFormat='{}{0,-11}'}" />
                                         <TextBlock Text="{CompiledBinding Text}" />
                                     </StackPanel>

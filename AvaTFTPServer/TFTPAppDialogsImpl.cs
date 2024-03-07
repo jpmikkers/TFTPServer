@@ -19,7 +19,7 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver) : ITFTPAppDialogs
 
     public Task<ConfigDialog.ChangeConfigResult> ShowConfigDialog(INotifyPropertyChanged vm, ServerSettings settings)
     {
-        return ConfigDialog.ShowDialog(viewResolver.LocateView(vm), settings, this);
+        return ConfigDialog.ShowDialog(viewResolver.LocateView(vm), settings);
     }
 
     public Task ShowErrorDialog(INotifyPropertyChanged vm, string title, string header, string details)
