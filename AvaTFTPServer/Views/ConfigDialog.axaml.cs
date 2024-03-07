@@ -35,7 +35,6 @@ public partial class ConfigDialog : Window
     public static async Task<ChangeConfigResult> ShowDialog(Window owner, ServerSettings settings)
     {
         var dialog = new ConfigDialog();
-
         var vm = App.AppHost!.Services.GetRequiredService<ConfigDialogViewModel>();
 
         vm.EndPoint = settings.EndPoint.ToString();

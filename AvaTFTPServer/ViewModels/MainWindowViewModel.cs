@@ -11,12 +11,11 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using Baksteen.Avalonia.Tools.CloseableViewModel;
 using AvaTFTPServer.Logging;
 
 namespace AvaTFTPServer.ViewModels;
 
-public partial class MainWindowViewModel : ViewModelBase, ICloseableViewModel
+public partial class MainWindowViewModel : ViewModelBase
 {
     public enum TFTPServerState
     {
@@ -38,6 +37,7 @@ public partial class MainWindowViewModel : ViewModelBase, ICloseableViewModel
     private readonly ILoggerFactory _loggerFactory;
     private readonly ITFTPAppDialogs _appDialogs;
     private readonly GuiLogger _guiLogger;
+    private readonly IViewModelCloser _viewModelCloser;
     private TFTPAppSettings _appSettings;
 
     public ObservableCollection<LogItem> Log { get; } = [];
@@ -87,13 +87,18 @@ public partial class MainWindowViewModel : ViewModelBase, ICloseableViewModel
         _progressTimer = new(s_progressInterval, DispatcherPriority.Normal, _progressTimer_Tick);
         _cleanupTimer = new(TimeSpan.FromSeconds(10.0), DispatcherPriority.Normal, _cleanupTimer_Tick);
         _loggerFactory = new LoggerFactory();
+        _viewModelCloser = new ViewModelCloser(new ViewResolver());
     }
 
-    public MainWindowViewModel(ILoggerFactory loggerFactory, ITFTPAppDialogs appDialogs, GuiLogger guiLogger) : base() 
+    public MainWindowViewModel(
+        ILoggerFactory loggerFactory, 
+        ITFTPAppDialogs appDialogs, 
+        GuiLogger guiLogger,
+        IViewModelCloser viewModelCloser) : base() 
     {
         //App.Current.
         _guiLogger = guiLogger;
-
+        _viewModelCloser = viewModelCloser;
         _appSettings = TFTPAppSettings.Load();
 
         AutoScrollLog = _appSettings.UISettings.AutoScrollLog;
@@ -148,7 +153,7 @@ public partial class MainWindowViewModel : ViewModelBase, ICloseableViewModel
     private void DoExit()
     {
         _guiLogger.UnregisterCallback();
-        this.Close();
+        _viewModelCloser.Close(this);
     }
 
     [RelayCommand]

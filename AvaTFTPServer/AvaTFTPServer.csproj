@@ -31,7 +31,6 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\Baksteen.Avalonia.Tools.ViewModelCloseBehavior\Baksteen.Avalonia.Tools.CloseableViewModel.csproj" />
     <ProjectReference Include="..\Library\Library.csproj" />
   </ItemGroup>
 

@@ -2,7 +2,6 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Documents;
 using Avalonia.Platform.Storage;
-using Baksteen.Avalonia.Tools.CloseableViewModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -16,13 +15,15 @@ namespace AvaTFTPServer.ViewModels;
 
 // use NotifyDataErrorInfo for mvvmct validation, see https://github.com/AvaloniaUI/Avalonia/issues/8397
 // then on Apply/OK buttons you can bind IsEnabled to !HasErrors
-public partial class ConfigDialogViewModel : ObservableValidator, ICloseableViewModel<ConfigDialogViewModel.DialogResult>
+public partial class ConfigDialogViewModel : ObservableValidator
 {
     private readonly ITFTPAppDialogs _tftpAppDialogs;
+    private readonly IViewModelCloser _viewModelCloser;
 
-    public ConfigDialogViewModel(ITFTPAppDialogs tftpAppDialogs) : base()
+    public ConfigDialogViewModel(ITFTPAppDialogs tftpAppDialogs, IViewModelCloser viewModelCloser) : base()
     {
         _tftpAppDialogs = tftpAppDialogs;
+        _viewModelCloser = viewModelCloser;
     }
 
     [ObservableProperty]
@@ -83,13 +84,13 @@ public partial class ConfigDialogViewModel : ObservableValidator, ICloseableView
     [RelayCommand]
     private void Apply()
     {
-        this.Close(DialogResult.Ok);
+        _viewModelCloser.Close(this, DialogResult.Ok);
     }
     
     [RelayCommand]
     private void Cancel()
     {
-        this.Close(DialogResult.Canceled);
+        _viewModelCloser.Close(this, DialogResult.Canceled);
     }
 
     [RelayCommand]

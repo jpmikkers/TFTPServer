@@ -28,12 +28,15 @@ namespace AvaTFTPServer
             appBuilder.Logging.Services.AddSingleton<ILoggerProvider,GuiLoggerProvider>();
             appBuilder.Logging.Services.AddSingleton<GuiLogger>();
 
+            appBuilder.Services.AddSingleton<IViewResolver, ViewResolver>();
+            appBuilder.Services.AddTransient<IViewModelCloser, ViewModelCloser>();
+
             appBuilder.Services.AddSingleton<MainWindowViewModel>();
             appBuilder.Services.AddSingleton<MainWindow>();
-            appBuilder.Services.AddTransient<ITFTPAppDialogs, TFTPAppDialogsImpl>();
-            appBuilder.Services.AddSingleton<IViewResolver, ViewResolver>();
             appBuilder.Services.AddTransient<ConfigDialogViewModel>();
             appBuilder.Services.AddTransient<UIConfigDialogViewModel>();
+            appBuilder.Services.AddTransient<ErrorDialogViewModel>();
+            appBuilder.Services.AddTransient<ITFTPAppDialogs, TFTPAppDialogsImpl>();
 
             //appBuilder.Services.AddWindowsFormsBlazorWebView();
             //appBuilder.Services.AddBlazorWebViewDeveloperTools();

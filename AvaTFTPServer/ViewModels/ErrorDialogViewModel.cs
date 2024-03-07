@@ -9,16 +9,8 @@ using System.Threading.Tasks;
 
 namespace AvaTFTPServer.ViewModels
 {
-    public partial class ErrorDialogViewModel : ViewModelBase
+    public partial class ErrorDialogViewModel(IViewModelCloser viewModelCloser) : ViewModelBase
     {
-        public interface IViewMethods
-        {
-            void Close();
-            //Task<ChangeConfigResult> ShowConfigDialog(ServerSettings serverSettings);
-        };
-
-        public IViewMethods? ViewMethods { get; set; }
-
         [ObservableProperty]
         string _title = "Error";
 
@@ -36,9 +28,7 @@ namespace AvaTFTPServer.ViewModels
         [RelayCommand]
         private void Okay()
         {
-            ViewMethods?.Close();
+            viewModelCloser.Close(this);
         }
-
-
     }
 }
