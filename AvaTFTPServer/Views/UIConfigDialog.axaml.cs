@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using AvaTFTPServer.ViewModels;
 using AvaTFTPServer.Views;
 using Baksteen.Avalonia.Tools.GridIndexer;
+using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -29,11 +30,10 @@ public partial class UIConfigDialog : Window
     {
         var dialog = new UIConfigDialog();
 
-        var vm = new UIConfigDialogViewModel()
-        {
-            AutoScrollLog = settings.AutoScrollLog,
-            ConfigPath = configPath
-        };
+        var vm = App.AppHost!.Services.GetRequiredService<UIConfigDialogViewModel>();
+
+        vm.AutoScrollLog = settings.AutoScrollLog;
+        vm.ConfigPath = configPath;
 
         dialog.DataContext = vm;
 
