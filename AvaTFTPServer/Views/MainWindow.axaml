@@ -6,7 +6,7 @@
     xmlns:local="using:AvaTFTPServer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:AvaTFTPServer.ViewModels"
-    xmlns:tt="using:Baksteen.Avalonia.Tools.AutoScrollBehavior"
+    xmlns:tt="using:Baksteen.Avalonia.Tools"
     Title="AvaTFTPServer"
     d:DesignHeight="350"
     d:DesignWidth="600"
@@ -14,13 +14,13 @@
     Icon="/Assets/avalonia-logo.ico"
     mc:Ignorable="d">
 
-    <Design.DataContext>
-        <!--
-            This only sets the DataContext for the previewer in an IDE,
-            to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs)
-        -->
+	
+    <!--<Design.DataContext>
+	
+	
+	
         <vm:MainWindowViewModel />
-    </Design.DataContext>
+    </Design.DataContext>-->
 
     <Window.Resources>
         <!--  paths from https://petershaggynoble.github.io/MDI-Sandbox/  -->

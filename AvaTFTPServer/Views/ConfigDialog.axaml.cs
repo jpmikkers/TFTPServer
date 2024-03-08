@@ -16,6 +16,10 @@ public partial class ConfigDialog : Window
         public ServerSettings ServerSettings { get; set; } = new ServerSettings();
     }
 
+    public ConfigDialog() : this(null!)
+    {
+    }
+
     public ConfigDialog(ConfigDialogViewModel vm)
     {
         DataContext = vm;

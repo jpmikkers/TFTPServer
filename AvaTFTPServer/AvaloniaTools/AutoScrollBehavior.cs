@@ -8,7 +8,7 @@ using System.Collections.Specialized;
 using Avalonia.Threading;
 using System;
 
-namespace Baksteen.Avalonia.Tools.AutoScrollBehavior;
+namespace Baksteen.Avalonia.Tools;
 
 // see https://docs.avaloniaui.net/docs/guides/custom-controls/how-to-create-attached-properties
 public sealed class AutoScrollBehavior : AvaloniaObject

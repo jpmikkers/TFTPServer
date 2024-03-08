@@ -11,11 +11,9 @@
         x:DataType="vm:ErrorDialogViewModel"		
         Title="{CompiledBinding Title}">
 
-	<Design.DataContext>
-		<!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+	<!--<Design.DataContext>
 		<vm:ErrorDialogViewModel/>
-	</Design.DataContext>
+	</Design.DataContext>-->
 
 	<DockPanel>
 		<Border DockPanel.Dock="Top" Padding="8,8,8,0" IsVisible="{Binding HasHeader}">

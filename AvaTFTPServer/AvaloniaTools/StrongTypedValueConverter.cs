@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AvaTFTPServer;
+namespace Baksteen.Avalonia.Tools;
 
 public abstract class StrongTypedValueConverter<ViewModelType, ViewType> : IValueConverter
 {

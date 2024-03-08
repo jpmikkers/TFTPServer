@@ -2,6 +2,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Documents;
 using Avalonia.Platform.Storage;
+using Baksteen.Avalonia.Tools;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -96,6 +97,6 @@ public partial class ConfigDialogViewModel : ObservableValidator
     [RelayCommand]
     private async Task SelectFolder()
     {
-        RootPath = (await _tftpAppDialogs.PickFolder(this, "Select root path")) ?? RootPath;
+        RootPath = (await _tftpAppDialogs.ShowFolderPicker(this, "Select root path")) ?? RootPath;
     }
 }

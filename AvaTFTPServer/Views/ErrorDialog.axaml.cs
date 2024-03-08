@@ -8,6 +8,10 @@ namespace AvaTFTPServer;
 
 public partial class ErrorDialog : Window
 {
+    public ErrorDialog() : this(null!)
+    {
+    }
+
     public ErrorDialog(ErrorDialogViewModel vm)
     {
         DataContext = vm;

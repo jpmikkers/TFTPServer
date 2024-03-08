@@ -27,7 +27,7 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver) : ITFTPAppDialogs
         return ErrorDialog.ShowErrorDialog(viewResolver.LocateView(vm),title, header, details);
     }
 
-    public async Task<string?> PickFolder(INotifyPropertyChanged vm, string title)
+    public async Task<string?> ShowFolderPicker(INotifyPropertyChanged vm, string title)
     {
         try
         {

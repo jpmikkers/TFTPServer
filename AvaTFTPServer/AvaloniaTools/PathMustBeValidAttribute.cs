@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 
-namespace AvaTFTPServer;
+namespace Baksteen.Avalonia.Tools;
 
 public sealed class PathMustBeValidAttribute : ValidationAttribute
 {

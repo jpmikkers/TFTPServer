@@ -16,6 +16,9 @@ public partial class UIConfigDialog : Window
         public UISettings Settings { get; set; } = new UISettings();
     }
 
+    public UIConfigDialog() : this(null!)
+    {
+    }
 
     public UIConfigDialog(UIConfigDialogViewModel vm)
     {
