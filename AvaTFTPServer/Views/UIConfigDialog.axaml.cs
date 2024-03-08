@@ -1,11 +1,8 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using AvaTFTPServer.ViewModels;
-using AvaTFTPServer.Views;
 using Baksteen.Avalonia.Tools.GridIndexer;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace AvaTFTPServer;
@@ -20,22 +17,20 @@ public partial class UIConfigDialog : Window
     }
 
 
-    public UIConfigDialog()
+    public UIConfigDialog(UIConfigDialogViewModel vm)
     {
+        DataContext = vm;
         InitializeComponent();
         GridIndexer.RunGridIndexer(this);
     }
 
     public static async Task<ChangeConfigResult> ShowDialog(Window owner, UISettings settings, string configPath)
     {
-        var dialog = new UIConfigDialog();
-
-        var vm = App.AppHost!.Services.GetRequiredService<UIConfigDialogViewModel>();
+        var dialog = App.AppHost!.Services.GetRequiredService<UIConfigDialog>();
+        var vm = (UIConfigDialogViewModel)dialog.DataContext!;
 
         vm.AutoScrollLog = settings.AutoScrollLog;
         vm.ConfigPath = configPath;
-
-        dialog.DataContext = vm;
 
         if(await dialog.ShowDialog<UIConfigDialogViewModel.DialogResult?>(owner) == UIConfigDialogViewModel.DialogResult.Ok)
         {
