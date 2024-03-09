@@ -1,6 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using AvaTFTPServer.AvaloniaTools;
 using AvaTFTPServer.ViewModels;
+using AvaTFTPServer.Views;
 using Baksteen.Avalonia.Tools.GridIndexer;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
@@ -18,6 +20,7 @@ public partial class UIConfigDialog : Window
 
     public UIConfigDialog() : this(null!)
     {
+        Assertions.OnlyUseEmptyConstructorInDesignMode(nameof(UIConfigDialog));
     }
 
     public UIConfigDialog(UIConfigDialogViewModel vm)
@@ -32,6 +35,7 @@ public partial class UIConfigDialog : Window
         var dialog = App.AppHost!.Services.GetRequiredService<UIConfigDialog>();
         var vm = (UIConfigDialogViewModel)dialog.DataContext!;
 
+        vm.CleanupTransfersAfter = settings.CleanupTransfersAfter;
         vm.AutoScrollLog = settings.AutoScrollLog;
         vm.ConfigPath = configPath;
 
@@ -42,7 +46,8 @@ public partial class UIConfigDialog : Window
                 DialogResult = UIConfigDialogViewModel.DialogResult.Ok,
                 Settings = new UISettings
                 {
-                    AutoScrollLog = vm.AutoScrollLog
+                    AutoScrollLog = vm.AutoScrollLog,
+                    CleanupTransfersAfter = vm.CleanupTransfersAfter,
                 }
             };
         }

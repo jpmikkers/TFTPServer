@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using AvaTFTPServer.ViewModels;
 using System.Threading.Tasks;
 using Avalonia.Interactivity;
+using AvaTFTPServer.AvaloniaTools;
 
 namespace AvaTFTPServer.Views
 {
@@ -10,6 +11,7 @@ namespace AvaTFTPServer.Views
     {
         public MainWindow() : this(null!)
         {
+            Assertions.OnlyUseEmptyConstructorInDesignMode(nameof(MainWindow));
         }
 
         public MainWindow(MainWindowViewModel vm)

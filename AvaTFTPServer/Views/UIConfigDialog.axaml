@@ -8,9 +8,11 @@
     xmlns:vm="using:AvaTFTPServer.ViewModels"
     Title="User interface configuration"
     d:DesignHeight="200"
-    d:DesignWidth="320"
-	Width="320"
+    d:DesignWidth="340"
+	Width="340"
 	Height="200"
+	MinWidth="340"
+	MinHeight="200"
     x:DataType="vm:UIConfigDialogViewModel"
     mc:Ignorable="d">
     <DockPanel>
@@ -30,7 +32,6 @@
                 </Button>
             </StackPanel>
         </Border>
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
             <Grid Margin="8,8,8,8">
                 <Grid.Resources>
                     <Thickness x:Key="gridspacing">4,4,4,4</Thickness>
@@ -64,8 +65,16 @@
 
 				<ComboBox
                     Margin="{StaticResource gridspacing}"
-	                ex:GI.Column="+1" SelectedIndex="0">
-					<ComboBox.Items>
+	                ex:GI.Column="+1"
+					ItemsSource="{CompiledBinding TimeSpans}"
+					SelectedIndex="{CompiledBinding SelectedTimeSpanIndex}">
+
+					<ComboBox.ItemTemplate>
+						<DataTemplate>
+							<TextBlock Text="{Binding UserText}"/>
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+					<!--<ComboBox.Items>
 						<ComboBoxItem>30 seconds</ComboBoxItem>
 						<ComboBoxItem>1 minute</ComboBoxItem>
 						<ComboBoxItem>5 minutes</ComboBoxItem>
@@ -73,7 +82,7 @@
 						<ComboBoxItem>1 hour</ComboBoxItem>
 						<ComboBoxItem>2 hours</ComboBoxItem>
 						<ComboBoxItem>Never</ComboBoxItem>
-					</ComboBox.Items>				
+					</ComboBox.Items>-->				
 				</ComboBox>
 
 				<Label
@@ -89,17 +98,24 @@
 					IsChecked="{CompiledBinding AutoScrollLog}"
 					></CheckBox>
 
-				<TextBlock 
-    			    ex:GI.Column="0"
+				<Label
+					Margin="4,4,4,0"
+	                ex:GI.Column="0"
 	                ex:GI.Row="+1"
-				    Grid.ColumnSpan="2"
-				    Grid.RowSpan="2" TextWrapping="Wrap">
-					<Run>The config file is located here:</Run>
-					<LineBreak/>
-					<Run FontStyle="Italic" FontWeight="Bold" Text="{CompiledBinding ConfigPath}"/>
-				</TextBlock>
-            </Grid>
+	                Grid.ColumnSpan="2">
+					The config file is located here:
+				</Label>
 
-        </ScrollViewer>
+				<TextBox
+					Margin="8,0,8,4"
+					ex:GI.Column="0"
+					ex:GI.Row="+1"
+					Grid.ColumnSpan="2"
+					Grid.RowSpan="1" 
+				    IsReadOnly="True"
+					Text="{CompiledBinding ConfigPath}">
+				</TextBox>
+			</Grid>
+
     </DockPanel>
 </Window>
