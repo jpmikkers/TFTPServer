@@ -17,6 +17,6 @@ public class LogLevelColorBrushConverter : StrongTypedValueConverter<LogLevel, I
         LogLevel.Critical => Brushes.Red,
         _ => Brushes.WhiteSmoke,
     };
-    
+
     protected override LogLevel ViewToViewModel(IBrush input, CultureInfo culture) => LogLevel.None;
 }

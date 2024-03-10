@@ -3,7 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace AvaTFTPServer.Logging;
+namespace AvaTFTPServer.AvaloniaTools;
 
 public class ChunkedDispatcher<T>(IDispatcher dispatcher, Action<IEnumerable<T>> onItems)
 {

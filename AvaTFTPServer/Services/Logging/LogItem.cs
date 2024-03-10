@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace AvaTFTPServer.Logging;
+namespace AvaTFTPServer.Services.Logging;
 
 public record class LogItem
 {

@@ -2,7 +2,8 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using AvaTFTPServer.Logging;
+using AvaTFTPServer.Misc;
+using AvaTFTPServer.Services.Logging;
 using AvaTFTPServer.ViewModels;
 using AvaTFTPServer.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +31,8 @@ namespace AvaTFTPServer
 
             appBuilder.Services.AddSingleton<IViewResolver, ViewResolver>();
             appBuilder.Services.AddTransient<IViewModelCloser, ViewModelCloser>();
+
+            appBuilder.Services.AddSingleton(x => TFTPAppSettings.Load());
 
             appBuilder.Services.AddSingleton<MainWindowViewModel>();
             appBuilder.Services.AddSingleton<MainWindow>();

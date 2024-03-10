@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
-namespace AvaTFTPServer.Logging;
+namespace AvaTFTPServer.Services.Logging;
 
 //[UnsupportedOSPlatform("browser")]
 [ProviderAlias("GuiLogger")]

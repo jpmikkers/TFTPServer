@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace AvaTFTPServer;
+namespace AvaTFTPServer.Misc;
 
 public class SimpleMovingAverage(int windowSize)
 {
-    private readonly Queue<double> _history = new Queue<double>(windowSize);
+    private readonly Queue<double> _history = new(windowSize);
     private double _sum;
 
     public double Add(double v)

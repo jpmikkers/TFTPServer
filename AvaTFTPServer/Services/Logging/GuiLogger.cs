@@ -3,7 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 
-namespace AvaTFTPServer.Logging;
+namespace AvaTFTPServer.Services.Logging;
 
 public sealed class GuiLogger : ILogger, IDisposable
 {

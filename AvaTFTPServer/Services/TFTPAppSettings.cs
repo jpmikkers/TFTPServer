@@ -26,7 +26,6 @@ public class TFTPAppSettings
         Converters = { new IPEndPointJsonConverter() }
     };
 
-    //public bool AutoScrollLog { get; set; } = true;
     public UISettings UISettings { get; set; } = new UISettings();
 
     public ServerSettings ServerSettings { get; set; } = new ServerSettings();

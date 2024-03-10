@@ -11,7 +11,8 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using AvaTFTPServer.Logging;
+using AvaTFTPServer.Services.Logging;
+using AvaTFTPServer.AvaloniaTools;
 
 namespace AvaTFTPServer.ViewModels;
 
@@ -94,12 +95,13 @@ public partial class MainWindowViewModel : ViewModelBase
         ILoggerFactory loggerFactory, 
         ITFTPAppDialogs appDialogs, 
         GuiLogger guiLogger,
-        IViewModelCloser viewModelCloser) : base() 
+        IViewModelCloser viewModelCloser,
+        TFTPAppSettings appSettings) : base() 
     {
         //App.Current.
         _guiLogger = guiLogger;
         _viewModelCloser = viewModelCloser;
-        _appSettings = TFTPAppSettings.Load();
+        _appSettings = appSettings;
 
         AutoScrollLog = _appSettings.UISettings.AutoScrollLog;
 
