@@ -21,7 +21,8 @@
                 HorizontalAlignment="Right"
                 Orientation="Horizontal"
                 Spacing="8">
-                <Button
+				<Button
+    				Classes="accent"
                     Command="{CompiledBinding ApplyCommand}"
                     IsDefault="True"
                     IsEnabled="{CompiledBinding !HasErrors}">
