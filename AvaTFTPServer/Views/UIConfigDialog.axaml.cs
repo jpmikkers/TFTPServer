@@ -29,35 +29,4 @@ public partial class UIConfigDialog : Window
         InitializeComponent();
         GridIndexer.RunGridIndexer(this);
     }
-
-    public static async Task<ChangeConfigResult> ShowDialog(Window owner, UISettings settings, string configPath)
-    {
-        var dialog = App.AppHost!.Services.GetRequiredService<UIConfigDialog>();
-        var vm = (UIConfigDialogViewModel)dialog.DataContext!;
-
-        vm.CleanupTransfersAfter = settings.CleanupTransfersAfter;
-        vm.AutoScrollLog = settings.AutoScrollLog;
-        vm.ConfigPath = configPath;
-
-        if(await dialog.ShowDialog<UIConfigDialogViewModel.DialogResult?>(owner) == UIConfigDialogViewModel.DialogResult.Ok)
-        {
-            return new ChangeConfigResult
-            {
-                DialogResult = UIConfigDialogViewModel.DialogResult.Ok,
-                Settings = new UISettings
-                {
-                    AutoScrollLog = vm.AutoScrollLog,
-                    CleanupTransfersAfter = vm.CleanupTransfersAfter,
-                }
-            };
-        }
-        else
-        {
-            return new ChangeConfigResult
-            {
-                DialogResult = UIConfigDialogViewModel.DialogResult.Cancel,
-                Settings = settings
-            };
-        }
-    }
 }

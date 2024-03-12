@@ -81,7 +81,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         _guiLogger = new GuiLogger();
-        _appDialogs = new TFTPAppDialogsImpl(new ViewResolver());
+        _appDialogs = new TFTPAppDialogsImpl(new ViewResolver(),null!);
         _sessionInfoFactory = new SessionInfoFactory(this);
         _appSettings = new TFTPAppSettings();
         _chunkedDispatcher = new ChunkedDispatcher<LogItem>(Dispatcher.UIThread, x => { });
@@ -132,6 +132,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var tmp = _appSettings.UISettings.CleanupTransfersAfter / 4;
         if(tmp < TimeSpan.FromSeconds(1)) tmp = TimeSpan.FromSeconds(1);
+        if(tmp > TimeSpan.FromDays(1)) tmp = TimeSpan.FromDays(1);
         return tmp;
     }
 
