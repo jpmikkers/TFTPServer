@@ -25,7 +25,6 @@ public partial class UIConfigDialogViewModel(IViewModelCloser viewModelCloser) :
     }
 
     public List<TimeSpanItem> TimeSpans { get; private set; } = [
-        new(){ UserText = "1 second", TimeSpan = TimeSpan.FromSeconds(1) },
         new(){ UserText = "5 seconds", TimeSpan = TimeSpan.FromSeconds(5) },
         new(){ UserText = "10 seconds", TimeSpan = TimeSpan.FromSeconds(10)},
         new(){ UserText = "30 seconds", TimeSpan = TimeSpan.FromSeconds(30)},

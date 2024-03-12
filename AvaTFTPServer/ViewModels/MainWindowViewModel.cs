@@ -69,7 +69,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         public ITFTPSessionInfo Create()
         {
-            var ts = new TransferSession(Dispatcher.UIThread, parent._progressTimer.Interval, TimeSpan.FromSeconds(3.0));
+            var ts = new TransferSession(parent._progressTimer.Interval, TimeSpan.FromSeconds(3.0));
             Dispatcher.UIThread.Post(() =>
             {
                 parent.TransferSessions.Add(ts);
@@ -107,7 +107,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _chunkedDispatcher = new ChunkedDispatcher<LogItem>(Dispatcher.UIThread, items =>
         {
-            System.Diagnostics.Debug.WriteLine($"got {items.Count()} items");
+            //System.Diagnostics.Debug.WriteLine($"got {items.Count()} items");
             foreach(var item in items) Log.Add(item);
         });
 
@@ -118,20 +118,21 @@ public partial class MainWindowViewModel : ViewModelBase
         _progressTimer = new(s_progressInterval, DispatcherPriority.Normal, _progressTimer_Tick);
         _progressTimer.Start();
 
-        _cleanupTimer = new(TimeSpan.FromSeconds(10.0), DispatcherPriority.Normal, _cleanupTimer_Tick);
+        _cleanupTimer = new(GetCleanupTimerInterval(), DispatcherPriority.Normal, _cleanupTimer_Tick);
         _cleanupTimer.Start();
         _loggerFactory = loggerFactory;
         _appDialogs = appDialogs;
 
-        //Log.Add(new LogItem { Color = Colors.Red, Text = "een" });
-        //Log.Add(new LogItem { Color = Colors.Green, Text = "twee" });
-        //Log.Add(new LogItem { Color = Colors.AliceBlue, Text = "drie" });
-        //foreach(var x in Enumerable.Range(1,1000000)){ LogList.Add(new LogItem { Text = x.ToString() }); };
-
         //TransferSessions.Add(new TransferSession(Dispatcher.UIThread, s_progressInterval, s_averagingInterval));
         //TransferSessions.Add(new TransferSession(Dispatcher.UIThread, s_progressInterval, s_averagingInterval) { SessionState = TFTPLiveSessionState.Stopped, FileLength=0 });
         //TransferSessions.Add(new TransferSession(Dispatcher.UIThread, _timer.Interval, TimeSpan.FromSeconds(3.0)));
+    }
 
+    private TimeSpan GetCleanupTimerInterval()
+    {
+        var tmp = _appSettings.UISettings.CleanupTransfersAfter / 4;
+        if(tmp < TimeSpan.FromSeconds(1)) tmp = TimeSpan.FromSeconds(1);
+        return tmp;
     }
 
     private void _cleanupTimer_Tick(object? sender, EventArgs e)
@@ -139,7 +140,7 @@ public partial class MainWindowViewModel : ViewModelBase
         for(var t = TransferSessions.Count-1; t>=0; t--)
         {
             var item = TransferSessions[t];
-            if( item.IsFinalState && (DateTime.UtcNow - item.CompletionTimeUtc) > TimeSpan.FromSeconds(30))
+            if( item.IsFinalState && (DateTime.UtcNow - item.CompletionTimeUtc) > _appSettings.UISettings.CleanupTransfersAfter)
             {
                 TransferSessions.RemoveAt(t);
             }
@@ -195,6 +196,10 @@ public partial class MainWindowViewModel : ViewModelBase
                 _appSettings.Save();
 
                 AutoScrollLog = _appSettings.UISettings.AutoScrollLog;
+
+                _cleanupTimer.Stop();
+                _cleanupTimer.Interval = GetCleanupTimerInterval();
+                _cleanupTimer.Start();
             }
         }
     }
@@ -215,14 +220,6 @@ public partial class MainWindowViewModel : ViewModelBase
                     liveSessionInfoFactory: _sessionInfoFactory,
                     serverCallback: new TFTPServerInfoImpl(this),
                     _appSettings.ServerSettings.ToServerConfig());
-
-                //_server = await TFTPServer.CreateAndStart(
-                //    new CustomLogger("TFTPServer", _chunkedDispatcher.Post),
-                //    streamFactory: null,
-                //    udpSocketFactory: null,
-                //    liveSessionInfoFactory: _sessionInfoFactory,
-                //    serverCallback: new TFTPServerInfoImpl(this),
-                //    _appSettings.ServerSettings.ToServerConfig());
             }
             catch (Exception ex)
             {

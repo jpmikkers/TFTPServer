@@ -25,19 +25,19 @@ public partial class TransferSession : ObservableObject
     private readonly SimpleMovingAverage _averager;
     private readonly Stopwatch _stopwatch = new Stopwatch();
 
-    private class SessionAdapter(Dispatcher dispatcher, TransferSession parent) : ITFTPSessionInfo
+    private class SessionAdapter(TransferSession parent) : ITFTPSessionInfo
     {
         public long Id { get; set; }
 
-        public void Start(TFTPSessionStartInfo args) => dispatcher.Post(() => parent.Start(args));
+        public void Start(TFTPSessionStartInfo args) => parent.Start(args);
 
-        public void UpdateStart(TFTPSessionUpdateInfo args) => dispatcher.Post(() => parent.UpdateStart(args));
+        public void UpdateStart(TFTPSessionUpdateInfo args) => parent.UpdateStart(args);
 
         public void Progress(long transferred) => parent._cachedTransferred = transferred;
 
-        public void Complete() => dispatcher.Post(() => parent.Complete());
+        public void Complete() => parent.Complete();
 
-        public void Stop(Exception e) => dispatcher.Post(() => parent.Stop(e));
+        public void Stop(Exception e) => parent.Stop(e);
     }
 
     [ObservableProperty]
@@ -107,14 +107,16 @@ public partial class TransferSession : ObservableObject
 
     public ITFTPSessionInfo SessionInfo { get => _link; }
 
-    public TransferSession(Dispatcher dispatcher, TimeSpan updateInterval, TimeSpan averagingInterval)
+    public TransferSession(TimeSpan updateInterval, TimeSpan averagingInterval)
     {
-         _link = new SessionAdapter(dispatcher, this);
+         _link = new SessionAdapter(this);
         _averager = new SimpleMovingAverage((int)Math.Max(1.0, Math.Ceiling(averagingInterval / updateInterval)));
     }
 
     private void Start(TFTPSessionStartInfo args)
     {
+        Debug.WriteLine("session start");
+
         FileLength = args.FileLength;
         Filename = args.Filename;
         IsUpload = args.IsUpload;
@@ -151,6 +153,7 @@ public partial class TransferSession : ObservableObject
         FileLength = Transferred;
         _stopwatch.Stop();
         Speed = Transferred / _stopwatch.Elapsed.TotalSeconds;
+        SpeedAsString = TransferSpeed.ToString(Speed);
     }
 
     public void Update()
@@ -161,7 +164,7 @@ public partial class TransferSession : ObservableObject
         var bytesDone = newTransferred - _prevTransferred;
 
         Speed = _averager.Add(bytesDone);
-        SpeedAsString = ConvertSpeed(Speed);
+        SpeedAsString = TransferSpeed.ToString(Speed);
 
         if(Transferred != newTransferred)
         {
@@ -169,20 +172,5 @@ public partial class TransferSession : ObservableObject
         }
 
         _prevTransferred = newTransferred;
-    }
-
-    static string ConvertSpeed(double bytesPerSecond)
-    {
-        const double kilobyte = 1024.0;
-
-        string[] formats = 
-        [
-            "{0:F0} B/s", "{0:F1} KiB/s", "{0:F2} MiB/s",
-            "{0:F2} GiB/s", "{0:F2} TiB/s", "{0:F2} PiB/s",
-            "{0:F2} EiB/s", "{0:F2} ZiB/s", "{0:F2} YiB/s"
-        ];
-
-        int t = (Math.Abs(bytesPerSecond) < kilobyte) ? 0 : Math.Min(formats.Length - 1, (int)Math.Log(Math.Abs(bytesPerSecond), kilobyte));
-        return string.Format(formats[t], bytesPerSecond / Math.Pow(kilobyte, t));
     }
 }
