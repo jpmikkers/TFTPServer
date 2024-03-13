@@ -13,80 +13,79 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AvaTFTPServer
+namespace AvaTFTPServer;
+
+public partial class App : Application
 {
-    public partial class App : Application
+    public static IHost? AppHost { get; private set; }
+
+    public static void RunAvaloniaAppWithHosting(string[] args, Func<AppBuilder> avaloniaAppBuilder)
     {
-        public static IHost? AppHost { get; private set; }
+        var appBuilder = Host.CreateApplicationBuilder(args);
+        //appBuilder.Logging.ClearProviders();
+        appBuilder.Logging.AddDebug();
 
-        public static void RunAvaloniaAppWithHosting(string[] args, Func<AppBuilder> avaloniaAppBuilder)
+        //appBuilder.Logging.AddProvider(new GuiLoggerProvider());
+        appBuilder.Logging.Services.AddSingleton<ILoggerProvider,GuiLoggerProvider>();
+        appBuilder.Logging.Services.AddSingleton<GuiLogger>();
+
+        appBuilder.Services.AddSingleton<IViewResolver, ViewResolver>();
+        appBuilder.Services.AddTransient<IViewModelCloser, ViewModelCloser>();
+
+        appBuilder.Services.AddSingleton(x => TFTPAppSettings.Load());
+
+        appBuilder.Services.AddSingleton<MainWindowViewModel>();
+        appBuilder.Services.AddSingleton<MainWindow>();
+
+        appBuilder.Services.AddTransient<ConfigDialogViewModel>();
+        appBuilder.Services.AddTransient<ConfigDialog>();
+
+        appBuilder.Services.AddTransient<UIConfigDialogViewModel>();
+        appBuilder.Services.AddTransient<UIConfigDialog>();
+
+        appBuilder.Services.AddTransient<ErrorDialogViewModel>();
+        appBuilder.Services.AddTransient<ErrorDialog>();
+
+        appBuilder.Services.AddTransient<ITFTPAppDialogs, TFTPAppDialogsImpl>();
+
+        //appBuilder.Services.AddWindowsFormsBlazorWebView();
+        //appBuilder.Services.AddBlazorWebViewDeveloperTools();
+        //appBuilder.Services.AddSingleton<WeatherForecastService>();
+        using var myApp = appBuilder.Build();
+        App.AppHost = myApp;
+
+        myApp.Start();
+
+        try
         {
-            var appBuilder = Host.CreateApplicationBuilder(args);
-            //appBuilder.Logging.ClearProviders();
-            appBuilder.Logging.AddDebug();
+            avaloniaAppBuilder()
+                .StartWithClassicDesktopLifetime(args);
+        }
+        catch(Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.ToString());
+        }
+        finally
+        {
+            Task.Run(async () => await myApp.StopAsync()).GetAwaiter().GetResult();
+        }
+    }
 
-            //appBuilder.Logging.AddProvider(new GuiLoggerProvider());
-            appBuilder.Logging.Services.AddSingleton<ILoggerProvider,GuiLoggerProvider>();
-            appBuilder.Logging.Services.AddSingleton<GuiLogger>();
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
 
-            appBuilder.Services.AddSingleton<IViewResolver, ViewResolver>();
-            appBuilder.Services.AddTransient<IViewModelCloser, ViewModelCloser>();
-
-            appBuilder.Services.AddSingleton(x => TFTPAppSettings.Load());
-
-            appBuilder.Services.AddSingleton<MainWindowViewModel>();
-            appBuilder.Services.AddSingleton<MainWindow>();
-
-            appBuilder.Services.AddTransient<ConfigDialogViewModel>();
-            appBuilder.Services.AddTransient<ConfigDialog>();
-
-            appBuilder.Services.AddTransient<UIConfigDialogViewModel>();
-            appBuilder.Services.AddTransient<UIConfigDialog>();
-
-            appBuilder.Services.AddTransient<ErrorDialogViewModel>();
-            appBuilder.Services.AddTransient<ErrorDialog>();
-
-            appBuilder.Services.AddTransient<ITFTPAppDialogs, TFTPAppDialogsImpl>();
-
-            //appBuilder.Services.AddWindowsFormsBlazorWebView();
-            //appBuilder.Services.AddBlazorWebViewDeveloperTools();
-            //appBuilder.Services.AddSingleton<WeatherForecastService>();
-            using var myApp = appBuilder.Build();
-            App.AppHost = myApp;
-
-            myApp.Start();
-
-            try
-            {
-                avaloniaAppBuilder()
-                    .StartWithClassicDesktopLifetime(args);
-            }
-            catch(Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.ToString());
-            }
-            finally
-            {
-                Task.Run(async () => await myApp.StopAsync()).GetAwaiter().GetResult();
-            }
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if(ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            // Line below is needed to remove Avalonia data validation.
+            // Without this line you will get duplicate validations from both Avalonia and CT
+            BindingPlugins.DataValidators.RemoveAll(x => x is DataAnnotationsValidationPlugin);
+            desktop.MainWindow = AppHost!.Services.GetRequiredService<MainWindow>();
         }
 
-        public override void Initialize()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
-        public override void OnFrameworkInitializationCompleted()
-        {
-            if(ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                // Line below is needed to remove Avalonia data validation.
-                // Without this line you will get duplicate validations from both Avalonia and CT
-                BindingPlugins.DataValidators.RemoveAll(x => x is DataAnnotationsValidationPlugin);
-                desktop.MainWindow = AppHost!.Services.GetRequiredService<MainWindow>();
-            }
-
-            base.OnFrameworkInitializationCompleted();
-        }
+        base.OnFrameworkInitializationCompleted();
     }
 }

@@ -25,7 +25,20 @@
 		<Style Selector="TabItem">
 			<Setter Property="Padding" Value="8,0,8,0"/>
 		</Style>
+		
+		<!--
+		<Style Selector="TextBox /template/ ScrollViewer#PART_ScrollViewer">
+			<Setter Property="Padding" Value="0,0,0,0"/>
+			<Setter Property="Margin" Value="0,0,0,0"/>
+		</Style>
 
+		<Style Selector="TextBox">
+			<Setter Property="Padding" Value="2,2"/>
+			<Setter Property="Margin" Value="0,0,0,0"/>
+			<Setter Property="MinHeight" Value="8"/>
+		</Style>
+		-->		
+		
 		<!--fixes https://github.com/AvaloniaUI/Avalonia/issues/13249 -->
 		<Style Selector="TextBox /template/ ScrollViewer#PART_ScrollViewer">
 			<Style Selector="^ /template/ ScrollBar">
