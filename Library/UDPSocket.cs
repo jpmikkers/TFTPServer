@@ -31,6 +31,7 @@ public class UDPSocket : IUDPSocket
 
         _IPv6 = (localEndPoint.AddressFamily == AddressFamily.InterNetworkV6);
         _socket = new Socket(localEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+        _socket.ExclusiveAddressUse = false;    // prevent "SocketException: Address already in use" on linux
         _socket.SendBufferSize = 65536;
         _socket.ReceiveBufferSize = 65536;
         if(!_IPv6) _socket.DontFragment = dontFragment;
@@ -44,7 +45,7 @@ public class UDPSocket : IUDPSocket
 
         try
         {
-            _socket.IOControl((IOControlCode)SIO_UDP_CONNRESET, new byte[] { 0, 0, 0, 0 }, null);
+            _socket.IOControl((IOControlCode)SIO_UDP_CONNRESET, [0, 0, 0, 0], null);
         }
         catch(PlatformNotSupportedException)
         {
