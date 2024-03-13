@@ -35,38 +35,24 @@ public record class ServerSettings
         WindowSize = (ushort)WindowSize,
     };
 
-    //public static ServerSettings CreateFromServer(TFTPServer server)
-    //{
-    //    return new ServerSettings
-    //    {
-    //        WindowSize = server.WindowSize,
-    //        TimeToLive = server.Ttl,
-    //        AllowDownloads = server.AllowRead,
-    //        AllowUploads = server.AllowWrite,
-    //        AutoCreateDirectories = server.AutoCreateDirectories,
-    //        ConvertPathSeparator = server.ConvertPathSeparator,
-    //        DontFragment = server.DontFragment,
-    //        EndPoint = server.EndPoint,
-    //        ResponseTimeout = (int)server.ResponseTimeout.TotalSeconds,
-    //        Retries = server.Retries,
-    //        RootPath = server.RootPath,
-    //        SinglePort = server.SinglePort,
-    //    };
-    //}
-
-    //public void ApplyToServer(TFTPServer server)
-    //{
-    //    server.EndPoint = EndPoint;
-    //    server.ResponseTimeout = TimeSpan.FromSeconds(ResponseTimeout);
-    //    server.AllowRead = AllowDownloads;
-    //    server.AllowWrite = AllowUploads;
-    //    server.AutoCreateDirectories = AutoCreateDirectories;
-    //    server.ConvertPathSeparator = ConvertPathSeparator;
-    //    server.DontFragment = DontFragment;
-    //    server.SinglePort = SinglePort;
-    //    server.RootPath = RootPath;
-    //    server.Retries = Retries;
-    //    server.Ttl = TimeToLive;
-    //    server.WindowSize = (ushort)WindowSize;
-    //}
+    public static ServerSettings Defaults { 
+        get{
+            var template = new TFTPServer.Configuration();
+            return new()
+            {
+                AllowDownloads = template.AllowRead,
+                AllowUploads = template.AllowWrite,
+                AutoCreateDirectories = template.AutoCreateDirectories,
+                ConvertPathSeparator = template.ConvertPathSeparator,
+                DontFragment = template.DontFragment,
+                EndPoint = template.EndPoint,
+                ResponseTimeout = (int)template.ResponseTimeout.TotalSeconds,
+                Retries = template.Retries,
+                RootPath = template.RootPath,
+                SinglePort = template.SinglePort,
+                TimeToLive = template.Ttl,
+                WindowSize = template.WindowSize,
+            };
+        }
+    }
 }

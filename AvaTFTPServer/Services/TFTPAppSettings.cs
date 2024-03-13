@@ -28,7 +28,7 @@ public class TFTPAppSettings
 
     public UISettings UISettings { get; set; } = new UISettings();
 
-    public ServerSettings ServerSettings { get; set; } = new ServerSettings();
+    public ServerSettings ServerSettings { get; set; } = ServerSettings.Defaults;
 
     static TFTPAppSettings()
     {
