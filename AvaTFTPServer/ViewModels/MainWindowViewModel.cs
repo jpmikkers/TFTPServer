@@ -13,11 +13,32 @@ using System.Linq;
 using System.Threading.Tasks;
 using AvaTFTPServer.Services.Logging;
 using AvaTFTPServer.AvaloniaTools;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
 
 namespace AvaTFTPServer.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+    private const string s_linuxHelp =
+        """
+        ========================================================================
+        PLEASE NOTE: on Linux, user mode applications cannot open IP ports below
+        port number 1024 by default (default TFTP port is 69). To solve this you
+        have the following choices:
+
+            - run this program with elevated rights using the sudo command
+
+        or
+
+            - give the executable the capability to open low ports in user mode 
+              via this command:
+
+              sudo setcap CAP_NET_BIND_SERVICE=eip ./AvaTFTPServer
+
+        ========================================================================
+        """;
+
     public enum TFTPServerState
     {
         Stopped,
@@ -221,6 +242,18 @@ public partial class MainWindowViewModel : ViewModelBase
                     liveSessionInfoFactory: _sessionInfoFactory,
                     serverCallback: new TFTPServerInfoImpl(this),
                     _appSettings.ServerSettings.ToServerConfig());
+            }
+            catch(SocketException ex) when (
+                ex.SocketErrorCode == SocketError.AccessDenied && 
+                _appSettings.ServerSettings.EndPoint.Port < 1024 &&
+                RuntimeInformation.IsOSPlatform(OSPlatform.Linux))              
+            {
+                ServerState = TFTPServerState.Error;
+                await _appDialogs.ShowErrorDialog(
+                    this,
+                    "Error",
+                    "Failed to start server",
+                    $"{s_linuxHelp}\r\n{ex}");
             }
             catch (Exception ex)
             {
