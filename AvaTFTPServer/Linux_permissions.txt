@@ -1,0 +1,57 @@
+﻿If you start the TFTP server using default port 69 and get the following exception:
+
+    System.Net.Sockets.SocketException (13): Permission denied
+        at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+        ...
+
+By default, linux does not allow user mode processes to access lower TCP ports (ports below 1024). To fix this, either run with sudo (not recommended), or 
+give the executable permission to access the lower port. This can be achieved via the setcap command:
+
+Give capability to bind to low ports:
+    sudo setcap CAP_NET_BIND_SERVICE=+eip ./AvaTFTPServer
+
+Show capabilities:
+    sudo getcap ./AvaTFTPServer
+
+Remove capabilities:
+    sudo setcap -r ./AvaTFTPServer
+
+see https://www.man7.org/linux/man-pages/man7/capabilities.7.html
+and https://unix.stackexchange.com/questions/389879/how-to-set-capabilities-with-setcap-command
+
+==========================================================================================================================================================
+
+If you want to allow **user processes** to bind to **lower TCP ports** (ports below 1024) without requiring root privileges, there are a couple of approaches you can consider:
+
+1. **Using CAP_NET_BIND_SERVICE**:
+    - This method grants permanent access to a specific binary to bind to low-numbered ports.
+    - Execute the following command to grant the necessary capability to a specific binary (replace `/path/to/binary` with the actual path):
+        ```
+        sudo setcap CAP_NET_BIND_SERVICE=+eip /path/to/binary
+        ```
+    - After this, the specified binary will be able to bind to low-numbered ports.
+    - Note that you must apply `setcap` directly to the binary itself (not a symlink).
+
+2. **Using authbind**:
+    - Authbind allows finer control over user/group/port access and provides one-time access.
+    - Install authbind using your package manager.
+    - Configure it to grant access to relevant ports (e.g., 80 and 443):
+        ```
+        sudo touch /etc/authbind/byport/80
+        sudo touch /etc/authbind/byport/443
+        sudo chmod 777 /etc/authbind/byport/80
+        sudo chmod 777 /etc/authbind/byport/443
+        ```
+    - Execute your command via authbind, specifying the binary and any additional arguments:
+        ```
+        authbind --deep /path/to/binary command line args
+        ```
+    - Note that older versions of authbind supported only IPv4, but newer versions include IPv6 support.
+
+Choose the method that best suits your requirements. Option 1 grants trust to the binary but lacks per-port access control, while Option 2 grants trust to the user/group and provides more granular control over port access¹²³⁴. 🚀
+
+Source: Conversation with Bing, 3/14/2024
+(1) Allow non-root process to bind to port 80 and 443? - Super User. https://superuser.com/questions/710253/allow-non-root-process-to-bind-to-port-80-and-443.
+(2) Allowing a regular user to listen to a port below 1024. https://unix.stackexchange.com/questions/10735/allowing-a-regular-user-to-listen-to-a-port-below-1024.
+(3) How can I give a user permission to open low port numbers?. https://askubuntu.com/questions/168042/how-can-i-give-a-user-permission-to-open-low-port-numbers.
+(4) How to restrict access of a process to specific ports?. https://serverfault.com/questions/675355/how-to-restrict-access-of-a-process-to-specific-ports.
