@@ -20,6 +20,7 @@ public class UDPSocket : IUDPSocket
     private readonly Socket _socket;                            // The active socket
     private readonly int _packetSize;                           // size of packets we'll try to receive
     private readonly IPEndPoint _localEndPoint;
+    private readonly IPEndPoint _anyRemoteEndPoint;
 
     public IPEndPoint LocalEndPoint => _localEndPoint;
 
@@ -34,6 +35,9 @@ public class UDPSocket : IUDPSocket
         _socket.ExclusiveAddressUse = false;    // prevent "SocketException: Address already in use" on linux
         _socket.SendBufferSize = 65536;
         _socket.ReceiveBufferSize = 65536;
+
+        _anyRemoteEndPoint = new IPEndPoint(_IPv6 ? IPAddress.IPv6Any : IPAddress.Any,0);
+
         if(!_IPv6) _socket.DontFragment = dontFragment;
         if(ttl >= 0)
         {
@@ -111,7 +115,7 @@ public class UDPSocket : IUDPSocket
         try
         {
             var mem = new Memory<byte>(new byte[_packetSize]);
-            var result = await _socket.ReceiveFromAsync(mem, new IPEndPoint(IPAddress.Any, 0), cancellationToken);
+            var result = await _socket.ReceiveFromAsync(mem, _anyRemoteEndPoint, cancellationToken);
 
             if(result.RemoteEndPoint is IPEndPoint endpoint)
             {
