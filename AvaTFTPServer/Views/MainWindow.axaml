@@ -244,7 +244,7 @@
                         <ListBox
                             Name="ListBoxLog"
                             AutoScrollToSelectedItem="False"
-                            FontFamily="Courier New"
+                            FontFamily="{StaticResource MonospacedFontFamily}"
                             ItemsSource="{CompiledBinding Log}"
                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
                             ScrollViewer.VerticalScrollBarVisibility="Auto"

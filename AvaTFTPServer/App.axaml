@@ -1,32 +1,97 @@
-<Application xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="AvaTFTPServer.App"
-             xmlns:local="using:AvaTFTPServer"
-             RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+<Application
+    x:Class="AvaTFTPServer.App"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:AvaTFTPServer"
+    RequestedThemeVariant="Default">
+    <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
 
     <Application.DataTemplates>
-        <local:ViewLocator/>
+        <local:ViewLocator />
     </Application.DataTemplates>
-  
+
+    <Application.Resources>
+        <!--
+            monospaced font family that should work on windows mac linux android,
+            see also https://ianyepan.github.io/posts/system-default-monospace-fonts-pt2/
+        -->
+        <FontFamily x:Key="MonospacedFontFamily">Consolas,SF Mono,Menlo,DejaVu Sans Mono,Roboto Mono</FontFamily>
+    </Application.Resources>
+
     <Application.Styles>
-		<!--<SimpleTheme></SimpleTheme>-->
-		<FluentTheme>
-			<FluentTheme.Palettes>
-				<ColorPaletteResources x:Key="Light" Accent="#ffcc4d11" AltHigh="White" AltLow="White" AltMedium="White" AltMediumHigh="White" AltMediumLow="White" BaseHigh="Black" BaseLow="#ff7cbee0" BaseMedium="#ff3282a8" BaseMediumHigh="#ff005a83" BaseMediumLow="#ff196e96" ChromeAltLow="#ff005a83" ChromeBlackHigh="Black" ChromeBlackLow="#ff7cbee0" ChromeBlackMedium="#ff005a83" ChromeBlackMediumLow="#ff3282a8" ChromeDisabledHigh="#ff7cbee0" ChromeDisabledLow="#ff3282a8" ChromeGray="#ff196e96" ChromeHigh="#ff7cbee0" ChromeLow="#ffc1e9fe" ChromeMedium="#ffb3e0f8" ChromeMediumLow="#ffc1e9fe" ChromeWhite="White" ListLow="#ffb3e0f8" ListMedium="#ff7cbee0" RegionColor="#ffcfeaff" />
-				<ColorPaletteResources x:Key="Dark" Accent="#ffcc4d11" AltHigh="Black" AltLow="Black" AltMedium="Black" AltMediumHigh="Black" AltMediumLow="Black" BaseHigh="White" BaseLow="#ff2f7bad" BaseMedium="#ff8dbfdf" BaseMediumHigh="#ffa5d0ec" BaseMediumLow="#ff5e9dc6" ChromeAltLow="#ffa5d0ec" ChromeBlackHigh="Black" ChromeBlackLow="#ffa5d0ec" ChromeBlackMedium="Black" ChromeBlackMediumLow="Black" ChromeDisabledHigh="#ff2f7bad" ChromeDisabledLow="#ff8dbfdf" ChromeGray="#ff76aed3" ChromeHigh="#ff76aed3" ChromeLow="#ff093b73" ChromeMedium="#ff134b82" ChromeMediumLow="#ff266b9f" ChromeWhite="White" ListLow="#ff134b82" ListMedium="#ff2f7bad" RegionColor="#ff0d2644" />
-			</FluentTheme.Palettes>
-		</FluentTheme>
+        <!--<SimpleTheme></SimpleTheme>-->
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources
+                    x:Key="Light"
+                    Accent="#ffcc4d11"
+                    AltHigh="White"
+                    AltLow="White"
+                    AltMedium="White"
+                    AltMediumHigh="White"
+                    AltMediumLow="White"
+                    BaseHigh="Black"
+                    BaseLow="#ff7cbee0"
+                    BaseMedium="#ff3282a8"
+                    BaseMediumHigh="#ff005a83"
+                    BaseMediumLow="#ff196e96"
+                    ChromeAltLow="#ff005a83"
+                    ChromeBlackHigh="Black"
+                    ChromeBlackLow="#ff7cbee0"
+                    ChromeBlackMedium="#ff005a83"
+                    ChromeBlackMediumLow="#ff3282a8"
+                    ChromeDisabledHigh="#ff7cbee0"
+                    ChromeDisabledLow="#ff3282a8"
+                    ChromeGray="#ff196e96"
+                    ChromeHigh="#ff7cbee0"
+                    ChromeLow="#ffc1e9fe"
+                    ChromeMedium="#ffb3e0f8"
+                    ChromeMediumLow="#ffc1e9fe"
+                    ChromeWhite="White"
+                    ListLow="#ffb3e0f8"
+                    ListMedium="#ff7cbee0"
+                    RegionColor="#ffcfeaff" />
+                <ColorPaletteResources
+                    x:Key="Dark"
+                    Accent="#ffcc4d11"
+                    AltHigh="Black"
+                    AltLow="Black"
+                    AltMedium="Black"
+                    AltMediumHigh="Black"
+                    AltMediumLow="Black"
+                    BaseHigh="White"
+                    BaseLow="#ff2f7bad"
+                    BaseMedium="#ff8dbfdf"
+                    BaseMediumHigh="#ffa5d0ec"
+                    BaseMediumLow="#ff5e9dc6"
+                    ChromeAltLow="#ffa5d0ec"
+                    ChromeBlackHigh="Black"
+                    ChromeBlackLow="#ffa5d0ec"
+                    ChromeBlackMedium="Black"
+                    ChromeBlackMediumLow="Black"
+                    ChromeDisabledHigh="#ff2f7bad"
+                    ChromeDisabledLow="#ff8dbfdf"
+                    ChromeGray="#ff76aed3"
+                    ChromeHigh="#ff76aed3"
+                    ChromeLow="#ff093b73"
+                    ChromeMedium="#ff134b82"
+                    ChromeMediumLow="#ff266b9f"
+                    ChromeWhite="White"
+                    ListLow="#ff134b82"
+                    ListMedium="#ff2f7bad"
+                    RegionColor="#ff0d2644" />
+            </FluentTheme.Palettes>
+        </FluentTheme>
 
-		<Style Selector="TabControl">
-			<Setter Property="Padding" Value="0,0"/>
-		</Style>
+        <Style Selector="TabControl">
+            <Setter Property="Padding" Value="0,0" />
+        </Style>
 
-		<Style Selector="TabItem">
-			<Setter Property="Padding" Value="8,0,8,0"/>
-		</Style>
-		
-		<!--
+        <Style Selector="TabItem">
+            <Setter Property="Padding" Value="8,0,8,0" />
+        </Style>
+
+        <!--
 		<Style Selector="TextBox /template/ ScrollViewer#PART_ScrollViewer">
 			<Setter Property="Padding" Value="0,0,0,0"/>
 			<Setter Property="Margin" Value="0,0,0,0"/>
@@ -37,17 +102,17 @@
 			<Setter Property="Margin" Value="0,0,0,0"/>
 			<Setter Property="MinHeight" Value="8"/>
 		</Style>
-		-->		
-		
-		<!--fixes https://github.com/AvaloniaUI/Avalonia/issues/13249 -->
-		<Style Selector="TextBox /template/ ScrollViewer#PART_ScrollViewer">
-			<Style Selector="^ /template/ ScrollBar">
-				<Setter Property="Cursor" Value="Arrow" />
-			</Style>
-		</Style>
+		-->
 
-		<!--<Style Selector="TabItem:nth-child(1)">
+        <!--  fixes https://github.com/AvaloniaUI/Avalonia/issues/13249  -->
+        <Style Selector="TextBox /template/ ScrollViewer#PART_ScrollViewer">
+            <Style Selector="^ /template/ ScrollBar">
+                <Setter Property="Cursor" Value="Arrow" />
+            </Style>
+        </Style>
+
+        <!--<Style Selector="TabItem:nth-child(1)">
 			<Setter Property="Padding" Value="0,0,8,0"/>
 		</Style>-->
-	</Application.Styles>
+    </Application.Styles>
 </Application>

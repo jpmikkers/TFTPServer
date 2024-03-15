@@ -5,11 +5,12 @@
         xmlns:vm="using:AvaTFTPServer.ViewModels"
         mc:Ignorable="d" d:DesignWidth="700" d:DesignHeight="450"
 		MaxWidth="700"
-		MaxHeight="450"
+		MaxHeight="450"	
 		SizeToContent="WidthAndHeight"
         x:Class="AvaTFTPServer.ErrorDialog"
         x:DataType="vm:ErrorDialogViewModel"		
-        Title="{CompiledBinding Title}">
+        Title="{CompiledBinding Title}"
+		WindowStartupLocation="CenterOwner">
 
 	<!--<Design.DataContext>
 		<vm:ErrorDialogViewModel/>
@@ -36,7 +37,7 @@
 		</Border>
 
 		<TextBox Margin="8,8,8,0"
-			FontFamily="Courier New"
+			FontFamily="{StaticResource MonospacedFontFamily}"
 			ScrollViewer.HorizontalScrollBarVisibility="Auto"
 			ScrollViewer.VerticalScrollBarVisibility="Auto"
 			IsReadOnly="True" 
