@@ -46,6 +46,9 @@ public partial class App : Application
         appBuilder.Services.AddTransient<ErrorDialogViewModel>();
         appBuilder.Services.AddTransient<ErrorDialog>();
 
+        appBuilder.Services.AddTransient<SelectNetworkDialogViewModel>();
+        appBuilder.Services.AddTransient<SelectNetworkDialog>();
+
         appBuilder.Services.AddTransient<ITFTPAppDialogs, TFTPAppDialogsImpl>();
 
         //appBuilder.Services.AddWindowsFormsBlazorWebView();

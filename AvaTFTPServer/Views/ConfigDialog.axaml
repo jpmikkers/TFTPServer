@@ -139,7 +139,9 @@
                     ex:GI.Column="+1"
                     Text="{CompiledBinding EndPoint}" />
 
-                <Button Margin="{StaticResource gridspacing}" ex:GI.Column="+1">
+                <Button
+					Command="{CompiledBinding SelectIPEndPointCommand}"
+					Margin="{StaticResource gridspacing}" ex:GI.Column="+1">
                     ...
                 </Button>
 

@@ -102,6 +102,17 @@ public partial class ConfigDialogViewModel : ObservableValidator
         RootPath = (await _tftpAppDialogs.ShowFolderPicker(this, "Select root path")) ?? RootPath;
     }
 
+    [RelayCommand]
+    private async Task SelectIPEndPoint()
+    {
+        var result = await _tftpAppDialogs.ShowIPEndPointPicker(this);
+
+        if(result is not null)
+        {
+            EndPoint = result.ToString();
+        }
+    }
+
     public void SettingsToViewModel(ServerSettings settings)
     {
         EndPoint = settings.EndPoint.ToString();

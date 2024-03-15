@@ -1,0 +1,85 @@
+<Window
+    x:Class="AvaTFTPServer.SelectNetworkDialog"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:ex="using:Baksteen.Avalonia.Tools.GridIndexer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:AvaTFTPServer.ViewModels"
+    Title="User interface configuration"
+    Width="350"
+    Height="150"
+    MinWidth="350"
+    MinHeight="150"
+    d:DesignHeight="150"
+    d:DesignWidth="350"
+    x:DataType="vm:SelectNetworkDialogViewModel"
+    WindowStartupLocation="CenterOwner"
+    mc:Ignorable="d">
+    <DockPanel>
+        <Border Padding="8,8,8,8" DockPanel.Dock="Bottom">
+            <StackPanel
+                HorizontalAlignment="Right"
+                Orientation="Horizontal"
+                Spacing="8">
+                <Button
+                    Classes="accent"
+                    Command="{CompiledBinding ApplyCommand}"
+                    IsDefault="True"
+                    IsEnabled="{CompiledBinding !HasErrors}">
+                    _Apply
+                </Button>
+                <Button Command="{CompiledBinding CancelCommand}" IsCancel="True">
+                    _Cancel
+                </Button>
+            </StackPanel>
+        </Border>
+        <Grid Margin="8,8,8,8">
+            <Grid.Resources>
+                <Thickness x:Key="gridspacing">4,4,4,4</Thickness>
+            </Grid.Resources>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="80" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Label
+                Margin="{StaticResource gridspacing}"
+                ex:GI.Column="0"
+                ex:GI.Row="0">
+                Endpoint selection:
+            </Label>
+
+            <ComboBox
+                Margin="{StaticResource gridspacing}"				
+                HorizontalAlignment="Stretch"
+                ex:GI.Row="+1"
+                FontFamily="{StaticResource MonospacedFontFamily}"
+                ItemsSource="{CompiledBinding EndPoints}"
+                SelectedIndex="{CompiledBinding SelectedIPEndPointIndex}">
+
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+						<StackPanel Spacing="4">
+							<DockPanel HorizontalAlignment="Stretch">
+								<TextBlock
+									DockPanel.Dock="Left"
+									Text="{CompiledBinding UserText}" />
+								<TextBlock
+									HorizontalAlignment="Right"
+									DockPanel.Dock="Right"
+									Text="{CompiledBinding Family}" />
+							</DockPanel>
+							<TextBlock FontWeight="Bold" Text="{CompiledBinding IPEndPointAsString}" />
+						</StackPanel>
+					</DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </Grid>
+    </DockPanel>
+</Window>

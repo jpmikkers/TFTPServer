@@ -119,4 +119,21 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         }
         return null;
     }
+
+    public async Task<IPEndPoint?> ShowIPEndPointPicker(INotifyPropertyChanged ownerVm)
+    {
+        var dialog = serviceProvider.GetRequiredService<SelectNetworkDialog>();
+        var vm = (SelectNetworkDialogViewModel)dialog.DataContext!;
+
+        var result = await dialog.ShowDialog<SelectNetworkDialogViewModel.DialogResult>(viewResolver.LocateView(ownerVm));
+
+        if(result == SelectNetworkDialogViewModel.DialogResult.Ok)
+        {
+            return vm.EndPoints[vm.SelectedIPEndPointIndex].IPEndPoint;
+        }
+        else
+        {
+            return null;
+        }
+    }
 }
