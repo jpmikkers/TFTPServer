@@ -16,7 +16,8 @@
             see also https://ianyepan.github.io/posts/system-default-monospace-fonts-pt2/
         -->
         <FontFamily x:Key="MonospacedFontFamily">Consolas,SF Mono,Menlo,DejaVu Sans Mono,Roboto Mono</FontFamily>
-    </Application.Resources>
+		<local:IPEndPointConverter x:Key="ipEndPointConverter" />
+	</Application.Resources>
 
     <Application.Styles>
         <!--<SimpleTheme></SimpleTheme>-->

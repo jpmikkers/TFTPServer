@@ -75,7 +75,7 @@
 									DockPanel.Dock="Right"
 									Text="{CompiledBinding Family}" />
 							</DockPanel>
-							<TextBlock FontWeight="Bold" Text="{CompiledBinding IPEndPointAsString}" />
+							<TextBlock FontWeight="Bold" Text="{CompiledBinding IPEndPoint, Converter={StaticResource ipEndPointConverter}, Mode=OneWay}" />
 						</StackPanel>
 					</DataTemplate>
                 </ComboBox.ItemTemplate>

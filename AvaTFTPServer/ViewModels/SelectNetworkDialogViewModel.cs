@@ -21,8 +21,6 @@ public partial class SelectNetworkDialogViewModel : ObservableValidator
         public string UserText { get; init; } = "woot";
         public IPEndPoint IPEndPoint { get; init; } = new IPEndPoint(IPAddress.Any, 0);
 
-        public string IPEndPointAsString { get => IPEndPoint.ToString(); }
-
         public string Family => AddressFamilyPresentation(IPEndPoint.Address.AddressFamily);
 
         private static string AddressFamilyPresentation(AddressFamily addressFamily)
