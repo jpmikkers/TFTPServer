@@ -34,6 +34,7 @@
 		<StreamGeometry x:Key="path_stop">M18,18H6V6H18V18Z</StreamGeometry>
 		<StreamGeometry x:Key="path_transfers">M14,8H11V14H6V8H3L8.5,2L14,8M15.5,22L21,16H18V10H13V16H10L15.5,22Z</StreamGeometry>
 		<StreamGeometry x:Key="path_log">M9,5V9H21V5M9,19H21V15H9M9,14H21V10H9M4,9H8V5H4M4,19H8V15H4M4,14H8V10H4V14Z</StreamGeometry>
+		<StreamGeometry x:Key="path_about">M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z</StreamGeometry>
 		<local:LogLevelColorBrushConverter x:Key="logLevelConverter" />
 	</Window.Resources>
 
@@ -68,6 +69,13 @@
 					</MenuItem.Icon>
 				</MenuItem>
             </MenuItem>
+			<MenuItem Header="_Help">
+				<MenuItem Header="_About..">
+					<MenuItem.Icon>
+						<PathIcon Data="{StaticResource path_about}"/>
+					</MenuItem.Icon>
+				</MenuItem>
+			</MenuItem>
         </Menu>
 
         <Border
