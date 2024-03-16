@@ -12,12 +12,6 @@ namespace AvaTFTPServer;
 
 public partial class UIConfigDialog : Window
 {
-    public record class ChangeConfigResult
-    {
-        public DialogResult DialogResult { get; set; }
-        public UISettings Settings { get; set; } = new UISettings();
-    }
-
     public UIConfigDialog() : this(null!)
     {
         Assertions.OnlyUseEmptyConstructorInDesignMode(nameof(UIConfigDialog));

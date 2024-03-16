@@ -17,7 +17,7 @@ namespace AvaTFTPServer;
 
 public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider serviceProvider) : ITFTPAppDialogs
 {
-    private async Task<UIConfigDialog.ChangeConfigResult> DoShowUIConfigDialog(Window owner, UISettings settings, string configPath)
+    private async Task<UISettings?> DoShowUIConfigDialog(Window owner, UISettings settings, string configPath)
     {
         var dialog = serviceProvider.GetRequiredService<UIConfigDialog>();
         var vm = (UIConfigDialogViewModel)dialog.DataContext!;
@@ -26,42 +26,20 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         vm.AutoScrollLog = settings.AutoScrollLog;
         vm.ConfigPath = configPath;
 
-        if(await dialog.ShowDialog<DialogResult?>(owner) == DialogResult.Ok)
-        {
-            return new()
-            {
-                DialogResult = DialogResult.Ok,
-                Settings = new UISettings
-                {
-                    AutoScrollLog = vm.AutoScrollLog,
-                    CleanupTransfersAfter = vm.CleanupTransfersAfter,
-                }
-            };
-        }
-        else
-        {
-            return new()
-            {
-                DialogResult = DialogResult.Cancel,
-                Settings = settings
-            };
-        }
+        return (await dialog.ShowDialog<DialogResult?>(owner) == DialogResult.Ok) ? 
+            new UISettings {
+                AutoScrollLog = vm.AutoScrollLog,
+                CleanupTransfersAfter = vm.CleanupTransfersAfter,
+            }
+            : null;
     }
 
-    private async Task<ConfigDialog.ChangeConfigResult> DoShowConfigDialog(Window owner, ServerSettings settings)
+    private async Task<ServerSettings?> DoShowConfigDialog(Window owner, ServerSettings settings)
     {
         var dialog = serviceProvider.GetRequiredService<ConfigDialog>();
         var vm = (ConfigDialogViewModel)dialog.DataContext!;
-
         vm.SettingsToViewModel(settings);
-
-        var dialogResult = await dialog.ShowDialog<DialogResult?>(owner) ?? DialogResult.Cancel;
-
-        return new()
-        {
-            DialogResult = DialogResult.Ok,
-            ServerSettings = (dialogResult == DialogResult.Ok) ? vm.ViewModelToSettings() : settings
-        };
+        return (await dialog.ShowDialog<DialogResult?>(owner) == DialogResult.Ok) ? vm.ViewModelToSettings() : null;
     }
 
     private async Task DoShowErrorDialog(Window owner, string title, string header, string details)
@@ -76,7 +54,7 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         await dialog.ShowDialog(owner);
     }
 
-    public Task<UIConfigDialog.ChangeConfigResult> ShowUIConfigDialog(INotifyPropertyChanged vm, UISettings settings, string configPath)
+    public Task<UISettings?> ShowUIConfigDialog(INotifyPropertyChanged vm, UISettings settings, string configPath)
     {
         // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
         return Dispatcher.UIThread.InvokeAsync(
@@ -85,7 +63,7 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         );
     }
 
-    public Task<ConfigDialog.ChangeConfigResult> ShowConfigDialog(INotifyPropertyChanged vm, ServerSettings settings)
+    public Task<ServerSettings?> ShowConfigDialog(INotifyPropertyChanged vm, ServerSettings settings)
     {
         // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
         return Dispatcher.UIThread.InvokeAsync(

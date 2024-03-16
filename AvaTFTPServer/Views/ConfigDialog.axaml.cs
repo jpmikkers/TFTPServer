@@ -12,12 +12,6 @@ namespace AvaTFTPServer;
 
 public partial class ConfigDialog : Window
 {
-    public record class ChangeConfigResult
-    {
-        public DialogResult DialogResult { get; set; }
-        public ServerSettings ServerSettings { get; set; } = new ServerSettings();
-    }
-
     public ConfigDialog() : this(null!)
     {
         Assertions.OnlyUseEmptyConstructorInDesignMode(nameof(ConfigDialog));

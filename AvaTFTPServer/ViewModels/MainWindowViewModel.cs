@@ -187,19 +187,16 @@ public partial class MainWindowViewModel : ViewModelBase
         var originalSettings = _appSettings.ServerSettings;
         var response = await _appDialogs.ShowConfigDialog(this, originalSettings);
 
-        if(response.DialogResult == DialogResult.Ok)
+        if(response is not null && !originalSettings.Equals(response))
         {
-            if(!originalSettings.Equals(response.ServerSettings))
-            {
-                _appSettings.ServerSettings = response.ServerSettings;
-                _appSettings.Save();
+            _appSettings.ServerSettings = response;
+            _appSettings.Save();
 
-                if(_server is not null)
-                {
-                    // TODO show messagebox about restarting server?
-                    await StopServer();
-                    await StartServer();
-                }
+            if(_server is not null)
+            {
+                // TODO show messagebox about restarting server?
+                await StopServer();
+                await StartServer();
             }
         }
     }
@@ -210,19 +207,16 @@ public partial class MainWindowViewModel : ViewModelBase
         var originalSettings = _appSettings.UISettings;
         var response = await _appDialogs.ShowUIConfigDialog(this, originalSettings, _appSettings.ConfigPath);
 
-        if(response.DialogResult == DialogResult.Ok)
+        if(response is not null && !originalSettings.Equals(response))
         {
-            if(!originalSettings.Equals(response.Settings))
-            {
-                _appSettings.UISettings = response.Settings;
-                _appSettings.Save();
+            _appSettings.UISettings = response;
+            _appSettings.Save();
 
-                AutoScrollLog = _appSettings.UISettings.AutoScrollLog;
+            AutoScrollLog = _appSettings.UISettings.AutoScrollLog;
 
-                _cleanupTimer.Stop();
-                _cleanupTimer.Interval = GetCleanupTimerInterval();
-                _cleanupTimer.Start();
-            }
+            _cleanupTimer.Stop();
+            _cleanupTimer.Interval = GetCleanupTimerInterval();
+            _cleanupTimer.Start();
         }
     }
 
