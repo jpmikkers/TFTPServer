@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
+using AvaTFTPServer.AvaloniaTools;
 using AvaTFTPServer.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -25,11 +26,11 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         vm.AutoScrollLog = settings.AutoScrollLog;
         vm.ConfigPath = configPath;
 
-        if(await dialog.ShowDialog<UIConfigDialogViewModel.DialogResult?>(owner) == UIConfigDialogViewModel.DialogResult.Ok)
+        if(await dialog.ShowDialog<DialogResult?>(owner) == DialogResult.Ok)
         {
             return new()
             {
-                DialogResult = UIConfigDialogViewModel.DialogResult.Ok,
+                DialogResult = DialogResult.Ok,
                 Settings = new UISettings
                 {
                     AutoScrollLog = vm.AutoScrollLog,
@@ -41,7 +42,7 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         {
             return new()
             {
-                DialogResult = UIConfigDialogViewModel.DialogResult.Cancel,
+                DialogResult = DialogResult.Cancel,
                 Settings = settings
             };
         }
@@ -54,12 +55,12 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
 
         vm.SettingsToViewModel(settings);
 
-        var dialogResult = await dialog.ShowDialog<ConfigDialogViewModel.DialogResult?>(owner) ?? ConfigDialogViewModel.DialogResult.Canceled;
+        var dialogResult = await dialog.ShowDialog<DialogResult?>(owner) ?? DialogResult.Cancel;
 
         return new()
         {
-            DialogResult = ConfigDialogViewModel.DialogResult.Ok,
-            ServerSettings = (dialogResult == ConfigDialogViewModel.DialogResult.Ok) ? vm.ViewModelToSettings() : settings
+            DialogResult = DialogResult.Ok,
+            ServerSettings = (dialogResult == DialogResult.Ok) ? vm.ViewModelToSettings() : settings
         };
     }
 
@@ -122,12 +123,12 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
 
     public async Task<IPEndPoint?> ShowIPEndPointPicker(INotifyPropertyChanged ownerVm)
     {
-        var dialog = serviceProvider.GetRequiredService<SelectNetworkDialog>();
-        var vm = (SelectNetworkDialogViewModel)dialog.DataContext!;
+        var dialog = serviceProvider.GetRequiredService<EndPointSelectionDialog>();
+        var vm = (EndPointSelectionDialogViewModel)dialog.DataContext!;
 
-        var result = await dialog.ShowDialog<SelectNetworkDialogViewModel.DialogResult>(viewResolver.LocateView(ownerVm));
+        var result = await dialog.ShowDialog<DialogResult>(viewResolver.LocateView(ownerVm));
 
-        if(result == SelectNetworkDialogViewModel.DialogResult.Ok)
+        if(result == DialogResult.Ok)
         {
             return vm.EndPoints[vm.SelectedIPEndPointIndex].IPEndPoint;
         }

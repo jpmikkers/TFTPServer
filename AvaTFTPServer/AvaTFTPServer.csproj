@@ -42,8 +42,8 @@
     <Compile Update="Views\ErrorDialog.axaml.cs">
       <DependentUpon>ErrorDialog.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\SelectNetworkDialog.axaml.cs">
-      <DependentUpon>SelectNetworkDialog.axaml</DependentUpon>
+    <Compile Update="Views\EndPointSelectionDialog.axaml.cs">
+      <DependentUpon>EndPointSelectionDialog.axaml</DependentUpon>
     </Compile>
     <Compile Update="Views\UIConfigDialog.axaml.cs">
       <DependentUpon>UIConfigDialog.axaml</DependentUpon>

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AvaTFTPServer.AvaloniaTools;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
@@ -16,12 +17,6 @@ public partial class UIConfigDialogViewModel(IViewModelCloser viewModelCloser) :
     {
         public string UserText { get; init; } = string.Empty;
         public TimeSpan TimeSpan { get; init; }
-    }
-
-    public enum DialogResult
-    {
-        Ok,
-        Cancel
     }
 
     public List<TimeSpanItem> TimeSpans { get; private set; } = [

@@ -14,7 +14,7 @@ public partial class ConfigDialog : Window
 {
     public record class ChangeConfigResult
     {
-        public ConfigDialogViewModel.DialogResult DialogResult { get; set; }
+        public DialogResult DialogResult { get; set; }
         public ServerSettings ServerSettings { get; set; } = new ServerSettings();
     }
 

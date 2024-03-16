@@ -14,7 +14,7 @@ public partial class UIConfigDialog : Window
 {
     public record class ChangeConfigResult
     {
-        public UIConfigDialogViewModel.DialogResult DialogResult { get; set; }
+        public DialogResult DialogResult { get; set; }
         public UISettings Settings { get; set; } = new UISettings();
     }
 

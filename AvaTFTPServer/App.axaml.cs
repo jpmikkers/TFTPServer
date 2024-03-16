@@ -46,8 +46,8 @@ public partial class App : Application
         appBuilder.Services.AddTransient<ErrorDialogViewModel>();
         appBuilder.Services.AddTransient<ErrorDialog>();
 
-        appBuilder.Services.AddTransient<SelectNetworkDialogViewModel>();
-        appBuilder.Services.AddTransient<SelectNetworkDialog>();
+        appBuilder.Services.AddTransient<EndPointSelectionDialogViewModel>();
+        appBuilder.Services.AddTransient<EndPointSelectionDialog>();
 
         appBuilder.Services.AddTransient<ITFTPAppDialogs, TFTPAppDialogsImpl>();
 

@@ -10,20 +10,20 @@ using System.Threading.Tasks;
 namespace AvaTFTPServer;
 
 
-public partial class SelectNetworkDialog : Window
+public partial class EndPointSelectionDialog : Window
 {
     public record class ChangeConfigResult
     {
-        public SelectNetworkDialogViewModel.DialogResult DialogResult { get; set; }
+        public DialogResult DialogResult { get; set; }
         public UISettings Settings { get; set; } = new UISettings();
     }
 
-    public SelectNetworkDialog() : this(null!)
+    public EndPointSelectionDialog() : this(null!)
     {
-        Assertions.OnlyUseEmptyConstructorInDesignMode(nameof(SelectNetworkDialog));
+        Assertions.OnlyUseEmptyConstructorInDesignMode(nameof(EndPointSelectionDialog));
     }
 
-    public SelectNetworkDialog(SelectNetworkDialogViewModel vm)
+    public EndPointSelectionDialog(EndPointSelectionDialogViewModel vm)
     {
         DataContext = vm;
         InitializeComponent();

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using AvaTFTPServer.AvaloniaTools;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using static AvaTFTPServer.ViewModels.ConfigDialogViewModel;
 
 namespace AvaTFTPServer.ViewModels;
 
-public partial class SelectNetworkDialogViewModel : ObservableValidator
+public partial class EndPointSelectionDialogViewModel : ObservableValidator
 {
     public record class NetworkInterfaceItem
     {
@@ -35,12 +36,6 @@ public partial class SelectNetworkDialogViewModel : ObservableValidator
                     return addressFamily.ToString();
             }
         }
-    }
-
-    public enum DialogResult
-    {
-        Ok,
-        Cancel
     }
 
     public List<NetworkInterfaceItem> EndPoints { get; private set; } = [
@@ -68,7 +63,7 @@ public partial class SelectNetworkDialogViewModel : ObservableValidator
         _viewModelCloser.Close(this, DialogResult.Cancel);
     }
 
-    public SelectNetworkDialogViewModel(IViewModelCloser viewModelCloser)
+    public EndPointSelectionDialogViewModel(IViewModelCloser viewModelCloser)
     {
         _viewModelCloser = viewModelCloser;
 
@@ -89,6 +84,7 @@ public partial class SelectNetworkDialogViewModel : ObservableValidator
 
         networks.Insert(0, new NetworkInterfaceItem { UserText = "Any", IPEndPoint = new IPEndPoint(IPAddress.Any,69) });
         networks.Insert(1, new NetworkInterfaceItem { UserText = "Any", IPEndPoint = new IPEndPoint(IPAddress.IPv6Any,69) });
+        networks.Insert(2, new NetworkInterfaceItem { UserText = "Test", IPEndPoint = new IPEndPoint(IPAddress.Parse("[DEAD:BEEF:DEAD:BEEF:DEAD:BEEF:DEAD:BEEF]"), 69) });
 
         networks = networks.OrderBy(x => x.IPEndPoint.Address.AddressFamily).ToList();
 

@@ -187,7 +187,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var originalSettings = _appSettings.ServerSettings;
         var response = await _appDialogs.ShowConfigDialog(this, originalSettings);
 
-        if(response.DialogResult == ConfigDialogViewModel.DialogResult.Ok)
+        if(response.DialogResult == DialogResult.Ok)
         {
             if(!originalSettings.Equals(response.ServerSettings))
             {
@@ -210,7 +210,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var originalSettings = _appSettings.UISettings;
         var response = await _appDialogs.ShowUIConfigDialog(this, originalSettings, _appSettings.ConfigPath);
 
-        if(response.DialogResult == UIConfigDialogViewModel.DialogResult.Ok)
+        if(response.DialogResult == DialogResult.Ok)
         {
             if(!originalSettings.Equals(response.Settings))
             {

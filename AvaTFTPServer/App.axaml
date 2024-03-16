@@ -20,7 +20,17 @@
 	</Application.Resources>
 
     <Application.Styles>
-        <!--<SimpleTheme></SimpleTheme>-->
+		<!--<Style Selector="Window.tool_window Panel#PART_MinimiseButton">
+			<Setter Property="IsVisible" Value="False"></Setter>
+		</Style>
+		<Style Selector="Window.tool_window Panel#PART_RestoreButton">
+			<Setter Property="IsVisible" Value="False"></Setter>
+		</Style>
+		<Style Selector="Window.tool_window">
+			<Setter Property="Background" Value="Black"></Setter>
+		</Style>-->
+
+		<!--<SimpleTheme></SimpleTheme>-->
         <FluentTheme>
             <FluentTheme.Palettes>
                 <ColorPaletteResources

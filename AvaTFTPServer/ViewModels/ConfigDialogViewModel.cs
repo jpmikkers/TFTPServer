@@ -2,6 +2,7 @@
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Documents;
 using Avalonia.Platform.Storage;
+using AvaTFTPServer.AvaloniaTools;
 using Baksteen.Avalonia.Tools;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -78,12 +79,6 @@ public partial class ConfigDialogViewModel : ObservableValidator
     [NotifyDataErrorInfo]
     private int? _windowSize = 1;
 
-    public enum DialogResult
-    {
-        Canceled,
-        Ok
-    }
-
     [RelayCommand]
     private void Apply()
     {
@@ -93,7 +88,7 @@ public partial class ConfigDialogViewModel : ObservableValidator
     [RelayCommand]
     private void Cancel()
     {
-        _viewModelCloser.Close(this, DialogResult.Canceled);
+        _viewModelCloser.Close(this, DialogResult.Cancel);
     }
 
     [RelayCommand]
