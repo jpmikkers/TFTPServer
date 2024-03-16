@@ -84,7 +84,7 @@ public partial class EndPointSelectionDialogViewModel : ObservableValidator
 
         networks.Insert(0, new NetworkInterfaceItem { UserText = "Any", IPEndPoint = new IPEndPoint(IPAddress.Any,69) });
         networks.Insert(1, new NetworkInterfaceItem { UserText = "Any", IPEndPoint = new IPEndPoint(IPAddress.IPv6Any,69) });
-        networks.Insert(2, new NetworkInterfaceItem { UserText = "Test", IPEndPoint = new IPEndPoint(IPAddress.Parse("[DEAD:BEEF:DEAD:BEEF:DEAD:BEEF:DEAD:BEEF]"), 69) });
+        //networks.Insert(2, new NetworkInterfaceItem { UserText = "Test", IPEndPoint = new IPEndPoint(IPAddress.Parse("[DEAD:BEEF:DEAD:BEEF:DEAD:BEEF:DEAD:BEEF]"), 69) });
 
         networks = networks.OrderBy(x => x.IPEndPoint.Address.AddressFamily).ToList();
 
