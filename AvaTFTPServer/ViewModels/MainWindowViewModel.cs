@@ -279,4 +279,10 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         return _server is not null;
     }
+
+    [RelayCommand]
+    private async Task ShowAbout()
+    {
+        await _appDialogs.ShowAboutDialog(this);
+    }
 }

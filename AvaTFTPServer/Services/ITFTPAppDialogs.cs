@@ -12,4 +12,5 @@ public interface ITFTPAppDialogs
     public Task ShowErrorDialog(INotifyPropertyChanged vm, string title, string header, string details);
     public Task<string?> ShowFolderPicker(INotifyPropertyChanged vm, string title);
     public Task<IPEndPoint?> ShowIPEndPointPicker(INotifyPropertyChanged vm);
+    public Task ShowAboutDialog(INotifyPropertyChanged vm);
 }

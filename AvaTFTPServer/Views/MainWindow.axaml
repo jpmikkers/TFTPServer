@@ -70,7 +70,7 @@
 				</MenuItem>
             </MenuItem>
 			<MenuItem Header="_Help">
-				<MenuItem Header="_About..">
+				<MenuItem Command="{CompiledBinding ShowAboutCommand}" Header="_About..">
 					<MenuItem.Icon>
 						<PathIcon Data="{StaticResource path_about}"/>
 					</MenuItem.Icon>

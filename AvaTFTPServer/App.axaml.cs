@@ -49,6 +49,9 @@ public partial class App : Application
         appBuilder.Services.AddTransient<EndPointSelectionDialogViewModel>();
         appBuilder.Services.AddTransient<EndPointSelectionDialog>();
 
+        appBuilder.Services.AddTransient<AboutDialogViewModel>();
+        appBuilder.Services.AddTransient<AboutDialog>();
+
         appBuilder.Services.AddTransient<ITFTPAppDialogs, TFTPAppDialogsImpl>();
 
         //appBuilder.Services.AddWindowsFormsBlazorWebView();

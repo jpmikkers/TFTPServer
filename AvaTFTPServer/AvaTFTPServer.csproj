@@ -39,6 +39,9 @@
     <Compile Update="Views\ConfigDialog.axaml.cs">
       <DependentUpon>ConfigDialog.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\AboutDialog.axaml.cs">
+      <DependentUpon>AboutDialog.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\ErrorDialog.axaml.cs">
       <DependentUpon>ErrorDialog.axaml</DependentUpon>
     </Compile>

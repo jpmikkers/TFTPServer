@@ -115,4 +115,16 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
             return null;
         }
     }
+
+    public Task ShowAboutDialog(INotifyPropertyChanged ownerVm)
+    {
+        // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
+        return Dispatcher.UIThread.InvokeAsync(
+            async () => {
+                var dialog = serviceProvider.GetRequiredService<AboutDialog>();
+                await dialog.ShowDialog(viewResolver.LocateView(ownerVm));
+            },
+            DispatcherPriority.Background
+        );
+    }
 }
