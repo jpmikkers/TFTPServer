@@ -17,7 +17,19 @@ namespace AvaTFTPServer;
 
 public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider serviceProvider) : ITFTPAppDialogs
 {
-    private async Task<UISettings?> DoShowUIConfigDialog(Window owner, UISettings settings, string configPath)
+    private static Task<TResult> ShowDialog<TResult>(Window owner, Window dialog)
+    {
+        // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
+        return Dispatcher.UIThread.InvokeAsync(() => dialog.ShowDialog<TResult>(owner), DispatcherPriority.Background);
+    }
+
+    private static Task ShowDialog(Window owner, Window dialog)
+    {
+        // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
+        return Dispatcher.UIThread.InvokeAsync(() => dialog.ShowDialog(owner), DispatcherPriority.Background);
+    }
+
+    public async Task<UISettings?> ShowUIConfigDialog(INotifyPropertyChanged ownerVm, UISettings settings, string configPath)
     {
         var dialog = serviceProvider.GetRequiredService<UIConfigDialog>();
         var vm = (UIConfigDialogViewModel)dialog.DataContext!;
@@ -26,23 +38,24 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         vm.AutoScrollLog = settings.AutoScrollLog;
         vm.ConfigPath = configPath;
 
-        return (await dialog.ShowDialog<DialogResult?>(owner) == DialogResult.Ok) ? 
-            new UISettings {
+        return (await ShowDialog<DialogResult?>(viewResolver.LocateView(ownerVm),dialog) == DialogResult.Ok) ?
+            new UISettings
+            {
                 AutoScrollLog = vm.AutoScrollLog,
                 CleanupTransfersAfter = vm.CleanupTransfersAfter,
             }
             : null;
     }
 
-    private async Task<ServerSettings?> DoShowConfigDialog(Window owner, ServerSettings settings)
+    public async Task<ServerSettings?> ShowConfigDialog(INotifyPropertyChanged ownerVm, ServerSettings settings)
     {
         var dialog = serviceProvider.GetRequiredService<ConfigDialog>();
         var vm = (ConfigDialogViewModel)dialog.DataContext!;
         vm.SettingsToViewModel(settings);
-        return (await dialog.ShowDialog<DialogResult?>(owner) == DialogResult.Ok) ? vm.ViewModelToSettings() : null;
+        return (await ShowDialog<DialogResult?>(viewResolver.LocateView(ownerVm), dialog) == DialogResult.Ok) ? vm.ViewModelToSettings() : null;
     }
 
-    private async Task DoShowErrorDialog(Window owner, string title, string header, string details)
+    public async Task ShowErrorDialog(INotifyPropertyChanged ownerVm, string title, string header, string details)
     {
         var dialog = serviceProvider.GetRequiredService<ErrorDialog>();
         var vm = (ErrorDialogViewModel)dialog.DataContext!;
@@ -51,34 +64,7 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         vm.Header = header;
         vm.Details = details;
 
-        await dialog.ShowDialog(owner);
-    }
-
-    public Task<UISettings?> ShowUIConfigDialog(INotifyPropertyChanged vm, UISettings settings, string configPath)
-    {
-        // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
-        return Dispatcher.UIThread.InvokeAsync(
-            () => DoShowUIConfigDialog(viewResolver.LocateView(vm),settings,configPath),
-            DispatcherPriority.Background
-        );
-    }
-
-    public Task<ServerSettings?> ShowConfigDialog(INotifyPropertyChanged vm, ServerSettings settings)
-    {
-        // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
-        return Dispatcher.UIThread.InvokeAsync(
-            () => DoShowConfigDialog(viewResolver.LocateView(vm), settings),
-            DispatcherPriority.Background
-        );        
-    }
-
-    public Task ShowErrorDialog(INotifyPropertyChanged vm, string title, string header, string details)
-    {
-        // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
-        return Dispatcher.UIThread.InvokeAsync(
-            () => DoShowErrorDialog(viewResolver.LocateView(vm), title, header, details),
-            DispatcherPriority.Background
-        );
+        await ShowDialog(viewResolver.LocateView(ownerVm), dialog);
     }
 
     public async Task<string?> ShowFolderPicker(INotifyPropertyChanged vm, string title)
@@ -116,15 +102,8 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         }
     }
 
-    public Task ShowAboutDialog(INotifyPropertyChanged ownerVm)
+    public async Task ShowAboutDialog(INotifyPropertyChanged ownerVm)
     {
-        // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
-        return Dispatcher.UIThread.InvokeAsync(
-            async () => {
-                var dialog = serviceProvider.GetRequiredService<AboutDialog>();
-                await dialog.ShowDialog(viewResolver.LocateView(ownerVm));
-            },
-            DispatcherPriority.Background
-        );
+        await ShowDialog(viewResolver.LocateView(ownerVm), serviceProvider.GetRequiredService<AboutDialog>());
     }
 }
