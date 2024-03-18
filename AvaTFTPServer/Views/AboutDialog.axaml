@@ -8,12 +8,11 @@
     Title="About.."
 	MinWidth="250"
 	MinHeight="220"
-    MaxWidth="700"
-    MaxHeight="450"
-    d:DesignHeight="450"
     d:DesignWidth="700"
+    d:DesignHeight="450"
+    Width="700"
+    Height="450"
     x:DataType="vm:AboutDialogViewModel"
-    SizeToContent="WidthAndHeight"
     WindowStartupLocation="CenterOwner"
     mc:Ignorable="d">
 
@@ -36,6 +35,12 @@
 				<TextBlock>
 					<Run>Architecture:</Run>
 					<Run FontWeight="Bold" Text="{CompiledBinding Architecture}"/>
+				</TextBlock>
+				<TextBlock>
+					<Run>Project homepage:</Run>
+					<InlineUIContainer>
+						<Button Classes="link" Content="{CompiledBinding ProjectUrl}" Command="{CompiledBinding VisitProjectUrlCommand}"></Button>
+					</InlineUIContainer>
 				</TextBlock>
 			</StackPanel>
 		</Border>
