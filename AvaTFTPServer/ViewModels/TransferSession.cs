@@ -63,7 +63,7 @@ public partial class TransferSession : ObservableObject
     private string _filename = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ProgressPercentage), nameof(FileLengthKnown))]
+    [NotifyPropertyChangedFor(nameof(ProgressPercentage), nameof(FileLengthKnown), nameof(FileLengthAsString))]
     private long _fileLength = -1;
 
     [ObservableProperty]
@@ -101,6 +101,11 @@ public partial class TransferSession : ObservableObject
     public bool FileLengthKnown
     {
         get => FileLength >= 0;
+    }
+
+    public string FileLengthAsString
+    {
+        get => FileLengthKnown ? FileLength.ToString() : "?";
     }
 
     public int Id { get; set; }

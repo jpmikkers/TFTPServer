@@ -110,6 +110,14 @@ public partial class MainWindowViewModel : ViewModelBase
         _cleanupTimer = new(TimeSpan.FromSeconds(10.0), DispatcherPriority.Normal, _cleanupTimer_Tick);
         _loggerFactory = new LoggerFactory();
         _viewModelCloser = new ViewModelCloser(new ViewResolver());
+
+        TransferSessions.Add(new TransferSession(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10))
+        {
+            FileLength = -1,
+            Filename = "hallo",
+            Id = 10,
+            WindowSize = 1
+        });
     }
 
     public MainWindowViewModel(
