@@ -5,8 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="using:AvaTFTPServer"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="using:AvaTFTPServer.ViewModels"
     xmlns:tt="using:Baksteen.Avalonia.Tools"
+    xmlns:vm="using:AvaTFTPServer.ViewModels"
     Title="AvaTFTPServer"
     d:DesignHeight="350"
     d:DesignWidth="600"
@@ -14,68 +14,74 @@
     Icon="/Assets/avalonia-logo.ico"
     mc:Ignorable="d">
 
-	
-    <!--<Design.DataContext>
-	
-	
-	
+
+    <Design.DataContext>
+
+
+
         <vm:MainWindowViewModel />
-    </Design.DataContext>-->
+    </Design.DataContext>
 
     <Window.Resources>
         <!--  paths from https://petershaggynoble.github.io/MDI-Sandbox/  -->
         <StreamGeometry x:Key="path_upload">M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z</StreamGeometry>
         <StreamGeometry x:Key="path_download">M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z</StreamGeometry>
         <StreamGeometry x:Key="path_information">M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z</StreamGeometry>
-		<StreamGeometry x:Key="path_exit">M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20.5,12L15.5,17L14.08,15.59M19,3A2,2 0 0,1 21,5V9.67L19,7.67V5H5V19H19V16.33L21,14.33V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H19Z</StreamGeometry>
-		<StreamGeometry x:Key="path_serversettings">M14 18V16L10 19.5L14 23V21H17V18H14M22 15.5L18 12V14H15V17H18V19L22 15.5M21.66 8.73L19.66 5.27C19.54 5.05 19.28 4.96 19.05 5.05L16.56 6.05C16.05 5.64 15.5 5.31 14.87 5.05L14.5 2.42C14.46 2.18 14.25 2 14 2H10C9.75 2 9.54 2.18 9.5 2.42L9.13 5.07C8.5 5.33 7.96 5.66 7.44 6.07L5 5.05C4.77 4.96 4.5 5.05 4.39 5.27L2.39 8.73C2.26 8.94 2.31 9.22 2.5 9.37L4.57 11C4.53 11.33 4.5 11.67 4.5 12C4.5 12.33 4.53 12.67 4.57 13L2.46 14.63C2.26 14.78 2.21 15.06 2.34 15.27L4.34 18.73C4.45 19 4.74 19.11 5 19L5 19L7.5 18C7.74 18.19 8 18.37 8.26 18.53L11.77 15.53C9.84 15.4 8.38 13.73 8.5 11.8C8.65 9.87 10.32 8.41 12.25 8.55C13.69 8.64 14.92 9.62 15.35 11H19.43L21.54 9.37C21.73 9.22 21.78 8.94 21.66 8.73Z</StreamGeometry>
-		<StreamGeometry x:Key="path_uisettings">M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z</StreamGeometry>
-		<StreamGeometry x:Key="path_play">M8,5.14V19.14L19,12.14L8,5.14Z</StreamGeometry>
-		<StreamGeometry x:Key="path_stop">M18,18H6V6H18V18Z</StreamGeometry>
-		<StreamGeometry x:Key="path_transfers">M14,8H11V14H6V8H3L8.5,2L14,8M15.5,22L21,16H18V10H13V16H10L15.5,22Z</StreamGeometry>
-		<StreamGeometry x:Key="path_log">M9,5V9H21V5M9,19H21V15H9M9,14H21V10H9M4,9H8V5H4M4,19H8V15H4M4,14H8V10H4V14Z</StreamGeometry>
-		<StreamGeometry x:Key="path_about">M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z</StreamGeometry>
-		<local:LogLevelColorBrushConverter x:Key="logLevelConverter" />
-	</Window.Resources>
+        <StreamGeometry x:Key="path_exit">M14.08,15.59L16.67,13H7V11H16.67L14.08,8.41L15.5,7L20.5,12L15.5,17L14.08,15.59M19,3A2,2 0 0,1 21,5V9.67L19,7.67V5H5V19H19V16.33L21,14.33V19A2,2 0 0,1 19,21H5C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H19Z</StreamGeometry>
+        <StreamGeometry x:Key="path_serversettings">M14 18V16L10 19.5L14 23V21H17V18H14M22 15.5L18 12V14H15V17H18V19L22 15.5M21.66 8.73L19.66 5.27C19.54 5.05 19.28 4.96 19.05 5.05L16.56 6.05C16.05 5.64 15.5 5.31 14.87 5.05L14.5 2.42C14.46 2.18 14.25 2 14 2H10C9.75 2 9.54 2.18 9.5 2.42L9.13 5.07C8.5 5.33 7.96 5.66 7.44 6.07L5 5.05C4.77 4.96 4.5 5.05 4.39 5.27L2.39 8.73C2.26 8.94 2.31 9.22 2.5 9.37L4.57 11C4.53 11.33 4.5 11.67 4.5 12C4.5 12.33 4.53 12.67 4.57 13L2.46 14.63C2.26 14.78 2.21 15.06 2.34 15.27L4.34 18.73C4.45 19 4.74 19.11 5 19L5 19L7.5 18C7.74 18.19 8 18.37 8.26 18.53L11.77 15.53C9.84 15.4 8.38 13.73 8.5 11.8C8.65 9.87 10.32 8.41 12.25 8.55C13.69 8.64 14.92 9.62 15.35 11H19.43L21.54 9.37C21.73 9.22 21.78 8.94 21.66 8.73Z</StreamGeometry>
+        <StreamGeometry x:Key="path_uisettings">M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z</StreamGeometry>
+        <StreamGeometry x:Key="path_play">M8,5.14V19.14L19,12.14L8,5.14Z</StreamGeometry>
+        <StreamGeometry x:Key="path_stop">M18,18H6V6H18V18Z</StreamGeometry>
+        <StreamGeometry x:Key="path_transfers">M14,8H11V14H6V8H3L8.5,2L14,8M15.5,22L21,16H18V10H13V16H10L15.5,22Z</StreamGeometry>
+        <StreamGeometry x:Key="path_log">M9,5V9H21V5M9,19H21V15H9M9,14H21V10H9M4,9H8V5H4M4,19H8V15H4M4,14H8V10H4V14Z</StreamGeometry>
+        <StreamGeometry x:Key="path_about">M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z</StreamGeometry>
+        <local:LogLevelColorBrushConverter x:Key="logLevelConverter" />
+    </Window.Resources>
 
     <DockPanel Margin="0,0">
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_App">
                 <MenuItem Command="{CompiledBinding DoConfigureUICommand}" Header="_Settings">
-					<MenuItem.Icon>
-						<PathIcon Data="{StaticResource path_uisettings}"/>
-					</MenuItem.Icon>
-				</MenuItem>
+                    <MenuItem.Icon>
+                        <PathIcon Data="{StaticResource path_uisettings}" />
+                    </MenuItem.Icon>
+                </MenuItem>
                 <MenuItem Command="{CompiledBinding DoExitCommand}" Header="E_xit">
-					<MenuItem.Icon>
-						<PathIcon Data="{StaticResource path_exit}"/>
-					</MenuItem.Icon>
-				</MenuItem>
+                    <MenuItem.Icon>
+                        <PathIcon Data="{StaticResource path_exit}" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="_Server">
                 <MenuItem Command="{CompiledBinding StartServerCommand}" Header="_Start">
-					<MenuItem.Icon>
-						<PathIcon Width="12" Height="12" Data="{StaticResource path_play}"/>
-					</MenuItem.Icon>
-				</MenuItem>
+                    <MenuItem.Icon>
+                        <PathIcon
+                            Width="12"
+                            Height="12"
+                            Data="{StaticResource path_play}" />
+                    </MenuItem.Icon>
+                </MenuItem>
                 <MenuItem Command="{CompiledBinding StopServerCommand}" Header="S_top">
-					<MenuItem.Icon>
-						<PathIcon Width="10" Height="10" Data="{StaticResource path_stop}"/>
-					</MenuItem.Icon>
-				</MenuItem>
+                    <MenuItem.Icon>
+                        <PathIcon
+                            Width="10"
+                            Height="10"
+                            Data="{StaticResource path_stop}" />
+                    </MenuItem.Icon>
+                </MenuItem>
                 <MenuItem Command="{CompiledBinding DoConfigureCommand}" Header="_Configure">
-					<MenuItem.Icon>
-						<PathIcon Data="{StaticResource path_serversettings}"/>
-					</MenuItem.Icon>
-				</MenuItem>
+                    <MenuItem.Icon>
+                        <PathIcon Data="{StaticResource path_serversettings}" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
-			<MenuItem Header="_Help">
-				<MenuItem Command="{CompiledBinding ShowAboutCommand}" Header="_About..">
-					<MenuItem.Icon>
-						<PathIcon Data="{StaticResource path_about}"/>
-					</MenuItem.Icon>
-				</MenuItem>
-			</MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Command="{CompiledBinding ShowAboutCommand}" Header="_About..">
+                    <MenuItem.Icon>
+                        <PathIcon Data="{StaticResource path_about}" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
         </Menu>
 
         <Border
@@ -98,13 +104,13 @@
             CornerRadius="4">
             <TabControl Margin="0,0" TabStripPlacement="Top">
                 <TabItem>
-					<TabItem.Header>
-						<StackPanel Orientation="Horizontal" Spacing="4">
-							<PathIcon Data="{StaticResource path_transfers}"/>
-							<TextBlock>Transfers</TextBlock>
-						</StackPanel>
-					</TabItem.Header>
-					
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon Data="{StaticResource path_transfers}" />
+                            <TextBlock>Transfers</TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+
                     <ListBox
                         Name="ListBoxTransfers"
                         FontFamily="Courier New"
@@ -122,98 +128,60 @@
 
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="2">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="auto" SharedSizeGroup="TimeCol" />
-                                        <ColumnDefinition Width="auto" SharedSizeGroup="UpDnCol" />
-                                        <ColumnDefinition Width="auto" />
-                                        <ColumnDefinition Width="auto" SharedSizeGroup="StateCol" />
-                                        <ColumnDefinition Width="auto" SharedSizeGroup="TransferredCol" />
-                                        <ColumnDefinition Width="auto" SharedSizeGroup="SpeedCol" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="500" />
-                                    </Grid.ColumnDefinitions>
 
-                                    <!--  see https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings  -->
-                                    <!--  The {} part at the beginning is the format string is an escape sequence (otherwise the XAML parser would consider { to be the beginning of a markup extension)  -->
-                                    <Label
+                                <Grid ColumnDefinitions="auto,*" RowDefinitions="*,*">
+
+                                    <Panel
+                                        Grid.Row="0"
                                         Grid.Column="0"
-                                        Margin="0,0,5,0"
-                                        VerticalAlignment="Center"
-                                        Content="{CompiledBinding StartTimeLocal,
-                                                                  StringFormat='{}{0:u}'}" />
+                                        Margin="2,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top">
 
-                                    <PathIcon
-                                        Grid.Column="1"
-                                        Width="15"
-                                        Height="15"
-                                        Margin="0,0,5,0"
-                                        VerticalAlignment="Center"
-                                        Data="{StaticResource path_upload}"
-                                        IsVisible="{CompiledBinding IsUpload}"
-                                        ToolTip.Tip="Upload" />
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <!--  see https://learn.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings  -->
+                                            <!--  The {} part at the beginning is the format string is an escape sequence (otherwise the XAML parser would consider { to be the beginning of a markup extension)  -->
+                                            <Label VerticalAlignment="Center" Content="{CompiledBinding StartTimeLocal, StringFormat='{}{0:u}'}" />
 
-                                    <PathIcon
-                                        Grid.Column="1"
-                                        Width="15"
-                                        Height="15"
-                                        Margin="0,0,5,0"
-                                        VerticalAlignment="Center"
-                                        Data="{StaticResource path_download}"
-                                        IsVisible="{CompiledBinding !IsUpload}"
-                                        ToolTip.Tip="Download" />
+                                            <PathIcon
+                                                Width="15"
+                                                Height="15"
+                                                VerticalAlignment="Center"
+                                                Data="{StaticResource path_upload}"
+                                                IsVisible="{CompiledBinding IsUpload}"
+                                                ToolTip.Tip="Upload" />
+                                            <PathIcon
+                                                Width="15"
+                                                Height="15"
+                                                VerticalAlignment="Center"
+                                                Data="{StaticResource path_download}"
+                                                IsVisible="{CompiledBinding !IsUpload}"
+                                                ToolTip.Tip="Download" />
 
-                                    <PathIcon
-                                        Grid.Column="2"
-                                        Width="17"
-                                        Height="17"
-                                        Margin="0,0,5,0"
-                                        VerticalAlignment="Center"
-                                        Data="{StaticResource path_information}">
-                                        <ToolTip.Tip>
-                                            <StackPanel>
-                                                <Label Content="{CompiledBinding LocalEndPoint}" />
-                                                <Label Content="{CompiledBinding RemoteEndPoint}" />
-                                                <Label Content="{CompiledBinding WindowSize}" />
-                                            </StackPanel>
-                                        </ToolTip.Tip>
-                                    </PathIcon>
-
-                                    <Label
-                                        Grid.Column="3"
-                                        Margin="0,0,5,0"
-                                        VerticalAlignment="Center"
-                                        Content="{CompiledBinding SessionState}" />
-
-                                    <Label
-                                        Grid.Column="4"
-                                        Margin="0,0,5,0"
-                                        VerticalAlignment="Center">
-                                        <TextBlock>
-                                            <TextBlock.Text>
-                                                <MultiBinding StringFormat="{}{0} of {1}">
-                                                    <MultiBinding.Bindings>
-                                                        <Binding Path="Transferred" />
-                                                        <Binding Path="FileLength" />
-                                                    </MultiBinding.Bindings>
-                                                </MultiBinding>
-                                            </TextBlock.Text>
-                                        </TextBlock>
-                                    </Label>
-
-                                    <Label
-                                        Grid.Column="5"
-                                        Margin="0,0,5,0"
-                                        VerticalAlignment="Center"
-                                        Content="{CompiledBinding SpeedAsString}" />
+                                            <PathIcon
+                                                Width="17"
+                                                Height="17"
+                                                Margin="0,0,5,0"
+                                                VerticalAlignment="Center"
+                                                Data="{StaticResource path_information}">
+                                                <ToolTip.Tip>
+                                                    <StackPanel>
+                                                        <Label Content="{CompiledBinding LocalEndPoint}" />
+                                                        <Label Content="{CompiledBinding RemoteEndPoint}" />
+                                                        <Label Content="{CompiledBinding WindowSize}" />
+                                                    </StackPanel>
+                                                </ToolTip.Tip>
+                                            </PathIcon>
+                                        </StackPanel>
+                                    </Panel>
 
                                     <ProgressBar
-                                        Grid.Column="6"
-                                        Width="80"
-                                        Height="12"
-                                        MinWidth="80"
-                                        MaxWidth="80"
-                                        Margin="0,0,5,0"
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        MinWidth="100"
+                                        MinHeight="10"
+                                        Margin="8,0"
+                                        HorizontalAlignment="Stretch"
                                         IsIndeterminate="{CompiledBinding !FileLengthKnown,
                                                                           Mode=OneWay}"
                                         Maximum="100"
@@ -223,26 +191,75 @@
                                                                 Mode=OneWay}" />
 
                                     <TextBox
-                                        Grid.Column="7"
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        MinWidth="10"
+                                        MinHeight="4"
+                                        Margin="4,0"
+                                        Padding="0,0"
+                                        HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
-                                        FontFamily="{StaticResource FixedWidthHexFont}"
+                                        BorderThickness="0"
                                         IsReadOnly="True"
+										Background="#00000000"
                                         Text="{CompiledBinding Filename}" />
+
+                                    <StackPanel
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="4,0"
+                                        Orientation="Horizontal"
+                                        Spacing="8">
+
+                                        <Label Padding="0" VerticalAlignment="Center">
+                                            <TextBlock Margin="0,0">
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="Progress: {0} / {1}">
+                                                        <MultiBinding.Bindings>
+                                                            <Binding Path="Transferred" />
+                                                            <Binding Path="FileLength" />
+                                                        </MultiBinding.Bindings>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </Label>
+
+                                        <Label
+                                            Grid.Column="5"
+                                            Margin="0,0,5,0"
+                                            VerticalAlignment="Center"
+                                            Content="{CompiledBinding SpeedAsString,
+                                                                      StringFormat='Speed: {0}'}" />
+
+                                        <Label
+                                            Margin="0,0,5,0"
+                                            VerticalAlignment="Center"
+                                            Content="{CompiledBinding SessionState,
+                                                                      StringFormat='State: {0}'}" />
+
+                                    </StackPanel>
+
                                 </Grid>
+
+
                             </DataTemplate>
                         </ListBox.ItemTemplate>
 
                     </ListBox>
                 </TabItem>
-                <TabItem Header="Log">
-					<TabItem.Header>
-						<StackPanel Orientation="Horizontal" Spacing="4">
-							<PathIcon Width="15" Height="15" Data="{StaticResource path_log}"/>
-							<TextBlock>Log</TextBlock>
-						</StackPanel>
-					</TabItem.Header>
 
-					<DockPanel>
+                <TabItem Header="Log">
+                    <TabItem.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <PathIcon
+                                Width="15"
+                                Height="15"
+                                Data="{StaticResource path_log}" />
+                            <TextBlock>Log</TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+
+                    <DockPanel>
                         <StackPanel
                             HorizontalAlignment="Right"
                             DockPanel.Dock="Bottom"
@@ -251,13 +268,13 @@
                         </StackPanel>
                         <ListBox
                             Name="ListBoxLog"
+                            tt:AutoScrollBehavior.IsActive="{CompiledBinding AutoScrollLog}"
                             AutoScrollToSelectedItem="False"
                             FontFamily="{StaticResource MonospacedFontFamily}"
                             ItemsSource="{CompiledBinding Log}"
                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                            SelectionMode="Multiple"
-							tt:AutoScrollBehavior.IsActive="{CompiledBinding AutoScrollLog}">
+                            SelectionMode="Multiple">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel
