@@ -126,6 +126,12 @@ internal abstract class TFTPSession : ITFTPSession
         try
         {
             await MainTask(cancellationToken);
+            _info.Complete();
+        }
+        catch(Exception e)
+        {
+            _info.Stop(e);
+            throw;
         }
         finally
         {

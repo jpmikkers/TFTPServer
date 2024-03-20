@@ -147,11 +147,7 @@ internal class UploadSession : TFTPSession
             _window = TFTPServer.GetDataAckPacket(_blockNumber);
             await _socket.Send(_remoteEndPoint, _window, cancellationToken);
 
-            if(_lastBlock)
-            {
-                _info.Complete();
-            }
-            else
+            if(!_lastBlock)
             {
                 ResetRetries();
             }

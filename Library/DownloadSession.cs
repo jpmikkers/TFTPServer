@@ -197,7 +197,6 @@ internal class DownloadSession : TFTPSession
             {
                 // Everything was acked
                 isComplete = true;
-                _info.Complete();
             }
         }
 

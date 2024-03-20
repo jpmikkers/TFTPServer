@@ -145,10 +145,10 @@ public partial class TransferSession : ObservableObject
     {
         SessionState = State.Stopped;
         Transferred = _cachedTransferred;
-        FileLength = Transferred;
         Exception = e;
         _stopwatch.Stop();
         Speed = Transferred / _stopwatch.Elapsed.TotalSeconds;
+        SpeedAsString = TransferSpeed.ToString(Speed);
     }
 
     private void Complete()
