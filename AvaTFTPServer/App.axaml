@@ -22,9 +22,11 @@
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key='Light'>
 					<SolidColorBrush x:Key='LinkBrush'>Blue</SolidColorBrush>
+					<SolidColorBrush x:Key='SessionInfoBrush'>#FF00868E</SolidColorBrush>
 				</ResourceDictionary>
 				<ResourceDictionary x:Key='Dark'>
 					<SolidColorBrush x:Key='LinkBrush'>LightBlue</SolidColorBrush>
+					<SolidColorBrush x:Key='SessionInfoBrush'>#FF00E6F5</SolidColorBrush>
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>
 		</ResourceDictionary>

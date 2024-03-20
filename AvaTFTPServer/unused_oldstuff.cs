@@ -7,6 +7,16 @@ using AvaTFTPServer;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
+												<!--<TextBlock.Text>
+                                                    <MultiBinding StringFormat="Progress: {0} / {1}">
+                                                        <MultiBinding.Bindings>
+                                                            <Binding Path="Transferred" />
+                                                            <Binding Path="FileLengthAsString" />
+                                                        </MultiBinding.Bindings>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>-->
+
+
 											<!--<TextBlock.Inlines>
 												<InlineCollection>
 													--><!--<InlineUIContainer>
