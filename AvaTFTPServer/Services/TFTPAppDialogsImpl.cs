@@ -17,18 +17,6 @@ namespace AvaTFTPServer;
 
 public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider serviceProvider) : ITFTPAppDialogs
 {
-    private static Task<TResult> ShowDialog<TResult>(Window owner, Window dialog)
-    {
-        // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
-        return Dispatcher.UIThread.InvokeAsync(() => dialog.ShowDialog<TResult>(owner), DispatcherPriority.Background);
-    }
-
-    private static Task ShowDialog(Window owner, Window dialog)
-    {
-        // invoke with background priority, otherwise you'll get problems where the main window keeps the focus even though the dialog is visible
-        return Dispatcher.UIThread.InvokeAsync(() => dialog.ShowDialog(owner), DispatcherPriority.Background);
-    }
-
     public async Task<UISettings?> ShowUIConfigDialog(INotifyPropertyChanged ownerVm, UISettings settings, string configPath)
     {
         var dialog = serviceProvider.GetRequiredService<UIConfigDialog>();
@@ -38,7 +26,7 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         vm.AutoScrollLog = settings.AutoScrollLog;
         vm.ConfigPath = configPath;
 
-        return (await ShowDialog<DialogResult?>(viewResolver.LocateView(ownerVm),dialog) == DialogResult.Ok) ?
+        return (await DialogHelpers.ShowDialog<DialogResult?>(viewResolver.LocateView(ownerVm),dialog) == DialogResult.Ok) ?
             new UISettings
             {
                 AutoScrollLog = vm.AutoScrollLog,
@@ -52,7 +40,7 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         var dialog = serviceProvider.GetRequiredService<ConfigDialog>();
         var vm = (ConfigDialogViewModel)dialog.DataContext!;
         vm.SettingsToViewModel(settings);
-        return (await ShowDialog<DialogResult?>(viewResolver.LocateView(ownerVm), dialog) == DialogResult.Ok) ? vm.ViewModelToSettings() : null;
+        return (await DialogHelpers.ShowDialog<DialogResult?>(viewResolver.LocateView(ownerVm), dialog) == DialogResult.Ok) ? vm.ViewModelToSettings() : null;
     }
 
     public async Task ShowErrorDialog(INotifyPropertyChanged ownerVm, string title, string header, string details)
@@ -64,7 +52,7 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
         vm.Header = header;
         vm.Details = details;
 
-        await ShowDialog(viewResolver.LocateView(ownerVm), dialog);
+        await DialogHelpers.ShowDialog(viewResolver.LocateView(ownerVm), dialog);
     }
 
     public async Task<string?> ShowFolderPicker(INotifyPropertyChanged vm, string title)
@@ -104,6 +92,6 @@ public class TFTPAppDialogsImpl(IViewResolver viewResolver, IServiceProvider ser
 
     public async Task ShowAboutDialog(INotifyPropertyChanged ownerVm)
     {
-        await ShowDialog(viewResolver.LocateView(ownerVm), serviceProvider.GetRequiredService<AboutDialog>());
+        await DialogHelpers.ShowDialog(viewResolver.LocateView(ownerVm), serviceProvider.GetRequiredService<AboutDialog>());
     }
 }

@@ -5,13 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AvaTFTPServer.AvaloniaTools
+namespace AvaTFTPServer.AvaloniaTools;
+
+public static class Assertions
 {
-    public static class Assertions
+    public static void OnlyUseEmptyConstructorInDesignMode(string className)
     {
-        public static void OnlyUseEmptyConstructorInDesignMode(string className)
-        {
-            if(!Design.IsDesignMode) throw new InvalidOperationException($"empty constructor for '{className}' should only be used in design mode");
-        }
+        if(!Design.IsDesignMode) throw new InvalidOperationException($"empty constructor for '{className}' should only be used in design mode");
     }
 }
